@@ -8,12 +8,28 @@
 ----------------------------------------------
 ------------MOD CODE -------------------------
 
+SMODS.Rarity ({
+    key = 'special'
+    loc_txt ={}
+})
 
 SMODS.Atlas{
     key = 'makiImg',
     path = 'maki.png',
     px = 1030,
     py = 1378
+}
+
+SMODS.Joker{
+    key = 'yuta',
+    loc_txt = {
+        name = 'Yuta Okkotusu',
+        text = {
+            'Rika {C:attention}copies{} the abilities of the jokers',
+            'to the left and right of Yuta if both',
+            'abilities can be copied'
+        }
+    }
 }
 
 SMODS.Joker{
@@ -26,6 +42,7 @@ SMODS.Joker{
         }
     },
     atlas = 'makiImg',
+    cost = 4,
     soul_pos = {x = 0, y = 0},
     pos = {x = 1, y = 0},
     config = {extra ={
@@ -41,6 +58,11 @@ SMODS.Joker{
                 card = card,
                 Xmult = card.ability.extra.Xmult,
             }
+        else if context.blueprint then
+                return{
+                    card = card,
+                    Xmult = card.ability.extra.Xmult,
+                }
         end
     end
 }
