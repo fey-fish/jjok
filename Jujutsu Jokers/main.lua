@@ -8,10 +8,10 @@
 ----------------------------------------------
 ------------MOD CODE -------------------------
 
-SMODS.Rarity ({
-    key = 'special'
+SMODS.Rarity {
+    key = 'special',
     loc_txt ={}
-})
+}
 
 SMODS.Atlas{
     key = 'makiImg',
@@ -26,10 +26,56 @@ SMODS.Joker{
         name = 'Yuta Okkotusu',
         text = {
             'Rika {C:attention}copies{} the abilities of the jokers',
-            'to the left and right of Yuta if both',
-            'abilities can be copied'
-        }
-    }
+            'to the {X:chips,C:white}left{} and {X:mult,C:white}right{} of Yuta if both',
+            'abilities can be copied',
+            '{s:0.8}"The cursed child..."{}'
+        },
+    },
+    rarity = "jjok_special",
+    blueprint_compat = false,
+    config = {extra = {retriggers = 1}},
+    update = function(self,card,context)
+        local index = -1
+        Right_joker = nil
+        Left_joker = nil
+        RightCompat = nil
+        LeftCompat = nil
+        if G.STAGE == G.STAGES.RUN then
+            for i = 1, #G.jokers.cards do
+                if G.jokers.cards[i] == card then
+                    index = i
+            end
+        end
+        if index > 1 and index < #G.jokers.cards then
+            Left_joker = G.jokers.cards[index - 1]
+            Right_joker = G.jokers.cards[index + 1]
+        
+        if Right_joker and Right_joker ~= self and Right_joker.config.center.blueprint_compat then
+            RightCompat = true
+        else 
+            RightCompat = false
+        end
+        if Left_joker and Left_joker ~= self and Left_joker.config.center.blueprint_compat then
+            LeftCompat = true
+        else 
+            LeftCompat = false
+        end
+        if LeftCompat == true and RightCompat == true then
+            card.ability.blueprint_compat = 'compatible'
+        else
+            card.ability.blueprint_compat = 'incompatible'
+        end
+        end
+    end
+    end,
+    calculate = function(self, info_queue, center)
+        if LeftCompat == true and RightCompat == true then
+            return {
+            SMODS.blueprint_effect(card,Right_joker,context),
+            SMODS.blueprint_effect(card,Left_joker,context)
+            }
+        end
+    end
 }
 
 SMODS.Joker{
@@ -42,9 +88,10 @@ SMODS.Joker{
         }
     },
     atlas = 'makiImg',
-    cost = 4,
+    cost = 3,
     soul_pos = {x = 0, y = 0},
     pos = {x = 1, y = 0},
+    order = 1,
     config = {extra ={
         Xmult = 1.5
     }
@@ -65,6 +112,7 @@ SMODS.Joker{
                 }
         end
     end
+end
 }
 
 ----------------------------------------------
