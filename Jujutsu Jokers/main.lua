@@ -8,6 +8,12 @@
 ----------------------------------------------
 ------------MOD CODE -------------------------
 
+SMODS.current_mod.optional_features = function()
+                    return {
+                        retrigger_joker = true
+                    }
+end
+
 SMODS.Rarity {
     key = 'special',
     loc_txt ={}
@@ -31,7 +37,7 @@ SMODS.Joker{
             '{s:0.8}"The cursed child..."{}'
         },
     },
-    rarity = "jjok_special",
+    rarity = "special",
     blueprint_compat = false,
     config = {extra = {retriggers = 1}},
     update = function(self,card,context)
@@ -68,12 +74,15 @@ SMODS.Joker{
         end
     end
     end,
-    calculate = function(self, info_queue, center)
-        if LeftCompat == true and RightCompat == true then
+    calculate = function (self,card,context)
+        if RightCompat == true and LeftCompat == true then
+        if context.retrigger_joker_check and not context.retrigger_joker and context.other_card == (Right_joker or Left_joker) then
             return {
-            SMODS.blueprint_effect(card,Right_joker,context),
-            SMODS.blueprint_effect(card,Left_joker,context)
+                message = localize("k_again_ex"),
+                repetitions = card.ability.extra.retriggers,
+                card = card
             }
+        end
         end
     end
 }
