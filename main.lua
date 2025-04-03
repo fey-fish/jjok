@@ -30,8 +30,8 @@ SMODS.Consumable {
     pos = {x = 0, y = 0},
     soul_pos = {x = 1, y =0},
     loc_txt = {
-        'Awaken any {C:legendary}Grade 1{} sorceror',
-        'into a {C:G.C.Rarity.jjok_special}'
+        '{C:attention}Awaken any {C:legendary}Grade 1{} sorceror',
+        'into a {}Special Grade'
     },
     pools = {
         ["Spectral"] = true,
@@ -39,6 +39,22 @@ SMODS.Consumable {
     },
     soul_set = 'Spectral',
     soul_rate = 0.15,
+    can_use = function(card,self)
+        for i = 1, #G.Jokers.cards
+            if G.Jokers.cards[i].config.center.rarity == 4 then
+               Count = Count + 1
+                Legendary[Count] = i
+        end
+        end
+        if Count > 0 then
+            return {true}
+    end
+    end,
+    use = function(card,self)
+            local card = create_card('Joker', G.Jokers, nil, nil, nil, nil, 'jjok_special')
+            card:add_to_deck()
+            G.jokers:emplace(card)
+        end        
 }
 
 SMODS.Joker {
