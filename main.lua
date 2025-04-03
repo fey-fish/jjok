@@ -16,12 +16,31 @@ SMODS.current_mod.optional_features = function()
 end
 
 SMODS.Rarity {
-    key = 'jjok_special',
+    key = 'special',
     loc_txt = {
         name = 'Special Grade'
     },
     badge_colour = HEX('A64D79')
 }
+
+--[[SMODS.DrawStep {
+    key = 'soul_bounce',
+       
+    order = 50,
+    func = function(self)
+        if self.ability.name == 'c_jjok_awake' and (self.config.center.discovered or self.bypass_discovery_center) then
+            local scale_mod = 0.05 + 0.05*math.sin(1.8*G.TIMERS.REAL) + 0.07*math.sin((G.TIMERS.REAL - math.floor(G.TIMERS.REAL))*math.pi*14)*(1 - (G.TIMERS.REAL - math.floor(G.TIMERS.REAL)))^3
+            local rotate_mod = 0.1*math.sin(1.219*G.TIMERS.REAL) + 0.07*math.sin((G.TIMERS.REAL)*math.pi*5)*(1 - (G.TIMERS.REAL - math.floor(G.TIMERS.REAL)))^2
+
+            G.awaken_soul.role.draw_major = self
+            G.awaken_soul:draw_shader('dissolve',0, nil, nil, self.children.center,scale_mod, rotate_mod,nil, 0.1 + 0.03*math.sin(1.8*G.TIMERS.REAL),nil, 0.6)
+            G.awaken_soul:draw_shader('dissolve', nil, nil, nil, self.children.center, scale_mod, rotate_mod)
+        end
+    end,
+    conditions = { vortex = false, facing = 'front' },
+} ]]
+
+--G.awaken_soul = Sprite(0, 0, 126, 185, G.ASSET_ATLAS['atlastwo'], {x = 0, y = 1})
 
 SMODS.Consumable {
     key = 'awake',
@@ -30,38 +49,56 @@ SMODS.Consumable {
     pos = {x = 0, y = 0},
     soul_pos = {x = 1, y =0},
     loc_txt = {
-        '{C:attention}Awaken any {C:legendary}Grade 1{} sorceror',
-        'into a {}Special Grade'
+        name = 'Awaken',
+        text = {'{C:attention}Awaken{} any {C:legendary}Grade 1{} sorceror',
+        'into a Special Grade'}
     },
     pools = {
         ["Spectral"] = true,
         ["hidden"] = true
     },
     soul_set = 'Spectral',
-    soul_rate = 0.15,
+    soul_rate = 0.05,
     can_use = function(card,self)
-        for i = 1, #G.Jokers.cards
-            if G.Jokers.cards[i].config.center.rarity == 4 then
-               Count = Count + 1
+        Count = 0
+        Legendary = {}
+        for i = 1, #G.jokers.cards do
+            if G.jokers.cards[i].config.center.rarity == 4 then
+                Count = Count + 1
                 Legendary[Count] = i
-        end
+            end
         end
         if Count > 0 then
             return {true}
-    end
+        end
     end,
-    use = function(card,self)
-            local card = create_card('Joker', G.Jokers, nil, nil, nil, nil, 'jjok_special')
-            card:add_to_deck()
-            G.jokers:emplace(card)
-        end        
+    use = function(self, card, area, copier)
+
+        local index = pseudorandom("seed", 1, Count)
+        local destroy_joker = G.jokers.cards[Legendary[index]]:start_dissolve()
+
+        local special_card = create_card('Joker', G.jokers, nil, 'jjok_special')
+        special_card:add_to_deck()
+        G.jokers:emplace(special_card)
+        
+        return {
+            message = 'Awakened!',
+            card = special_card
+        }
+    end
 }
+
+SMODS.Consumable:take_ownership('c_soul', {
+        soul_set = 'Tarot',
+        soul_rate = 0.05
+})
 
 SMODS.Joker {
     key = 'ygojo',
     atlas = 'atlasone',
     soul_pos = {x = 0, y = 2},
     pos = {x = 1, y = 2},
+    cost = 10,
     loc_vars = function(self,info_queue,card)
         return  {vars = {card.ability.extra.mult}}
     end,
@@ -74,8 +111,11 @@ SMODS.Joker {
             '{s:0.8}"I alone am the honoured one"{}'
         }
     },
+    blueprint_compat = true,
     rarity = 4,
-    config = {extra = { mult = 0, mult_gain = 1}},
+    config = {extra = { mult = 0, mult_gain = 1},
+                        unlocked = true,
+                        discovered = true  },
     calculate = function(self,card,context)
         if context.joker_main then
             return {
@@ -123,8 +163,11 @@ SMODS.Joker {
     atlas = 'atlasone',
     pos = {x = 1, y = 1},
     soul_pos = {x = 0, y = 1},
+    cost = 25,
     blueprint_compat = false,
-    config = { extra = { retriggers = 1 } },
+    config = { extra = { retriggers = 1 },
+            unlocked = true,
+            discovered = true },
     update = function(self, card, context)
         local index = -1
         Right_joker = nil
@@ -186,9 +229,10 @@ SMODS.Joker {
     cost = 3,
     soul_pos = { x = 0, y = 0 },
     pos = { x = 1, y = 0 },
-    order = 0,
     config = { extra = {
-        Xmult = 1.5
+        Xmult = 1.5,
+        unlocked = true,
+        discovered = true
     }
     },
     loc_vars = function(self, info_queue, center)
