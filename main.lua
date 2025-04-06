@@ -411,15 +411,15 @@ SMODS.Joker {
     calculate = function(self,card,context)
         if context.skip_blind or context.setting_blind and #G.consumeables.cards < G.consumeables.config.card_limit then
             local create_consum = nil
-            local sort = pseudorandom("seed", 1, 10)
+            local sort = pseudorandom("seed", 10, 10)
             if sort <= 5 then 
                 create_consum = SMODS.add_card({set = 'Tarot', area = G.consumeable})
             end
-            if sort >= 6 then 
+            if sort >= 6 and sort ~= 10 then 
                 create_consum = SMODS.add_card({set = 'Spectral', area = G.consumeable})
             end
             if sort == 10 then
-                create_consum = SMODS.add_card({key = 'makitool', area = G.consumeable})
+                create_consum = SMODS.add_card({key = 'c_jjok_makitool', area = G.consumeable})
                 card:start_dissolve()
             end
         end 
