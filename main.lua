@@ -32,24 +32,20 @@ SMODS.Rarity {
 }
 
 SMODS.Consumable {
-    key = 'awake',
+    key = 'awaken',
+    loc_txt = {name = 'Awakening',
+                text = {'Use to {C:attention}awaken{} any {C:Legendary}Grade 1',
+                        'sorceror to special grade'}},
     set = 'Spectral',
-    atlas = 'atlastwo',
-    pos = {x = 0, y = 0},
-    soul_pos = {x = 1, y =0},
-    loc_txt = {
-        name = 'Awaken',
-        text = {'{C:attention}Awaken{} any {C:legendary}Grade 1{} sorceror',
-        'into a {}Special Grade'}
-    },
-    pools = {
-        ["Spectral"] = true,
-    },
     hidden = true,
     soul_set = 'Spectral',
+    atlas = 'atlastwo',
+    pos = {x = 0, y = 0},
+    soul_pos = {x = 1, y = 0},
     soul_rate = 0.06,
     cost = 4,
-    can_use = function(card,self)
+    pools = {['Spectral'] = true},
+    can_use = function(card,self,center)
         Count = 0
         Legendary = {}
         for i = 1, #G.jokers.cards do
@@ -58,22 +54,14 @@ SMODS.Consumable {
                 Legendary[Count] = i
             end
         end
-        if Count > 0 then
+        if Count ~= nil then
             return {true}
         end
     end,
-    use = function(self, card, area, copier)
-
-        local index = pseudorandom("seed", 1, Count)
-        local destroy_joker = G.jokers.cards[Legendary[index]]:start_dissolve()
-
-        local create_special = create_card('Joker', G.jokers, nil, nil, nil, nil, 'j_jjok_special')
-        create_special:add_to_deck()
-        G.jokers:emplace(create_special)
-        return {
-            message = 'Awakened!',
-            card = special_card
-        }
+    use = function(card,self)
+        local kill = pseudorandom('Seed', 1, Count)
+        G.jokers.cards[Legendary[kill]]:start_dissolve()
+        SMODS.add_card({set = 'Joker', area = G.jokers, rarity = 'jjok_special'})
     end
 }
 
@@ -196,6 +184,7 @@ SMODS.Joker {
     key = 'flyingspirit',
     atlas = 'atlasthree',
     no_collection = true,
+    rarity = 'jjok_shiki',
     pos = {x = 3, y = 0},
     soul_pos = {x = 2, y = 1},
     loc_txt = {name = 'Flying Cursed Spirit',
