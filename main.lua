@@ -802,7 +802,7 @@ SMODS.Joker {
         return { vars = { center.ability.extra.Xmult } }
     end,
     calculate = function(self, card, context)
-        if context.Joker_main or context.blueprint then
+        if context.joker_main or context.blueprint then
             return { Xmult = card.ability.extra.Xmult }
         end
         if context.setting_blind and not context.blueprint then
@@ -815,7 +815,7 @@ SMODS.Joker {
                         play_sound('slice1', 0.96 + math.random() * 0.08)
                     end
                 end
-                if G.jokers.cards[i].config.center.key == 'j_jjok_flyhead' and G.jokers.cards[i].config.center.edition ~= 'e_negative' then
+                if G.jokers.cards[i].config.center.key == 'j_jjok_flyhead' and G.jokers.cards[i].edition.key ~= 'e_negative' then
                     Create = Create + 1
                 end
             end
