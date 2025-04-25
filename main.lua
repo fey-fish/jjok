@@ -886,12 +886,15 @@ SMODS.Joker {
         if context.joker_main then
             if G.GAME.current_round.hands_left == 0 and card.ability.extra.charges > 0 then
                 card.ability.extra.charges = card.ability.extra.charges - 1
-                return {
-                    Xmult = G.GAME.round_resets.ante / 2
-                }
+                if G.GAME.round_resets.ante >= 2 then
+                    return {Xmult = G.GAME.round_resets.ante / 2}
+                else
+                    card.ability.extra.charges = card.ability.extra.charges + 1
+                    return {Xmult = 1}
+                end
             end
         end
-        if context.end_of_round and G.GAME.current_round.hands_left == G.GAME.current_round.hands_left - 1 then
+        if context.final_scoring_step and (hand_chips * mult) >= G.GAME.blind.chips then
             if card.ability.extra.charges ~= 3 then
                 card.ability.extra.charges = card.ability.extra.charges + 1
             end
