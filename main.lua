@@ -815,7 +815,7 @@ SMODS.Joker {
                         play_sound('slice1', 0.96 + math.random() * 0.08)
                     end
                 end
-                if G.jokers.cards[i].config.center.key == 'j_jjok_flyhead' and G.jokers.cards[i].edition.key ~= 'e_negative' then
+                if G.jokers.cards[i].config.center.key == 'j_jjok_flyhead' and (G.jokers.cards[i].edition == nil or G.jokers.cards[i].edition.negative == false) then
                     Create = Create + 1
                 end
             end
@@ -1226,7 +1226,7 @@ SMODS.Joker {
         name = 'Young Gojo',
         text = {
             'Gains {C:mult}+1{} mult everytime',
-            'a joker triggers',
+            'a playing card triggers',
             '{s:0.8, C:inactive}(Currently: {C:mult,s:0.8}+#1#{s:0.8, C:inactive} mult){}',
             '{s:0.8}"I alone am the honoured one"{}'
         }
@@ -1237,17 +1237,17 @@ SMODS.Joker {
         unlocked = true,
         discovered = true },
     calculate = function(self, card, context)
-        if context.joker_main or context.blueprint then
-            return {
-                message = localize { type = 'variable', key = 'a_mult', vars = { self.ability.extra.mult } },
-                mult_mod = card.ability.extra.mult
-            }
-        end
-        if context.post_trigger and context.other_card ~= card and not context.blueprint then
+        if context.individual and context.cardarea == G.play and not context.blueprint then
             card.ability.extra.mult = card.ability.extra.mult + card.ability.extra.mult_gain
             return {
                 message = 'Concept Grasped',
                 colour = G.C.MULT
+            }
+        end
+        if context.joker_main or context.blueprint then
+            return {
+                message = localize { type = 'variable', key = 'a_mult', vars = { card.ability.extra.mult } },
+                mult_mod = card.ability.extra.mult
             }
         end
     end
