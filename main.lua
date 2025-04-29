@@ -54,12 +54,13 @@ end
         key = 'iv',
         set = 'domain',
         cost = 5,
-        loc_txt = {name = '{}Infinite Void',
+        loc_txt = {name = '{C:blue}Infinite Void',
                     text = {'Satoru Gojos domain:',
                             'launch a stream of infinite',
                             'information into the blinds mind',
                             'effectively turning them brain dead,',
                             '{s:1.1,C:chips}draw full {s:1.1,C:tarot}deck {s:1.1,C:mult}to hand',
+                            '{s:1.1,C:chips}and disable {s:1.1,C:tarot}any {s:1.1,C:mult}active blinds',
                             '{s:0.8,C:inactive}(Currently #1#)'}},
         loc_vars = function(self,info_queue,center)
             info_queue[#info_queue+1] = G.P_CENTERS.j_jjok_tgojo
@@ -91,32 +92,66 @@ end
             G.FUNCS.draw_from_deck_to_hand(#G.deck.cards)
             card.ability.extra.last_ante_used = G.GAME.round_resets.ante
             card.ability.extra.used_this_ante = true
+            if G.GAME.blind.boss == true then
+                G.GAME.blind:disable()
+                    play_sound('timpani')
+            end
         end,
     }
 
     SMODS.Consumable {
         key = 'ms',
         set = 'domain',
-        loc_txt = {name = 'Malevolent Shrine',
+        loc_txt = {name = '{C:red}Malevolent Shrine',
                     text = {'Sukunas barrierless domain,',
                             'truly a divine feat, relentlessly',
                             'slashes at everything in its range',
-                            '{s:1.1}Gives {s:1.1,X:dark_edition,C:white}^#1#{s:1.1} Mult'}},
-        config = {extra = {emult = 2}},
+                            '{s:1.1}Gives {s:1.1,X:dark_edition,C:white}^#1#{s:1.1} Mult',
+                            'increase by {X:dark_edition,C:white}#2#{} when {C:attention}defeating{} a blind',
+                            '{s:0.8}(Currently #3#)'}},
+        config = {extra = {emult = 1.2, scale = 0.05, used_this_ante = false}},
+        loc_vars = function(self,info_queue,center)
+            if center.ability.extra.used_this_ante == true then
+                center.ability.extra.ret = 'Inactive'
+            else
+                center.ability.extra.ret = 'Active'
+            end
+            return {vars = {
+                center.ability.extra.emult,
+                center.ability.extra.scale,
+                center.ability.extra.ret
+            }} 
+        end,
         keep_on_use = function(self,card)
             return {true}
         end,
         can_use = function(self,card)
-            return {true}
+            if card.ability.extra.last_ante_used ~= G.GAME.round_resets.ante then
+                card.ability.extra.used_this_ante = false
+            end
+            if card.ability.extra.used_this_ante == false then
+                return {true}
+            end
         end,
         use = function(self,card)
+            card.ability.extra.used_this_ante = true
+            card.ability.extra.last_ante_used = G.GAME.round_resets.ante
             card.ability.extra.activated = true
         end,
         calculate = function(self,card,context)
-            if context.main_scoring and card.ability.extra.activated == true then
+            if context.joker_main and card.ability.extra.activated == true then
+                card.ability.extra.activated = false
+                mult = mult ^ card.ability.extra.emult
                 return {
-                    mult_mod = mult ^ card.ability.extra.emult,
                     message = '^'..card.ability.extra.emult..' Mult', colour = G.C.DARK_EDITION
+                }
+            end
+            if context.end_of_round and context.cardarea == G.domain and card == card then
+                card.ability.extra.emult = card.ability.extra.emult + card.ability.extra.scale
+                return {
+                    message = {
+                        'Binding Vow!', colour = G.C.RED
+                    }
                 }
             end
         end
@@ -1103,11 +1138,21 @@ SMODS.Joker {
 SMODS.Joker {
     key = 'kash',
     loc_txt = {name = 'Hajime Kashimo',
-                text = {''}},
-    rarity = 3,
-    cost = 8,
-
-
+                text = {'The strongest of the edo period,',
+                        'if {C:attention}scored card{} has seal, change it',
+                        'to an {C:blue}Electric{} seal'}},
+    loc_vars = function(self,info_queue,center)
+        info_queue[#info_queue+1] = G.P_SEALS.jjok_electric
+    end,
+    rarity = 2,
+    cost = 4,
+    calculate = function(self,card,context)
+        if context.indivual and context.cardarea == G.play then
+            if 1 ==1 then
+                
+            end
+        end
+    end
 }
 
 SMODS.Joker {
