@@ -516,6 +516,32 @@ SMODS.Consumable {
     end
 }
 
+SMODS.Consumable{
+    key = 'rct',
+    set = 'Spectral',
+    loc_txt = {name = 'Reversed Cursed Technique',
+                text = {'Turn {C:dark_edition}#1#{} active'}},
+    hidden = true,
+    soul_set = 'Spectral',
+    soul_rate = 0.06,
+    in_pool = function(self,args)
+        if #G.domain.cards > 0 then
+            return true
+        end
+    end,
+    loc_vars = function(self,info_queue,center)
+        local str = ''
+        if #G.domain.cards > 1 then
+            str = 'your domains'
+        else
+            str = 'your domain'
+        end
+        return {vars = {
+            str
+        }}
+    end
+}
+
 SMODS.ConsumableType {
     key = 'ctools',
     primary_colour = HEX('40E0D0'),
@@ -1086,7 +1112,7 @@ SMODS.Joker {
             center.ability.extra.dollars
         }}
     end,
-    calculate = function(self,card)
+    calculate = function(self,card,context)
         if context.buying_card or context.open_booster or (context.buying_card and context.blueprint) or (context.open_booster and context.blueprint) then
             ease_dollars(card.ability.extra.dollars)
         end
