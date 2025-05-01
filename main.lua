@@ -17,29 +17,35 @@ end
 
 --domains
 
-    SMODS.Booster {
-        key = 'debooster',
-        config = {extra = 2, choose = 1},
-        loc_txt = {name = 'Domain Booster',
-                    text = {'Choose {C:attention}1 of {C:attention}2',
-                            'Domain Expansions'},
-                    group_name = 'Pick a Domain Expansion'},
-        draw_hand = false,
-        cost = 20,
-        select_card = 'domain',
-        create_card = function(self,card,i)
-            return 
+SMODS.Booster {
+    key = 'debooster',
+    config = { extra = 2, choose = 1 },
+    loc_txt = { name = 'Domain Booster',
+        text = { 'Choose {C:attention}1 of {C:attention}2',
+            'Domain Expansions' },
+        group_name = {'Domain Expansions cannot be sold',
+                    'and can only be used once per ante'}},
+    draw_hand = false,
+    cost = 20,
+    in_pool = function(self, args)
+        if G.GAME.round_resets.ante >= 4 then
+            return true
+        end
+    end,
+    select_card = 'domain',
+    create_card = function(self, card, i)
+        return
             SMODS.create_card({
                 set = 'domain',
                 area = G.pack_cards,
                 skip_materialize = true
             })
-        end,
-        weight = 1
-    }
+    end,
+    weight = 1
+}
 
-    SMODS.ConsumableType {
-        key = 'domain',
+SMODS.ConsumableType {
+    key = 'domain',
     primary_colour = HEX('6a329f'),
     secondary_colour = HEX('000000'),
     loc_txt = {
@@ -47,115 +53,272 @@ end
         collection = 'Domain Expansion'
     },
     collection_rows = { 2, 3 },
-    shop_rate = 0.0
-    }
+    shop_rate = 0.0,
+    hidden = true
+}
 
-    SMODS.Consumable {
-        key = 'iv',
-        set = 'domain',
-        cost = 5,
-        loc_txt = {name = '{C:blue}Infinite Void',
-                    text = {'Satoru Gojos domain:',
-                            'launch a stream of infinite',
-                            'information into the blinds mind',
-                            'effectively turning them brain dead,',
-                            '{s:1.1,C:chips}draw full {s:1.1,C:tarot}deck {s:1.1,C:mult}to hand',
-                            '{s:1.1,C:chips}and disable {s:1.1,C:tarot}any {s:1.1,C:mult}active blinds',
-                            '{s:0.8,C:inactive}(Currently #1#)'}},
-        loc_vars = function(self,info_queue,center)
-            info_queue[#info_queue+1] = G.P_CENTERS.j_jjok_tgojo
-            if center.ability.extra.used_this_ante == false then
-                return { vars = {
+SMODS.Consumable {
+    key = 'seop',
+    set = 'domain',
+    cost = 5,
+    hidden = true,
+    config = { extra = { editionless_jokers = {}, used_this_ante = false } },
+    loc_txt = { name = '{C:purple}Self Embodiment of Perfection',
+        text = { 'Mahitos domain, effectively allowing him to',
+            'kill anything with a soul, without even',
+            'touching them',
+            '{s:1.1}Changes {C:attention,s:1.1}1{s:1.1} random Joker to {C:dark_edition,s:1.1}negative',
+            '{s:0.8,C:inactive}(Currently #1#)' } },
+    loc_vars = function(self, info_queue, center)
+        info_queue[#info_queue + 1] = G.P_CENTERS.j_jjok_mahito
+        if center.ability.extra.used_this_ante == true then
+            return { vars = { 'Inactive' } }
+        else
+            return { vars = { 'Active' } }
+        end
+    end,
+    can_use = function(self, card)
+        if card.ability.extra.last_ante_used ~= G.GAME.round_resets.ante then
+            card.ability.extra.used_this_ante = false
+        end
+
+        card.ability.extra.editionless_jokers = {}
+        for i, v in pairs(G.jokers.cards) do
+            if v.ability.set == "Joker" and (v.edition == nil or v.edition.negative == false) then
+                table.insert(card.ability.extra.editionless_jokers, v)
+            end
+        end
+        if card.ability.extra.editionless_jokers ~= nil and card.ability.extra.used_this_ante == false then
+            return true
+        end
+    end,
+    keep_on_use = function(self, card)
+        return true
+    end,
+    use = function(self, card)
+        local seopcard = card.ability.extra.editionless_jokers
+            [pseudorandom('seop', 1, #card.ability.extra.editionless_jokers)]
+        seopcard:set_edition('e_negative')
+        card.ability.extra.used_this_ante = true
+        card.ability.extra.last_ante_used = G.GAME.round_resets.ante
+    end
+}
+
+SMODS.Consumable {
+    key = 'idg',
+    set = 'domain',
+    cost = 5,
+    loc_txt = {
+        name = '{C:dark_edition}Idle Death Gamble',
+        text = {
+            'Hakaris domain expansion which',
+            'grants him infinite cursed energy,',
+            '{C:green}#1#{} in {C:green}#2#{} chance to give {C:dark_edition}+1 Domain Slots',
+            '{C:green}#1#{} in {C:green}#3#{} chance to {C:money}double money',
+            '{C:green}#1#{} in {C:green}#4#{} chance to {C:chips}win blind',
+            '{s:0.8,C:inactive}(Currently #5#)'
+        }
+    },
+    loc_vars = function(self, info_queue, center)
+        local word = ''
+        if center.ability.extra.used_this_ante == false then
+            word = 'Active'
+        else
+            word = 'Inactive'
+        end
+        return {
+            vars = {
+                G.GAME.probabilities.normal,
+                center.ability.extra.slodds,
+                center.ability.extra.modds,
+                center.ability.extra.wodds,
+                word
+            }
+        }
+    end,
+    config = { extra = { slodds = 7, modds = 3, wodds = 10, used_this_ante = false } },
+    keep_on_use = function(self, card)
+        return true
+    end,
+    can_use = function(self, card)
+        if card.ability.extra.last_ante_used ~= G.GAME.round_resets.ante then
+            card.ability.extra.used_this_ante = false
+        end
+        if card.ability.extra.used_this_ante == false then
+            return true
+        end
+    end,
+    use = function(self, card)
+        card.ability.extra.last_ante_used = G.GAME.round_resets.ante
+        card.ability.extra.used_this_ante = true
+        if pseudorandom('idgdomainlim') < G.GAME.probabilities.normal / card.ability.extra.slodds then
+            G.domain.config.card_limit = G.domain.config.card_limit + 1
+        end
+        if pseudorandom('idgmoney') < G.GAME.probabilities.normal / card.ability.extra.modds then
+            ease_dollars(G.GAME.dollars)
+        end
+        if pseudorandom('idgwin') < G.GAME.probabilities.normal / card.ability.extra.wodds then
+            G.GAME.chips = G.GAME.blind.chips
+        end
+    end
+}
+
+SMODS.Consumable {
+    key = 'coffin',
+    cost = 5,
+    set = 'domain',
+    loc_txt = { name = '{C:diamonds}Coffin of the Iron Mountain',
+        text = { 'Jogo, the mount fuji disaster',
+            'curses domain, {C:attention}destroy{} all cards',
+            'held in hand in exchange for {C:money}$#1#{} per',
+            'card destroyed',
+            '{s:0.8,C:inactive}(Currently #2#)' } },
+    config = { extra = { money = 5, used_this_ante = false } },
+    loc_vars = function(self, info_queue, center)
+        local ac = ''
+        if center.ability.extra.last_ante_used ~= G.GAME.round_resets.ante then
+            ac = 'Active'
+            center.ability.extra.used_this_ante = false
+        else
+            ac = 'Inactive'
+        end
+        return {
+            vars = {
+                center.ability.extra.money,
+                ac
+            }
+        }
+    end,
+    keep_on_use = function(self, card)
+        return true
+    end,
+    can_use = function(self, card)
+        if card.ability.extra.used_this_ante == false then
+            return true
+        end
+    end,
+    use = function(self, card)
+        card.ability.extra.used_this_ante = true
+        card.ability.extra.last_ante_used = G.GAME.round_resets.ante
+        for i, v in ipairs(G.hand.cards) do
+            v:start_dissolve()
+            ease_dollars(card.ability.extra.money)
+        end
+    end
+}
+
+SMODS.Consumable {
+    key = 'iv',
+    set = 'domain',
+    cost = 5,
+    loc_txt = { name = '{C:blue}Infinite Void',
+        text = { 'Satoru Gojos domain:',
+            'launch a stream of infinite',
+            'information into the blinds mind',
+            'effectively turning them brain dead,',
+            '{s:1.1,C:chips}draw full {s:1.1,C:tarot}deck {s:1.1,C:mult}to hand',
+            '{s:1.1,C:chips}and disable {s:1.1,C:tarot}any {s:1.1,C:mult}active blinds',
+            '{s:0.8,C:inactive}(Currently #1#)' } },
+    loc_vars = function(self, info_queue, center)
+        info_queue[#info_queue + 1] = G.P_CENTERS.j_jjok_tgojo
+        if center.ability.extra.used_this_ante == false then
+            return {
+                vars = {
                     'Active'
-                }}
-            end
-            if center.ability.extra.used_this_ante == true then
-                return { vars = {
+                }
+            }
+        end
+        if center.ability.extra.used_this_ante == true then
+            return {
+                vars = {
                     'Inactive'
-                }}
-            end
-        end,
-        config = {extra = {used_this_ante = false}},
-        keep_on_use = function(self,card)
-            return {true}
-        end,
-        can_use = function(self,card)
-            if G.GAME.round_resets.ante ~= card.ability.extra.last_ante_used then
-                card.ability.extra.used_this_ante = false
-            end
-            if card.ability.extra.used_this_ante == false then
-                return {true}
+                }
+            }
+        end
+    end,
+    config = { extra = { used_this_ante = false } },
+    keep_on_use = function(self, card)
+        return true
+    end,
+    can_use = function(self, card)
+        if G.GAME.round_resets.ante ~= card.ability.extra.last_ante_used then
+            card.ability.extra.used_this_ante = false
+        end
+        if card.ability.extra.used_this_ante == false then
+            return { true }
+        end
+    end,
+    use = function(self, card)
+        G.FUNCS.draw_from_deck_to_hand(#G.deck.cards)
+        card.ability.extra.last_ante_used = G.GAME.round_resets.ante
+        card.ability.extra.used_this_ante = true
+        if G.GAME.blind.boss == true then
+            G.GAME.blind:disable()
+            play_sound('timpani')
+        end
+    end,
+}
 
-            end
-        end,
-        use = function(self,card)
-            G.FUNCS.draw_from_deck_to_hand(#G.deck.cards)
-            card.ability.extra.last_ante_used = G.GAME.round_resets.ante
-            card.ability.extra.used_this_ante = true
-            if G.GAME.blind.boss == true then
-                G.GAME.blind:disable()
-                    play_sound('timpani')
-            end
-        end,
-    }
-
-    SMODS.Consumable {
-        key = 'ms',
-        set = 'domain',
-        loc_txt = {name = '{C:red}Malevolent Shrine',
-                    text = {'Sukunas barrierless domain,',
-                            'truly a divine feat, relentlessly',
-                            'slashes at everything in its range',
-                            '{s:1.1}Gives {s:1.1,X:dark_edition,C:white}^#1#{s:1.1} Mult',
-                            'increase by {X:dark_edition,C:white}#2#{} when {C:attention}defeating{} a blind',
-                            '{s:0.8}(Currently #3#)'}},
-        config = {extra = {emult = 1.2, scale = 0.05, used_this_ante = false}},
-        loc_vars = function(self,info_queue,center)
-            if center.ability.extra.used_this_ante == true then
-                center.ability.extra.ret = 'Inactive'
-            else
-                center.ability.extra.ret = 'Active'
-            end
-            return {vars = {
+SMODS.Consumable {
+    key = 'ms',
+    set = 'domain',
+    loc_txt = { name = '{C:red}Malevolent Shrine',
+        text = { 'Sukunas barrierless domain,',
+            'truly a divine feat, relentlessly',
+            'slashes at everything in its range',
+            '{s:1.1}Gives {s:1.1,X:dark_edition,C:white}^#1#{s:1.1} Mult',
+            'increase by {X:dark_edition,C:white}#2#{} when {C:attention}defeating{} a blind',
+            '{s:0.8,C:inactive}(Currently #3#)' } },
+    config = { extra = { emult = 1.2, scale = 0.05, used_this_ante = false } },
+    loc_vars = function(self, info_queue, center)
+        info_queue[#info_queue + 1] = G.P_CENTERS.j_jjok_sukuna
+        if center.ability.extra.used_this_ante == true then
+            center.ability.extra.ret = 'Inactive'
+        else
+            center.ability.extra.ret = 'Active'
+        end
+        return {
+            vars = {
                 center.ability.extra.emult,
                 center.ability.extra.scale,
                 center.ability.extra.ret
-            }} 
-        end,
-        keep_on_use = function(self,card)
-            return {true}
-        end,
-        can_use = function(self,card)
-            if card.ability.extra.last_ante_used ~= G.GAME.round_resets.ante then
-                card.ability.extra.used_this_ante = false
-            end
-            if card.ability.extra.used_this_ante == false then
-                return {true}
-            end
-        end,
-        use = function(self,card)
-            card.ability.extra.used_this_ante = true
-            card.ability.extra.last_ante_used = G.GAME.round_resets.ante
-            card.ability.extra.activated = true
-        end,
-        calculate = function(self,card,context)
-            if context.joker_main and card.ability.extra.activated == true then
-                card.ability.extra.activated = false
-                mult = mult ^ card.ability.extra.emult
-                return {
-                    message = '^'..card.ability.extra.emult..' Mult', colour = G.C.DARK_EDITION
-                }
-            end
-            if context.end_of_round and context.cardarea == G.domain and card == card then
-                card.ability.extra.emult = card.ability.extra.emult + card.ability.extra.scale
-                return {
-                    message = {
-                        'Binding Vow!', colour = G.C.RED
-                    }
-                }
-            end
+            }
+        }
+    end,
+    keep_on_use = function(self, card)
+        return { true }
+    end,
+    can_use = function(self, card)
+        if card.ability.extra.last_ante_used ~= G.GAME.round_resets.ante then
+            card.ability.extra.used_this_ante = false
         end
-    }
+        if card.ability.extra.used_this_ante == false then
+            return { true }
+        end
+    end,
+    use = function(self, card)
+        card.ability.extra.used_this_ante = true
+        card.ability.extra.last_ante_used = G.GAME.round_resets.ante
+        card.ability.extra.activated = true
+    end,
+    calculate = function(self, card, context)
+        if context.joker_main and card.ability.extra.activated == true then
+            card.ability.extra.activated = false
+            mult = mult ^ card.ability.extra.emult
+            return {
+                message = '^' .. card.ability.extra.emult .. ' Mult', colour = G.C.DARK_EDITION
+            }
+        end
+        if context.end_of_round and context.cardarea == G.domain and card == card then
+            card.ability.extra.emult = card.ability.extra.emult + card.ability.extra.scale
+            return {
+                message = {
+                    'Binding Vow!', colour = G.C.RED
+                }
+            }
+        end
+    end
+}
 
 --domain end
 
@@ -164,7 +327,7 @@ end
 local start_run_ref = Game.start_run
 function Game:start_run(args)
     self.GAME.starting_params.domain_slots = 1
-    self.domain = CardArea(0, 0, G.CARD_W * 1.1, G.CARD_H, {
+    self.domain = CardArea(0, 0, G.CARD_W * 1.2, G.CARD_H, {
         card_limit = self.GAME.starting_params.domain_slots,
         type = "joker",
         highlight_limit = 1,
@@ -178,20 +341,20 @@ local set_screen_positions_func = set_screen_positions
 function set_screen_positions()
     set_screen_positions_func()
 
-    if G.domain then 
+    if G.domain then
         G.domain.T.x = G.TILE_W - G.domain.T.w - 0.3
         G.domain.T.y = 3
         G.domain:hard_set_VT()
     end
 end
 
-local emplace_ref = CardArea.emplace 
+local emplace_ref = CardArea.emplace
 function CardArea:emplace(card, location, stay_flipped)
     if self == G.consumeables and card.ability.set == 'domain' then
         G.domain:emplace(card, location, stay_flipped)
         return
     end
-    emplace_ref(self,card,location,stay_flipped)
+    emplace_ref(self, card, location, stay_flipped)
 end
 
 --
@@ -248,17 +411,19 @@ SMODS.Voucher {
 SMODS.Seal {
     key = 'electric',
     atlas = 'seal',
-    pos = {x = 0, y = 0},
+    pos = { x = 0, y = 0 },
     loc_txt = { name = 'Conductive Seal',
         text = { 'Multiply total blind size by',
             '{C:white,X:chips}#1#%{} up to a total of',
-            'X1 base chips: Currently {C:chips}#2#{} chips' },
+            'X1 base blind chips: Currently {C:chips}#2#{} chips' },
         label = 'Conductive Seal' },
     loc_vars = function(self, info_queue, center)
-        return { vars = {
-            0.99,
-            get_blind_amount(G.GAME.round_resets.ante)
-        }}
+        return {
+            vars = {
+                0.99,
+                get_blind_amount(G.GAME.round_resets.ante)
+            }
+        }
     end,
     badge_colour = HEX('3d85c6'),
     calculate = function(self, card, context)
@@ -272,7 +437,7 @@ SMODS.Seal {
                 card:juice_up(0.3, 0.4)
                 SMODS.juice_up_blind()
                 return {
-                    message = {'{C:chips}X0.99{} Blind Size', colour = G.C.CHIPS }
+                    message = { '{C:chips}X0.99{} Blind Size', colour = G.C.CHIPS }
                 }
             end
         end
@@ -369,7 +534,7 @@ SMODS.Consumable {
     cost = 6,
     loc_txt = { name = 'Playful Cloud',
         text = { 'Wielded by the two ghosts of the',
-            'Zenin clan and Suguru Geto, use to',
+            'Zenin clan, Suguru Geto and Aoi Todo, use to',
             'create a {C:attention}Double Tag' } },
     loc_vars = function(self, info_queue, card)
         info_queue[#info_queue + 1] = G.P_TAGS.tag_double
@@ -391,8 +556,7 @@ SMODS.Consumable {
     soul_pos = { x = 2, y = 0 },
     pos = { x = 0, y = 1 },
     loc_txt = { name = 'Kamutoke',
-        text = { 'Wielded by Sukuna in Shinjuku after',
-            'his battle with Gojo, use to {C:attention}destroy',
+        text = { 'Wielded by Sukuna, use to {C:attention}destroy',
             'any number of selected playing cards',
             '{s:0.8}"Holds the ability to summon torrents of electricity"' } },
     can_use = function(card, self)
@@ -520,6 +684,30 @@ SMODS.Consumable {
 }
 
 SMODS.Consumable {
+    key = 'wallet',
+    set = 'Tarot',
+    cost = 1,
+    loc_txt = { name = 'Tojis Wallet',
+        text = {
+            'Multiply current {C:money}balance{} by {C:red}#1#'
+        } },
+    config = { extra = { dollars = -1 } },
+    loc_vars = function(self, info_queue, center)
+        return {
+            vars = {
+                center.ability.extra.dollars
+            }
+        }
+    end,
+    can_use = function(self, card)
+        return true
+    end,
+    use = function(self, card)
+        ease_dollars(-G.GAME.dollars * 2)
+    end
+}
+
+SMODS.Consumable {
     key = 'greed',
     set = 'Tarot',
     cost = 3,
@@ -549,7 +737,9 @@ SMODS.Consumable {
         info_queue[#info_queue + 1] = G.P_CENTERS.e_negative
     end,
     can_use = function(self, card)
-        return true
+        if #G.consumeables.cards > 1 or (#G.consumeables.cards == 1 and not G.consumeables.cards[1] == card) then
+            return true
+        end
     end,
     use = function(self, card)
         G.consumeables.cards[pseudorandom('veil', 1, #G.consumeables.cards)]:set_edition('e_negative')
@@ -757,6 +947,8 @@ SMODS.Joker {
     calculate = function(self, card, context)
         if context.setting_blind and G.GAME.blind.boss == true then
             G.GAME.blind.chips = G.GAME.blind.chips * card.ability.extra.Xblind
+            G.GAME.blind.chip_text = number_format(G.GAME.blind.chips)
+            SMODS.juice_up_blind()
             card.ability.extra.trig = true
         end
         if context.end_of_round and context.cardarea == G.jokers and card.ability.extra.trig == true then
@@ -766,6 +958,140 @@ SMODS.Joker {
     end
 }
 -- sukuna end
+
+-- disaster curses
+SMODS.Joker {
+    key = 'mahito',
+    rarity = 'jjok_special',
+    cost = 40,
+    loc_txt = { name = 'Mahito',
+        text = { 'On choosing a blind, set hand size to {C:white,X:dark_edition}1{}',
+            '{s:0.8}"I truly am a curse!"' } },
+    calculate = function(self, card, context)
+        if context.setting_blind then
+            G.hand.config.card_limit = 1
+        end
+    end
+}
+
+SMODS.Joker {
+    key = 'cwdagon',
+    rarity = 2,
+    cost = 7,
+    loc_txt = { name = 'Curse Womb Dagon',
+        text = { 'The disaster curse in his',
+            'curse womb form before his pseduo-',
+            'evolution, {C:attention}create{} a {C:dark_edition}negative',
+            '{C:attention}Splash{} on {C:attention}selecting{} a blind',
+            '{s:0.8,C:inactive}(If holding {C:attention,s:0.8}5{C:inactive,s:0.8} or more {C:dark_edition,s:0.8}negative {C:attention,s:0.8}Splashes',
+            '{s:0.8,C:inactive}whilst selling, create {C:attention,s:0.8}Dagon{s:0.8,C:inactive})' } },
+    blueprint_compat = true,
+    loc_vars = function(self, info_queue, center)
+        info_queue[#info_queue + 1] = G.P_CENTERS.j_jjok_dagon
+    end,
+    calculate = function(self, card, context)
+        if context.setting_blind or (context.setting_blind and context.blueprint) then
+            SMODS.add_card({ set = 'Joker', area = G.jokers, key = 'j_splash', edition = 'e_negative' })
+        end
+        if context.selling_self and not context.blueprint then
+            local tally = 0
+            for i,v in ipairs(G.jokers.cards) do
+                if v.config.center.key == 'j_splash' and v.edition.negative == true then
+                    tally = tally + 1
+                end
+            end
+            if tally >= 5 then
+                SMODS.add_card({set = 'Joker', area = G.jokers, key = 'j_jjok_dagon'})
+            end
+        end
+    end
+}
+
+SMODS.Joker {
+    key = 'dagon',
+    loc_txt = { name = 'Dagon',
+        text = { 'The disaster curse rooted in',
+            'the fear of water, the deep and',
+            'ultimately the unknown, {C:attention}fill{} all card',
+            'slots with {C:attention}Splash{} plus {C:dark_edition}+1 negative {C:attention}Splash',
+            'for every joker slot on {C:attention}selecting{} a blind' } },
+    cost = 20,
+    rarity = 4,
+    blueprint_compat = true,
+    loc_vars = function(self, info_queue, center)
+        info_queue[#info_queue + 1] = G.P_CENTERS.e_negative
+        info_queue[#info_queue + 1] = G.P_CENTERS.j_splash
+    end,
+    add_to_deck = function(self,card)
+        card.ability.extra.jokerslots = G.jokers.config.card_limit
+    end,
+    calculate = function(self, card, context)
+        if context.setting_blind and not context.blueprint then
+            local emptyJ = G.jokers.config.card_limit - #G.jokers.cards
+            local emptyC = G.consumeables.config.card_limit - #G.consumeables.cards
+            local emptyD = G.domain.config.card_limit - #G.domain.cards
+            for i = 1, emptyJ do
+                SMODS.add_card({ set = 'Joker', area = G.jokers, key = 'j_splash' })
+            end
+            for i = 1, emptyC do
+                SMODS.add_card({ set = 'Joker', area = G.consumeables, key = 'j_splash' })
+            end
+            for i = 1, emptyD do
+                SMODS.add_card({ set = 'Joker', area = G.domain, key = 'j_splash' })
+            end
+        end
+        if context.setting_blind or (context.setting_blind and context.blueprint) then
+            for i = 1, card.ability.extra.jokerslots do
+                SMODS.add_card({ set = 'Joker', area = G.jokers, key = 'j_splash', edition = 'e_negative' })
+            end
+        end
+    end
+}
+
+--end disaster curses
+
+SMODS.Joker {
+    key = 'shoko',
+    loc_txt = { name = 'Shoko Ieiri',
+        text = { 'Increase domain slots by {C:dark_edition}+1{}',
+            '{s:0.8}"I was worried about you!"' } },
+    rarity = 2,
+    cost = 5,
+    in_pool = function(self, args)
+        if G.GAME.round_resets.ante >= 4 then
+            return true
+        end
+    end,
+    add_to_deck = function(self, card)
+        G.domain.config.card_limit = G.domain.config.card_limit + 1
+    end,
+    remove_from_deck = function(self, card)
+        G.domain.config.card_limit = G.domain.config.card_limit - 1
+    end
+}
+
+SMODS.Joker {
+    key = 'junpei',
+    rarity = 1,
+    cost = 4,
+    blueprint_compat = true,
+    loc_txt = {name = 'Junpei Yoshino',
+                text = {'Gain {C:money}$#1#{} on purchasing an item',
+                'from the shop'}},
+    config = {extra = {
+        dollars = 1
+    }},
+    loc_vars = function(self,info_queue,center)
+        return {vars = {
+            center.ability.extra.dollars
+        }}
+    end,
+    calculate = function(self,card)
+        if context.buying_card or context.open_booster or (context.buying_card and context.blueprint) or (context.open_booster and context.blueprint) then
+            ease_dollars(card.ability.extra.dollars)
+        end
+    end
+}
 
 SMODS.Joker {
     key = 'hak',
@@ -841,7 +1167,8 @@ SMODS.Joker {
     end,
     calculate = function(self, card, context)
         if context.joker_main then
-            return { mult_mod = card.ability.extra.mult }
+            return { mult_mod = card.ability.extra.mult,
+                    message = localize{type='variable',key='a_mult',vars={self.ability.mult}} }
         end
     end
 }
@@ -945,6 +1272,7 @@ SMODS.Joker {
     key = 'meg',
     cost = 12,
     rarity = 3,
+    blueprint_compat = true,
     loc_txt = { name = 'Megumi Fushiguro',
         text = { 'Upon selecting a {C:attention}boss blind,',
             '{C:attention}create{} 1 of the ten shadows shikigami' } },
@@ -978,10 +1306,10 @@ SMODS.Joker {
                     G.GAME.blind.chips = get_blind_amount(G.GAME.round_resets.ante)
                 end
                 G.GAME.blind.chip_text = number_format(G.GAME.blind.chips)
-                self:juice_up(0.3, 0.4)
                 SMODS.juice_up_blind()
+                card:juice_up(0.3, 0.5)
                 return {
-                    message = 'Adapted!', colour = G.C.CHIPS, card = self
+                    message = 'Adapted!', colour = G.C.CHIPS
                 }
             end
         end
@@ -1109,25 +1437,26 @@ SMODS.Joker {
     loc_txt = { name = 'Granny Ogami',
         text = { 'Summon the bodies of the dead',
             'and use their techniques, gains',
-            '{C:white,X:mult}X#2#{} Mult for every {C:attention}Flyhead removed from deck{}',
+            '{C:white,X:mult}X#2#{} Mult for every {C:attention}flyhead sold{}',
             '{s:0.8,C:inactive}(Currently{} {s:0.8,C:white,X:mult}X#1#{} {s:0.8,C:inactive}Mult)',
             '{s:0.8}"Kill sorcerors huh? Youre a sorceror."' } },
     config = { extra = { Xmult = 1, Xmult_gain = 0.25 } },
     loc_vars = function(self, info_queue, center)
         info_queue[#info_queue + 1] = G.P_CENTERS.j_jjok_flyhead
-        if Flyhead_sold ~= nil then
-            return { vars = { (1 + (center.ability.extra.Xmult_gain * Flyhead_sold)), center.ability.extra.Xmult_gain } }
-        end
-        if Flyhead_sold == nil then
-            return { vars = { 1, center.ability.extra.Xmult_gain } }
-        end
-    end,
-    add_to_deck = function(card, self)
-        Flyhead_sold = 0
+        return { vars = {
+             center.ability.extra.Xmult,
+             center.ability.extra.Xmult_gain } }
     end,
     calculate = function(self, card, context)
-        card.ability.extra.Xmult = (1 + (card.ability.extra.Xmult_gain * Flyhead_sold))
-        if context.joker_main or context.blueprint then
+        if context.selling_card then
+            if context.card.config.center.key == 'j_jjok_flyhead' then
+                card.ability.extra.Xmult = card.ability.extra.Xmult + card.ability.extra.Xmult_gain
+                return {
+                    message = {'+'..card.ability.extra.Xmult_gain.. ' XMult'}
+                }
+            end
+        end
+        if context.joker_main or (context.blueprint and context.joker_main) then
             return {
                 Xmult = card.ability.extra.Xmult
             }
@@ -1137,19 +1466,27 @@ SMODS.Joker {
 
 SMODS.Joker {
     key = 'kash',
-    loc_txt = {name = 'Hajime Kashimo',
-                text = {'The strongest of the edo period,',
-                        'if {C:attention}scored card{} has seal, change it',
-                        'to an {C:blue}Electric{} seal'}},
-    loc_vars = function(self,info_queue,center)
-        info_queue[#info_queue+1] = G.P_SEALS.jjok_electric
+    loc_txt = { name = 'Hajime Kashimo',
+        text = { 'The strongest of the edo period,',
+            'if any {C:attention}played card{} has seal, give every',
+            'played card an {C:blue}Electric{} seal' } },
+    loc_vars = function(self, info_queue, center)
+        info_queue[#info_queue + 1] = G.P_SEALS.jjok_electric
     end,
     rarity = 2,
     cost = 4,
-    calculate = function(self,card,context)
-        if context.indivual and context.cardarea == G.play then
-            if 1 ==1 then
-                
+    calculate = function(self, card, context)
+        local seal = false
+        if context.before then
+            for i, v in ipairs(G.play.cards) do
+                if v.seal ~= nil then
+                    seal = true
+                end
+            end
+            if seal == true then
+                for i, v in ipairs(G.play.cards) do
+                    v:set_seal('jjok_electric', nil, true)
+                end
             end
         end
     end
@@ -1180,7 +1517,7 @@ SMODS.Joker {
     cost = 5,
     rarity = 1,
     atlas = 'atlasthree',
-    blueprint_compat = false,
+    blueprint_compat = true,
     pos = { x = 3, y = 2 },
     soul_pos = { x = 2, y = 2 },
     loc_txt = { name = 'Haruta',
@@ -1196,7 +1533,7 @@ SMODS.Joker {
         return { vars = { center.ability.extra.charges } }
     end,
     calculate = function(self, card, context)
-        if context.joker_main then
+        if context.joker_main or (context.joker_main and context.blueprint) then
             if G.GAME.current_round.hands_left == 0 and card.ability.extra.charges > 0 then
                 card.ability.extra.charges = card.ability.extra.charges - 1
                 if G.GAME.round_resets.ante >= 2 then
@@ -1207,7 +1544,7 @@ SMODS.Joker {
                 end
             end
         end
-        if context.final_scoring_step and (hand_chips * mult) >= G.GAME.blind.chips then
+        if context.final_scoring_step and (hand_chips * mult) >= G.GAME.blind.chips and not context.blueprint then
             if card.ability.extra.charges ~= 3 then
                 card.ability.extra.charges = card.ability.extra.charges + 1
             end
@@ -1235,12 +1572,6 @@ SMODS.Joker {
                 center.ability.extra.chips }
         }
     end,
-    remove_from_deck = function(card, self)
-        if Flyhead_sold == nil then
-            Flyhead_sold = 0
-        end
-        Flyhead_sold = Flyhead_sold + 1
-    end,
     calculate = function(self, card, context)
         if context.joker_main and not context.blueprint then
             return {
@@ -1248,7 +1579,7 @@ SMODS.Joker {
                 chips = card.ability.extra.chips
             }
         end
-        if context.blueprint then
+        if context.joker_main and context.blueprint then
             return { message = 'Pittiful creature, too weak!' }
         end
     end
