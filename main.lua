@@ -15,6 +15,22 @@ SMODS.current_mod.optional_features = function()
     }
 end
 
+--colours
+G.C.JJOK = {
+    NATURE = HEX("B6D7A8"),
+    SPECIAL = HEX("A64D79"),
+}
+
+local loc_colour_ref = loc_colour
+function loc_colour(_c, _default)
+    if not G.ARGS.LOC_COLOURS then
+        loc_colour_ref()
+    end
+    G.ARGS.LOC_COLOURS.jjok_nature = G.C.JJOK.NATURE
+    G.ARGS.LOC_COLOURS.jjok_special = G.C.JJOK.SPECIAL
+
+    return loc_colour_ref(_c, _default)
+end
 --domains
 
 SMODS.Booster {
@@ -28,7 +44,7 @@ SMODS.Booster {
     draw_hand = false,
     cost = 20,
     in_pool = function(self, args)
-        if G.GAME.round_resets.ante >= 4 then
+        if G.GAME.round_resets.ante >= 4 and #G.domain.cards ~= G.domain.config.card_limit then
             return true
         end
     end,
@@ -46,8 +62,8 @@ SMODS.Booster {
 
 SMODS.ConsumableType {
     key = 'domain',
-    primary_colour = HEX('6a329f'),
-    secondary_colour = HEX('000000'),
+    primary_colour = HEX('6A329F'),
+    secondary_colour = HEX('6A329F'),
     loc_txt = {
         name = 'Domain Expansion',
         collection = 'Domain Expansion'
@@ -409,6 +425,23 @@ SMODS.Voucher {
 }
 
 SMODS.Seal {
+    key = 'green',
+    loc_txt = {name = 'Nature Seal',
+                text = {'On {C:attention}scoring{} this card, {C:attention}randomize{}',
+                        'its {C:dark_edition}edition{}'},
+                label = 'Nature Seal'},
+    atlas = 'seal',
+    pos = {x = 1, y = 0},
+    badge_colour = HEX('B6D7A8'),
+    calculate = function(self,card,context)
+        if context.main_scoring and context.cardarea == G.play then
+            local ed = pseudorandom_element(G.P_CENTER_POOLS.Edition, pseudoseed('greenseal'))
+            card:set_edition(ed.key)
+        end
+    end
+}
+
+SMODS.Seal {
     key = 'electric',
     atlas = 'seal',
     pos = { x = 0, y = 0 },
@@ -473,7 +506,7 @@ SMODS.Consumable {
     key = 'awaken',
     loc_txt = { name = 'Awakening',
         text = { 'Use to {C:attention}awaken{} any {C:Legendary}Grade 1',
-            'sorceror to special grade' } },
+            'sorceror to {C:jjok_special}Special Grade' } },
     set = 'Spectral',
     hidden = true,
     soul_set = 'Spectral',
@@ -763,7 +796,7 @@ SMODS.Consumable {
         info_queue[#info_queue + 1] = G.P_CENTERS.e_negative
     end,
     can_use = function(self, card)
-        if #G.consumeables.cards > 1 or (#G.consumeables.cards == 1 and not G.consumeables.cards[1] == card) then
+        if #G.consumeables.cards > 1 or (#G.consumeables.cards == 1 and G.consumeables.cards[1] ~= card) then
             return true
         end
     end,
@@ -940,7 +973,6 @@ SMODS.Joker {
             if card.ability.extra.phase == 1 then
                 return {
                     mult = card.ability.extra.mult,
-                    message = { type = 'variable', key = 'a_mult', vars = { card.ability.extra.mult } }
                 }
             end
             if card.ability.extra.phase == 2 then
@@ -1040,7 +1072,7 @@ SMODS.Joker {
             'the fear of water, the deep and',
             'ultimately the unknown, {C:attention}fill{} all card',
             'slots with {C:attention}Splash{} plus {C:dark_edition}+1 negative {C:attention}Splash',
-            'for every joker slot on {C:attention}selecting{} a blind' } },
+            'for every {C:dark_edition}non-negative{} joker on {C:attention}selecting{} a blind' } },
     cost = 20,
     rarity = 4,
     blueprint_compat = true,
@@ -1048,11 +1080,15 @@ SMODS.Joker {
         info_queue[#info_queue + 1] = G.P_CENTERS.e_negative
         info_queue[#info_queue + 1] = G.P_CENTERS.j_splash
     end,
-    add_to_deck = function(self,card)
-        card.ability.extra.jokerslots = G.jokers.config.card_limit
-    end,
+    config = {extra = {joker_slots = 0}},
     calculate = function(self, card, context)
         if context.setting_blind and not context.blueprint then
+            card.ability.extra.jokerslots = 0
+            for i,v in ipairs(G.jokers.cards) do
+                if v.edition == nil or v.edition.negative == false then
+                    card.ability.extra.jokerslots = card.ability.extra.jokerslots + 1 
+                end
+            end
             local emptyJ = G.jokers.config.card_limit - #G.jokers.cards
             local emptyC = G.consumeables.config.card_limit - #G.consumeables.cards
             local emptyD = G.domain.config.card_limit - #G.domain.cards
@@ -1070,6 +1106,67 @@ SMODS.Joker {
             for i = 1, card.ability.extra.jokerslots do
                 SMODS.add_card({ set = 'Joker', area = G.jokers, key = 'j_splash', edition = 'e_negative' })
             end
+        end
+    end
+}
+
+SMODS.Joker {
+    key = 'hanami',
+    cost = 8,
+    rarity = 3,
+    blueprint_compat = false,
+    loc_txt = {name = 'Hanami',
+                text = {
+                    'The nature disaster curse,',
+                    'add a {C:jjok_nature}Green Seal{} to leftmost',
+                    'played card'
+                }},
+    loc_vars = function(self,info_queue,center)
+        info_queue[#info_queue+1] = G.P_SEALS.jjok_green
+    end,
+    calculate = function(self,card,context)
+        if context.before then
+            G.play.cards[1]:set_seal('jjok_green', nil, true)
+        end
+    end
+}
+
+SMODS.Joker {
+    key = 'jogoat',
+    rarity = 3,
+    cost = 10,
+    blueprint_compat = true,
+    loc_txt = {
+        name = 'Jogo(at)',
+        text = {
+            'The mount fuji disaster curse,',
+            '{C:attention}immolate{} #1# consumable on leaving the',
+            'shop in exchange for this card to',
+            'gain its {C:money}sell value{} and {C:white,X:mult}X0.5{} its {C:money}sell value',
+            'as {C:white,X:mult}XMult',
+            'Currently: {C:white,X:mult}X#1#{} Mult'
+    }},
+    config = {extra = {
+        Xmult = 1,
+        num = 1
+    }},
+    loc_vars = function(self,info_queue,center)
+        return{vars = {
+            center.ability.extra.num,
+            center.ability.extra.Xmult
+        }}
+    end,
+    calculate = function(self,card,context)
+        if context.ending_shop and #G.consumeables.cards > 0 and not context.blueprint then
+            local _card = pseudorandom('jogoat', 1, #G.consumeables.cards)
+            local sv = _card.sell_cost
+            card.ability.extra.Xmult = card.ability.extra.Xmult + sv / 2
+            card.sell_cost = card.sell_cost + sv
+        end
+        if context.joker_main or (context.joker_main and context.blueprint) then
+            return {
+                Xmult = card.ability.extra.Xmult
+            }
         end
     end
 }
