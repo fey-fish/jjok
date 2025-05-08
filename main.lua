@@ -31,6 +31,7 @@ function loc_colour(_c, _default)
 
     return loc_colour_ref(_c, _default)
 end
+
 --domains
 
 SMODS.Booster {
@@ -39,8 +40,8 @@ SMODS.Booster {
     loc_txt = { name = 'Domain Booster',
         text = { 'Choose {C:attention}1 of {C:attention}2',
             'Domain Expansions' },
-        group_name = {'Domain Expansions cannot be sold',
-                    'and can only be used once per ante'}},
+        group_name = { 'Domain Expansions cannot be sold',
+            'and can only be used once per ante' } },
     draw_hand = false,
     cost = 20,
     in_pool = function(self, args)
@@ -129,10 +130,9 @@ SMODS.Consumable {
         text = {
             'Hakaris domain expansion which',
             'grants him infinite cursed energy,',
-            '{C:green}#1#{} in {C:green}#2#{} chance to give {C:dark_edition}+1 Domain Slots',
-            '{C:green}#1#{} in {C:green}#3#{} chance to {C:money}double money',
-            '{C:green}#1#{} in {C:green}#4#{} chance to {C:chips}win blind',
-            '{s:0.8,C:inactive}(Currently #5#)'
+            '{C:green}#1#{} in {C:green}#2#{} chance to {C:money}double money',
+            '{C:green}#1#{} in {C:green}#3#{} chance to {C:chips}win blind',
+            '{s:0.8,C:inactive}(Currently #4#)'
         }
     },
     loc_vars = function(self, info_queue, center)
@@ -145,14 +145,13 @@ SMODS.Consumable {
         return {
             vars = {
                 G.GAME.probabilities.normal,
-                center.ability.extra.slodds,
                 center.ability.extra.modds,
                 center.ability.extra.wodds,
                 word
             }
         }
     end,
-    config = { extra = { slodds = 7, modds = 3, wodds = 10, used_this_ante = false } },
+    config = { extra = { modds = 3, wodds = 10, used_this_ante = false } },
     keep_on_use = function(self, card)
         return true
     end,
@@ -167,9 +166,6 @@ SMODS.Consumable {
     use = function(self, card)
         card.ability.extra.last_ante_used = G.GAME.round_resets.ante
         card.ability.extra.used_this_ante = true
-        if pseudorandom('idgdomainlim') < G.GAME.probabilities.normal / card.ability.extra.slodds then
-            G.domain.config.card_limit = G.domain.config.card_limit + 1
-        end
         if pseudorandom('idgmoney') < G.GAME.probabilities.normal / card.ability.extra.modds then
             ease_dollars(G.GAME.dollars)
         end
@@ -177,6 +173,44 @@ SMODS.Consumable {
             G.GAME.chips = G.GAME.blind.chips
         end
     end
+}
+
+SMODS.Consumable {
+    key = 'simple',
+    cost = 5,
+    set = 'domain',
+    keep_on_use = function(self,card)
+        return true
+    end,
+    loc_txt = {name = 'Simple Domain',
+            text = {
+                'Use to refresh deck',
+                '{C:inactive}Can be used once per round',
+                '{s:0.8,C:inactive}(Currently #1#)'
+            }},
+    config = {extra = {used_this_round = false, cards = {}}},
+    loc_vars = function(self,info_queue,center)
+        local word = nil
+        if center.ability.extra.last_ante_round ~= G.GAME.round then
+            center.ability.extra.used_this_round = false
+        end
+        if center.ability.extra.used_this_round == true then
+            word = 'Inactive'
+        else
+            word = 'Active'
+        end
+        return {vars = {word}}
+    end,
+    can_use = function(self,card)
+        if card.ability.extra.used_this_round == false then
+            return true
+        end
+    end,
+    use = function(self,card)
+        card.ability.extra.last_ante_round = G.GAME.round
+        card.ability.extra.used_this_round = true
+        G.FUNCS.draw_from_discard_to_deck()
+    end,
 }
 
 SMODS.Consumable {
@@ -338,7 +372,94 @@ SMODS.Consumable {
 
 --domain end
 
---domains area
+SMODS.Joker {
+    key = 'kenny',
+    loc_txt = { name = '{C:tarot}Kenjaku',
+        text = {
+            'In Getos dead body, Kenjaku',
+            'can use his {C:attention}body hop technique',
+            'to store {C:attention}2{} jokers within his card area'
+        } },
+    rarity = 'jjok_special',
+    cost = 40,
+    add_to_deck = function(self, card)
+        G.kenny = CardArea(0, 0, G.CARD_W * 1.4, G.CARD_H,
+            { type = "joker", card_limit = 2, highlighted_limit = 1 })
+        SMODS.add_card({ set = 'Consumable', area = G.consumeables, key = 'c_jjok_kennytar', stickers = { 'eternal' } })
+        G.consumeables.config.card_limit = G.consumeables.config.card_limit + 1
+    end,
+    config = { extra = { area = nil } },
+    remove_from_deck = function(self, card)
+        G.consumeables.config.card_limit = G.consumeables.config.card_limit - 1
+        for i = 1, #G.kenny.cards do
+            G.kenny.cards[i]:start_dissolve()
+        end
+        local _card = nil
+        for i, v in ipairs(G.consumeables.cards) do
+            if v.config.center.key == 'c_jjok_kennytar' then
+                _card = v
+            end
+        end
+        _card:start_dissolve()
+        G.kenny.T.y = -1000
+    end,
+    calculate = function(self, card, context)
+
+    end,
+    update = function(self, card, dt)
+        if G.kenny ~= nil then
+            G.kenny.T.x = card.T.x - 0.4
+            G.kenny.T.y = card.T.y + card.T.h
+        end
+    end
+}
+SMODS.Consumable {
+    key = 'kennytar',
+    hidden = true,
+    soul_set = 'Tarot',
+    soul_rate = 0.0,
+    set = 'Tarot',
+    keep_on_use = function(self, card)
+        return true
+    end,
+    no_collection = true,
+    loc_txt = {
+        name = 'Body Hopping Technique',
+        text = { 'Use to move a {C:attention}joker{} in',
+            'to {C:attention}Kenjakus card area' } },
+    loc_vars = function(self, info_queue, center)
+        info_queue[#info_queue + 1] = G.P_CENTERS.j_jjok_kenny
+    end,
+    config = { extra = { kenny = nil, _card = nil } },
+    can_use = function(self, card)
+        for i, v in ipairs(G.jokers.cards) do
+            if v.config.center.key == 'j_jjok_kenny' then
+                if #G.kenny.cards < 2 and #G.jokers.highlighted == 1 and G.jokers.highlighted[1].config.center.key ~= 'j_jjok_kenny' then
+                    card.ability.extra._card = G.jokers.highlighted[1]
+                    if G.jokers.highlighted[1].edition ~= nil then
+                        card.ability.extra._edition = G.jokers.highlighted[1].edition.key
+                    end
+                    return true
+                end
+            end
+        end
+    end,
+    use = function(self, card)
+        local _edition = card.ability.extra._edition
+        local _card = card.ability.extra._card
+        _card:start_dissolve()
+        local created_card = SMODS.add_card({
+            set = 'Joker',
+            area = G.kenny,
+            key = _card.config.center.key,
+            edition =
+                _edition
+        })
+        created_card:start_materialize()
+    end
+}
+
+--card areas
 
 local start_run_ref = Game.start_run
 function Game:start_run(args)
@@ -373,7 +494,7 @@ function CardArea:emplace(card, location, stay_flipped)
     emplace_ref(self, card, location, stay_flipped)
 end
 
---
+--card areas end
 
 SMODS.Voucher {
     key = 'cursedv',
@@ -390,6 +511,11 @@ SMODS.Voucher {
                 center.ability.extra.slots
             }
         }
+    end,
+    in_pool = function(self, card)
+        if G.GAME.round_resets.ante <= 4 then
+            return true
+        end
     end,
     redeem = function(self, card)
         G.jokers.config.card_limit = G.jokers.config.card_limit - card.ability.extra.slots
@@ -424,16 +550,118 @@ SMODS.Voucher {
     requires = { 'v_jjok_cursedv' }
 }
 
+SMODS.Voucher {
+    key = 'limitless',
+    loc_txt = { name = 'Limitless Technique',
+        text = {
+            'Increase card highlight',
+            'limit by {C:dark_edition}+#1#{}'
+        } },
+    config = { extra = { increase = 1 } },
+    loc_vars = function(self, info_queue, center)
+        return {
+            vars = {
+                center.ability.extra.increase
+            }
+        }
+    end,
+    cost = 10,
+    redeem = function(self, card)
+        G.hand.config.highlighted_limit = G.hand.config.highlighted_limit + card.ability.extra.increase
+    end
+}
+
+--new hands
+
+SMODS.PokerHand {
+    key = '6oak',
+    loc_txt = { name = 'Six of a Kind',
+        description = {
+            '6 cards with the same rank'
+        } },
+    visible = false,
+    example = {
+        { 'S_K', true },
+        { 'S_K', true },
+        { 'D_K', true },
+        { 'H_K', true },
+        { 'D_K', true },
+        { 'C_K', true } },
+    mult = 20, chips = 200,
+    l_mult = 5, l_chips = 50,
+    evaluate = function(parts, hand)
+        return parts.jjok_6
+    end
+}
+
+SMODS.PokerHand {
+    key = 'f6',
+    loc_txt = { name = 'Flush Six',
+        description = {
+            '6 cards with the same rank and suit'
+        } },
+    visible = false,
+    example = {
+        { 'H_K', true },
+        { 'H_K', true },
+        { 'H_K', true },
+        { 'H_K', true },
+        { 'H_K', true },
+        { 'H_K', true } },
+    mult = 30, chips = 300,
+    l_mult = 6, l_chips = 60,
+    evaluate = function(parts, hand)
+        return next(parts.jjok_6) and next(parts.jjok_flush)
+            and { SMODS.merge_lists(parts.jjok_6, parts.jjok_flush) } or {}
+    end
+}
+
+SMODS.PokerHandPart {
+    key = '6',
+    func = function(hand)
+        return get_X_same(6, hand)
+    end
+}
+SMODS.PokerHandPart {
+    key = 'flush',
+    func = function(hand)
+        local ret = {}
+        local four_fingers = next(find_joker('Four Fingers'))
+        local suits = SMODS.Suit.obj_buffer
+        if #hand < (6 - (four_fingers and 1 or 0)) then
+            return ret
+        else
+            for j = 1, #suits do
+                local t = {}
+                local suit = suits[j]
+                local flush_count = 0
+                for i = 1, #hand do
+                    if hand[i]:is_suit(suit, nil, true) then
+                        flush_count = flush_count + 1; t[#t + 1] = hand[i]
+                    end
+                end
+                if flush_count >= (6 - (four_fingers and 1 or 0)) then
+                    table.insert(ret, t)
+                    return ret
+                end
+            end
+            return {}
+        end
+    end
+}
+
+--end of new hands
+
 SMODS.Seal {
     key = 'green',
-    loc_txt = {name = 'Nature Seal',
-                text = {'On {C:attention}scoring{} this card, {C:attention}randomize{}',
-                        'its {C:dark_edition}edition{}'},
-                label = 'Nature Seal'},
+    loc_txt = { name = 'Nature Seal',
+        text = { 'On {C:attention}scoring{} this card, {C:attention}randomize{}',
+            'its {C:dark_edition}edition{}' },
+        label = 'Nature Seal' },
     atlas = 'seal',
-    pos = {x = 1, y = 0},
+    pos = { x = 1, y = 0 },
     badge_colour = HEX('B6D7A8'),
-    calculate = function(self,card,context)
+    calculate = function(self, card, context)
         if context.main_scoring and context.cardarea == G.play then
             local ed = pseudorandom_element(G.P_CENTER_POOLS.Edition, pseudoseed('greenseal'))
             card:set_edition(ed.key)
@@ -549,29 +777,41 @@ SMODS.Consumable {
     end
 }
 
-SMODS.Consumable{
+SMODS.Consumable {
     key = 'rct',
     set = 'Spectral',
-    loc_txt = {name = 'Reversed Cursed Technique',
-                text = {'Turn {C:dark_edition}#1#{} active'}},
+    loc_txt = { name = 'Reversed Cursed Technique',
+        text = { 'Turn {C:dark_edition}#1#{} active' } },
     hidden = true,
     soul_set = 'Spectral',
     soul_rate = 0.06,
-    in_pool = function(self,args)
+    in_pool = function(self, args)
         if #G.domain.cards > 0 then
             return true
         end
     end,
-    loc_vars = function(self,info_queue,center)
+    loc_vars = function(self, info_queue, center)
         local str = ''
         if #G.domain.cards > 1 then
             str = 'your domains'
         else
             str = 'your domain'
         end
-        return {vars = {
-            str
-        }}
+        return {
+            vars = {
+                str
+            }
+        }
+    end,
+    can_use = function(self, card)
+        if #G.domain.cards > 0 then
+            return true
+        end
+    end,
+    use = function(self, card)
+        for i, v in ipairs(G.domain.cards) do
+            v.ability.extra.used_this_ante = false
+        end
     end
 }
 
@@ -702,6 +942,59 @@ SMODS.Consumable {
         local create_amaki = create_card('Joker', G.jokers, nil, nil, nil, nil, 'j_jjok_amaki')
         create_amaki:add_to_deck()
         G.jokers:emplace(create_amaki)
+    end
+}
+
+SMODS.Consumable {
+    key = 'envy',
+    set = 'Tarot',
+    cost = 3,
+    loc_txt = {
+        name = 'Envy',
+        text = {
+            'Select {C:attention}two{} cards, cards will',
+            '{C:attention}transfer{} {C:edition}edition{} and {C:edition}seal' } },
+    can_use = function(self, card)
+        if #G.hand.highlighted == 2 then
+            return true
+        end
+    end,
+    use = function(self, card)
+        local _card = {}
+        if G.hand.highlighted[1].edition ~= nil then
+            _card[1] = G.hand.highlighted[1].edition.key
+        end
+        if G.hand.highlighted[2].edition ~= nil then
+            _card[3] = G.hand.highlighted[2].edition.key
+        end
+
+        if G.hand.highlighted[1].seal ~= nil then
+            _card[2] = G.hand.highlighted[1].seal
+        end
+        if G.hand.highlighted[2].seal ~= nil then
+            _card[4] = G.hand.highlighted[2].seal
+        end
+
+        if _card[3] ~= nil then
+            G.hand.highlighted[1]:set_edition(_card[3])
+        else
+            G.hand.highlighted[1]:set_edition()
+        end
+        if _card[1] ~= nil then
+            G.hand.highlighted[2]:set_edition(_card[1])
+        else
+            G.hand.highlighted[2]:set_edition()
+        end
+        if _card[4] ~= nil then
+            G.hand.highlighted[1]:set_seal(_card[4])
+        else
+            G.hand.highlighted[1]:set_seal()
+        end
+        if _card[2] ~= nil then
+            G.hand.highlighted[2]:set_seal(_card[2])
+        else
+            G.hand.highlighted[2]:set_seal()
+        end
     end
 }
 
@@ -1053,13 +1346,13 @@ SMODS.Joker {
         end
         if context.selling_self and not context.blueprint then
             local tally = 0
-            for i,v in ipairs(G.jokers.cards) do
+            for i, v in ipairs(G.jokers.cards) do
                 if v.config.center.key == 'j_splash' and v.edition.negative == true then
                     tally = tally + 1
                 end
             end
             if tally >= 5 then
-                SMODS.add_card({set = 'Joker', area = G.jokers, key = 'j_jjok_dagon'})
+                SMODS.add_card({ set = 'Joker', area = G.jokers, key = 'j_jjok_dagon' })
             end
         end
     end
@@ -1080,13 +1373,13 @@ SMODS.Joker {
         info_queue[#info_queue + 1] = G.P_CENTERS.e_negative
         info_queue[#info_queue + 1] = G.P_CENTERS.j_splash
     end,
-    config = {extra = {joker_slots = 0}},
+    config = { extra = { joker_slots = 0 } },
     calculate = function(self, card, context)
         if context.setting_blind and not context.blueprint then
             card.ability.extra.jokerslots = 0
-            for i,v in ipairs(G.jokers.cards) do
+            for i, v in ipairs(G.jokers.cards) do
                 if v.edition == nil or v.edition.negative == false then
-                    card.ability.extra.jokerslots = card.ability.extra.jokerslots + 1 
+                    card.ability.extra.jokerslots = card.ability.extra.jokerslots + 1
                 end
             end
             local emptyJ = G.jokers.config.card_limit - #G.jokers.cards
@@ -1115,16 +1408,16 @@ SMODS.Joker {
     cost = 8,
     rarity = 3,
     blueprint_compat = false,
-    loc_txt = {name = 'Hanami',
-                text = {
-                    'The nature disaster curse,',
-                    'add a {C:jjok_nature}Green Seal{} to leftmost',
-                    'played card'
-                }},
-    loc_vars = function(self,info_queue,center)
-        info_queue[#info_queue+1] = G.P_SEALS.jjok_green
+    loc_txt = { name = 'Hanami',
+        text = {
+            'The nature disaster curse,',
+            'add a {C:jjok_nature}Green Seal{} to leftmost',
+            'played card'
+        } },
+    loc_vars = function(self, info_queue, center)
+        info_queue[#info_queue + 1] = G.P_SEALS.jjok_green
     end,
-    calculate = function(self,card,context)
+    calculate = function(self, card, context)
         if context.before then
             G.play.cards[1]:set_seal('jjok_green', nil, true)
         end
@@ -1142,26 +1435,29 @@ SMODS.Joker {
             'The mount fuji disaster curse,',
             '{C:attention}immolate{} #1# consumable on leaving the',
             'shop in exchange for this card to',
-            'gain its {C:money}sell value{} and {C:white,X:mult}X0.5{} its {C:money}sell value',
+            'gain its {C:money}sell value{} and {C:white,X:mult}X0.25{} its {C:money}sell value',
             'as {C:white,X:mult}XMult',
-            'Currently: {C:white,X:mult}X#1#{} Mult'
-    }},
-    config = {extra = {
+            'Currently: {C:white,X:mult}X#2#{} Mult'
+        } },
+    config = { extra = {
         Xmult = 1,
         num = 1
-    }},
-    loc_vars = function(self,info_queue,center)
-        return{vars = {
-            center.ability.extra.num,
-            center.ability.extra.Xmult
-        }}
+    } },
+    loc_vars = function(self, info_queue, center)
+        return {
+            vars = {
+                center.ability.extra.num,
+                center.ability.extra.Xmult
+            }
+        }
     end,
-    calculate = function(self,card,context)
+    calculate = function(self, card, context)
         if context.ending_shop and #G.consumeables.cards > 0 and not context.blueprint then
             local _card = pseudorandom('jogoat', 1, #G.consumeables.cards)
-            local sv = _card.sell_cost
-            card.ability.extra.Xmult = card.ability.extra.Xmult + sv / 2
+            local sv = G.consumeables.cards[_card].sell_cost
+            card.ability.extra.Xmult = card.ability.extra.Xmult + (sv / 4)
             card.sell_cost = card.sell_cost + sv
+            G.consumeables.cards[_card]:start_dissolve()
         end
         if context.joker_main or (context.joker_main and context.blueprint) then
             return {
@@ -1172,6 +1468,31 @@ SMODS.Joker {
 }
 
 --end disaster curses
+
+SMODS.Joker {
+    key = 'uta',
+    rarity = 2,
+    cost = 9,
+    loc_txt = { name = 'Utahime Iori',
+        text = { 'On selecting a boss blind, remove',
+            'all stickers from Joker to the right' } },
+    calculate = function(self, card, context)
+        if context.setting_blind and G.GAME.blind.boss == true then
+            local ind = nil
+            for i, v in ipairs(G.jokers.cards) do
+                if v == card then
+                    ind = i + 1
+                end
+            end
+            if #G.jokers.cards >= ind then
+                for i,k in pairs(SMODS.Stickers) do
+                    G.jokers.cards[ind].ability[i] = false
+                end
+                card:juice_up(0.3, 0.5)
+            end
+        end
+    end
+}
 
 SMODS.Joker {
     key = 'shoko',
@@ -1194,22 +1515,94 @@ SMODS.Joker {
 }
 
 SMODS.Joker {
+    key = 'kusa',
+    rarity = 3,
+    cost = 8,
+    blueprint_compat = true,
+    loc_txt = {
+        name = 'Atsuya Kusakabe',
+        text = {
+            'On {C:attention}selecting{} a blind, turn all but 1 {C:blue}hand{} into',
+            '{C:red}discards{}, gain {C:red}1 discard{} for every {C:blue}hand{} lost,',
+            'at {C:attention}end of round{}, gain {C:money}$#1#{} for every {C:attention}unused {C:red}discard',
+            '{s:0.8}"Strongest sorceror in the immediate area"' } },
+    config = { extra = { dollars = 2 } },
+    loc_vars = function(self, info_queue, center)
+        return {
+            vars = {
+                center.ability.extra.dollars
+            }
+        }
+    end,
+    calculate = function(self, card, context)
+        if context.setting_blind or (context.setting_blind and context.blueprint) then
+            local hands = G.GAME.round_resets.hands - 1
+            ease_hands_played(-hands)
+            G.GAME.current_round.discards_left = G.GAME.current_round.discards_left + hands
+        end
+    end,
+    calc_dollar_bonus = function(self, card)
+        local money = G.GAME.current_round.discards_left * card.ability.extra.dollars
+        return money
+    end
+}
+
+SMODS.Joker {
+    key = 'tengen',
+    rarity = 3,
+    cost = 5,
+    loc_txt = {
+        name = 'Master Tengen',
+        text = {
+            'Create a {C:spectral}Spectral{} booster on',
+            'entering the shop' } },
+    calculate = function(self, card, context)
+        if context.starting_shop then
+            SMODS.add_booster_to_shop('p_spectral_normal_1')
+        end
+    end
+}
+
+SMODS.Joker {
+    key = 'yoro',
+    cost = 20,
+    rarity = 4,
+    loc_txt = { name = 'Yorozu',
+        text = {
+            'Add another card slot, booster',
+            'pack and voucher to the shop'
+        } },
+    add_to_deck = function(self, card, from_debuff)
+        SMODS.change_booster_limit(1)
+        SMODS.change_voucher_limit(1)
+        change_shop_size(1)
+    end,
+    remove_from_deck = function(self, card, from_debuff)
+        SMODS.change_booster_limit(-1)
+        SMODS.change_voucher_limit(-1)
+        change_shop_size(-1)
+    end
+}
+
+SMODS.Joker {
     key = 'junpei',
     rarity = 1,
     cost = 4,
     blueprint_compat = true,
-    loc_txt = {name = 'Junpei Yoshino',
-                text = {'Gain {C:money}$#1#{} on purchasing an item',
-                'from the shop'}},
-    config = {extra = {
+    loc_txt = { name = 'Junpei Yoshino',
+        text = { 'Gain {C:money}$#1#{} on purchasing an item',
+            'from the shop' } },
+    config = { extra = {
         dollars = 1
-    }},
-    loc_vars = function(self,info_queue,center)
-        return {vars = {
-            center.ability.extra.dollars
-        }}
+    } },
+    loc_vars = function(self, info_queue, center)
+        return {
+            vars = {
+                center.ability.extra.dollars
+            }
+        }
     end,
-    calculate = function(self,card,context)
+    calculate = function(self, card, context)
         if context.buying_card or context.open_booster or (context.buying_card and context.blueprint) or (context.open_booster and context.blueprint) then
             ease_dollars(card.ability.extra.dollars)
         end
@@ -1290,8 +1683,11 @@ SMODS.Joker {
     end,
     calculate = function(self, card, context)
         if context.joker_main then
-            return { mult_mod = card.ability.extra.mult,
-                    message = localize{type='variable',key='a_mult',vars={self.ability.mult}} }
+            return {
+                mult_mod = card.ability.extra.mult,
+                message = '+' .. card.ability.extra.mult .. ' Mult',
+                colour = G.C.MULT
+            }
         end
     end
 }
@@ -1566,16 +1962,18 @@ SMODS.Joker {
     config = { extra = { Xmult = 1, Xmult_gain = 0.25 } },
     loc_vars = function(self, info_queue, center)
         info_queue[#info_queue + 1] = G.P_CENTERS.j_jjok_flyhead
-        return { vars = {
-             center.ability.extra.Xmult,
-             center.ability.extra.Xmult_gain } }
+        return {
+            vars = {
+                center.ability.extra.Xmult,
+                center.ability.extra.Xmult_gain }
+        }
     end,
     calculate = function(self, card, context)
         if context.selling_card then
             if context.card.config.center.key == 'j_jjok_flyhead' then
                 card.ability.extra.Xmult = card.ability.extra.Xmult + card.ability.extra.Xmult_gain
                 return {
-                    message = {'+'..card.ability.extra.Xmult_gain.. ' XMult'}
+                    message = { '+' .. card.ability.extra.Xmult_gain .. ' XMult' }
                 }
             end
         end
