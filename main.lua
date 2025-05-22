@@ -543,14 +543,14 @@ SMODS.Consumable {
     end
 }
 
-SMODS.Back {
+--[[SMODS.Back {
     key = 'gojodeck',
     discovered = true,
     apply = function(self,back)
         SMODS.add_card({key = 'c_soul'})
         SMODS.add_card({key = 'c_jjok_awaken'})
     end
-}
+}]]
 
 --card areas
 
