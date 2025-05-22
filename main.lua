@@ -553,6 +553,7 @@ SMODS.Back {
                 if G.consumeables ~= nil then
                     SMODS.add_card({ key = 'c_soul' })
                     SMODS.add_card({ key = 'c_jjok_awaken' })
+                    G.jokers.config.card_limit = G.jokers.config.card_limit - 2
                     return { true }
                 end
             end
