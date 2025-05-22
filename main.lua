@@ -543,14 +543,22 @@ SMODS.Consumable {
     end
 }
 
---[[SMODS.Back {
+SMODS.Back {
     key = 'gojodeck',
     discovered = true,
-    apply = function(self,back)
-        SMODS.add_card({key = 'c_soul'})
-        SMODS.add_card({key = 'c_jjok_awaken'})
+    apply = function(self, back)
+        G.E_MANAGER:add_event(Event({
+            trigger = 'immediate',
+            func = function()
+                if G.consumeables ~= nil then
+                    SMODS.add_card({ key = 'c_soul' })
+                    SMODS.add_card({ key = 'c_jjok_awaken' })
+                    return { true }
+                end
+            end
+        }))
     end
-}]]
+}
 
 --card areas
 
