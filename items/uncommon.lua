@@ -166,7 +166,7 @@ SMODS.Joker {
     calculate = function(card, self, context)
         if context.setting_blind or (context.setting_blind and context.blueprint) then
             local _card = pseudorandom_element(G.P_CENTER_POOLS.ygeto, pseudoseed('ygeto'))
-            SMODS.add_card({ set = 'Joker', area = G.jokers, key = _card.config.center.key })
+            SMODS.add_card({key = _card.key })
         end
     end
 }
@@ -232,6 +232,11 @@ SMODS.Joker {
                 }
             end
         end
+    end,
+    in_pool = function(self,args)
+        if JJOK.find_enhance('m_mult') == true then
+            return true
+        end
     end
 }
 
@@ -259,6 +264,11 @@ SMODS.Joker {
                     card = context.other_card
                 }
             end
+        end
+    end,
+    in_pool = function(self,args)
+        if JJOK.find_enhance('m_jjok_resonated') == true then
+            return true
         end
     end
 }

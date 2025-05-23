@@ -157,7 +157,7 @@ SMODS.Joker {
 --haruta
 SMODS.Joker {
     key = 'haruta',
-    cost = 5,
+    cost = 2,
     rarity = 1,
     loc_txt = { name = 'Haruta',
         text = {'On {C:attention}final hand{} of the',
