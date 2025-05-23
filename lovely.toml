@@ -140,3 +140,58 @@ pattern = "{name = 'colour_2', ref_table = G.C, ref_value = 'BLUE'},"
 position = "at"
 payload = "{name = 'colour_2', ref_table = G.C.SPLASH, ref_value = 2},"
 match_indent = true
+
+#ancient fix
+[[patches]]
+[patches.pattern]
+target = 'functions/common_events.lua'
+pattern = '''
+local ancient_suits = {}
+    for k, v in ipairs({'Spades','Hearts','Clubs','Diamonds'}) do
+        if v ~= G.GAME.current_round.ancient_card.suit then ancient_suits[#ancient_suits + 1] = v end
+    end
+    local ancient_card = pseudorandom_element(ancient_suits, pseudoseed('anc'..G.GAME.round_resets.ante))
+    G.GAME.current_round.ancient_card.suit = ancient_card
+'''
+position = 'at'
+payload = '''
+G.GAME.current_round.ancient_card.suit = 'Spades'
+    local valid_ancient_cards = {}
+    for k, v in ipairs(G.playing_cards) do
+        if v.ability.effect ~= 'Stone Card' then
+            if not SMODS.has_no_suit(v) then
+                table.insert(valid_ancient_cards, v)
+            end
+        end
+    end
+    if valid_ancient_cards[1] then 
+        local ancient_card = pseudorandom_element(valid_ancient_cards, pseudoseed('anc'..G.GAME.round_resets.ante))
+        G.GAME.current_round.ancient_card.suit = ancient_card.base.suit
+    end
+'''
+match_indent = true
+
+# Hook into Card:highlight for card alignment
+[[patches]]
+[patches.pattern]
+target = "card.lua"
+pattern = '''
+config = {align=
+        ((self.area == G.jokers) or (self.area == G.consumeables)) and "cr" or
+        "bmi"
+    , offset = 
+        ((self.area == G.jokers) or (self.area == G.consumeables)) and {x=x_off - 0.4,y=0} or
+        {x=0,y=0.65},
+    parent =self}
+'''
+position = "at"
+payload = '''
+config = {align=
+        ((self.area == G.jokers) or (self.area == G.consumeables) or (self.area == G.domain)) and "cr" or
+        "bmi"
+    , offset = 
+        ((self.area == G.jokers) or (self.area == G.consumeables) or (self.area == G.domain)) and {x=x_off - 0.4,y=0} or
+        {x=0,y=0.65},
+    parent =self}
+'''
+match_indent = true
