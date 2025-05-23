@@ -19,6 +19,7 @@ assert(SMODS.load_file('items/common.lua'))()
 assert(SMODS.load_file('items/uncommon.lua'))()
 assert(SMODS.load_file('items/utils.lua'))()
 assert(SMODS.load_file('items/hooks.lua'))()
+assert(SMODS.load_file('items/take.lua'))()
 
 
 
@@ -29,7 +30,8 @@ G.C.JJOK = {
     PURPLE = HEX("6A329F"),
     PINK = HEX("A64D79"),
     LBLUE = HEX('3D85C6'),
-    NAVY = HEX('134f5c')
+    NAVY = HEX('134f5c'),
+    JJK = HEX('660000')
 }
 
 SMODS.Gradient {
@@ -49,6 +51,7 @@ function loc_colour(_c, _default)
         loc_colour_ref()
     end
     G.ARGS.LOC_COLOURS.jjok_nature = G.C.JJOK.NATURE
+    G.ARGS.LOC_COLOURS.jjok_jjk = G.C.JJOK.JJK
     G.ARGS.LOC_COLOURS.jjok_lblue = G.C.JJOK.LBLUE
     G.ARGS.LOC_COLOURS.jjok_ctools = SMODS.Gradients.jjok_ctools
     G.ARGS.LOC_COLOURS.jjok_special = SMODS.Gradients.jjok_specialgrad
@@ -69,10 +72,11 @@ end
 SMODS.Blind {
     key = 'prison',
     loc_txt = { name = 'Prison Realm',
-        text = { 'Disable all {C:jjok_special}Special Grade',
+        text = { 'Disable all Special Grade',
             'jokers' } },
     boss = {
         min = 8,
+        mult = 2
     },
     boss_colour = SMODS.Gradients.jjok_specialgrad,
     recalc_debuff = function(self, card, from_blind)
@@ -83,9 +87,32 @@ SMODS.Blind {
     end,
 }
 
-SMODS.Blind {
+--[[SMODS.Blind {
     key = 'restriction',
     loc_txt = { name = 'Heavenly Restriction' }
+}]]
+
+SMODS.Blind {
+    key = 'flyheadblind',
+    loc_txt = {
+        name = 'Swarm of Flyheads',
+        text = {
+            'Disable all',
+            'Grade 4 Jokers'
+        }
+    },
+    boss = {
+        min = 1,
+        max = 8,
+        mult = 2
+    },
+    recalc_debuff = function(self,card,from_blind)
+        if (card.area == G.jokers) and not G.GAME.blind.disabled and card.config.center.rarity == 1 then
+            return true
+        end
+        return false
+    end,
+    boss_colour = HEX('999999')
 }
 
 --domains
@@ -96,8 +123,8 @@ SMODS.Booster {
     loc_txt = { name = 'Domain Booster',
         text = { 'Choose {C:attention}#1# of {C:attention}#2#',
             'Domain Expansions' },
-        group_name = { 'Domain Expansions cannot be sold',
-            'and can only be used once per ante' } },
+        group_name = { 'Domain Expansions can mostly',
+                        'only be used once per ante'} },
     draw_hand = false,
     cost = 20,
     loc_vars = function(self, info_queue, center)
@@ -141,7 +168,7 @@ SMODS.ConsumableType {
 SMODS.Consumable {
     key = 'seop',
     set = 'domain',
-    cost = 5,
+    cost = 10,
     hidden = true,
     config = { extra = { editionless_jokers = {}, used_this_ante = false } },
     loc_txt = { name = '{C:purple}Self Embodiment of Perfection',
@@ -169,7 +196,7 @@ SMODS.Consumable {
                 table.insert(card.ability.extra.editionless_jokers, v)
             end
         end
-        if card.ability.extra.editionless_jokers ~= nil and card.ability.extra.used_this_ante == false then
+        if card.ability.extra.editionless_jokers ~= {} and card.ability.extra.used_this_ante == false then
             return true
         end
     end,
@@ -188,7 +215,7 @@ SMODS.Consumable {
 SMODS.Consumable {
     key = 'idg',
     set = 'domain',
-    cost = 5,
+    cost = 10,
     loc_txt = {
         name = '{C:dark_edition}Idle Death Gamble',
         text = {
@@ -241,7 +268,7 @@ SMODS.Consumable {
 
 SMODS.Consumable {
     key = 'simple',
-    cost = 5,
+    cost = 6,
     set = 'domain',
     keep_on_use = function(self, card)
         return true
@@ -279,7 +306,7 @@ SMODS.Consumable {
 
 SMODS.Consumable {
     key = 'coffin',
-    cost = 5,
+    cost = 10,
     set = 'domain',
     loc_txt = { name = '{C:diamonds}Coffin of the Iron Mountain',
         text = { 'Jogo, the mount fuji disaster',
@@ -324,7 +351,7 @@ SMODS.Consumable {
 SMODS.Consumable {
     key = 'iv',
     set = 'domain',
-    cost = 5,
+    cost = 10,
     loc_txt = { name = '{C:blue}Infinite Void',
         text = { 'Satoru Gojos domain:',
             'launch a stream of infinite',
@@ -376,6 +403,7 @@ SMODS.Consumable {
 SMODS.Consumable {
     key = 'ms',
     set = 'domain',
+    cost = 10,
     loc_txt = { name = '{C:red}Malevolent Shrine',
         text = { 'Sukunas barrierless domain,',
             'truly a divine feat, relentlessly',
@@ -477,7 +505,7 @@ SMODS.Joker {
     cost = 40,
     add_to_deck = function(self, card)
         G.kenny = CardArea(0, 0, G.CARD_W * 1.4, G.CARD_H,
-                    { type = "joker", card_limit = card.ability.extra.card_limit, highlighted_limit = 1 })
+            { type = "joker", card_limit = card.ability.extra.card_limit, highlighted_limit = 1 })
         SMODS.add_card({ set = 'Consumable', area = G.consumeables, key = 'c_jjok_kennytar', stickers = { 'eternal' } })
         G.consumeables.config.card_limit = G.consumeables.config.card_limit + 1
     end,
@@ -561,6 +589,28 @@ SMODS.Back {
     end
 }
 
+SMODS.Back {
+    key = 'zenindeck',
+    discovered = true,
+    apply = function(self, back)
+        G.E_MANAGER:add_event(Event({
+            trigger = 'immediate',
+            func = function()
+                local pool = {}
+                for i,v in ipairs(G.P_CENTER_POOLS.Joker) do
+                    if v.mod ~= nil then
+                        if v.mod.id == 'JJOKERS' then
+                            table.insert(pool, v)
+                        end
+                    end
+                end
+                SMODS.add_card({key = pseudorandom_element(pool, pseudoseed('zenindeck')).key})
+                return true
+            end
+        }))
+    end
+}
+
 --card areas
 
 local start_run_ref = Game.start_run
@@ -594,6 +644,41 @@ function CardArea:emplace(card, location, stay_flipped)
         return
     end
     emplace_ref(self, card, location, stay_flipped)
+end
+
+local use_and_sell_buttonsref = G.UIDEF.use_and_sell_buttons
+function G.UIDEF.use_and_sell_buttons(card)
+	local retval = use_and_sell_buttonsref(card)
+    local sell = nil
+    local use = nil
+	if card.area and card.area.config.type == 'joker' and card.ability.set == 'domain' then
+    sell = {n=G.UIT.C, config={align = "cr"}, nodes={
+        
+      {n=G.UIT.C, config={ref_table = card, align = "cr",padding = 0.1, r=0.08, minw = 1.25, hover = true, shadow = true, colour = G.C.UI.BACKGROUND_INACTIVE, 
+      one_press = true, button = 'sell_card', func = 'can_sell_card'}, nodes={
+        {n=G.UIT.B, config = {w=0.1,h=0.6}},
+        {n=G.UIT.C, config={align = "tm"}, nodes={
+          {n=G.UIT.R, config={align = "cm", maxw = 1.25}, nodes={
+            {n=G.UIT.T, config={text = localize('b_sell'),colour = G.C.UI.TEXT_LIGHT, scale = 0.4, shadow = true}}
+          }},
+          {n=G.UIT.R, config={align = "cm"}, nodes={
+            {n=G.UIT.T, config={text = localize('$'),colour = G.C.WHITE, scale = 0.4, shadow = true}},
+            {n=G.UIT.T, config={ref_table = card, ref_value = 'sell_cost_label',colour = G.C.WHITE, scale = 0.55, shadow = true}}
+          }}
+        }}
+      }},
+    }}
+    use = 
+    {n=G.UIT.C, config={align = "cr"}, nodes={
+      
+      {n=G.UIT.C, config={ref_table = card, align = "cr",maxw = 1.25, padding = 0.1, r=0.08, minw = 1.25, minh = (card.area and card.area.config.type == 'joker') and 0 or 1, 
+      hover = true, shadow = true, colour = G.C.UI.BACKGROUND_INACTIVE, one_press = true, button = 'use_card', func = 'can_use_consumeable'}, nodes={
+        {n=G.UIT.B, config = {w=0.1,h=0.6}},
+        {n=G.UIT.T, config={text = localize('b_use'),colour = G.C.UI.TEXT_LIGHT, scale = 0.55, shadow = true}}
+      }}
+    }}
+    end
+    return retval
 end
 
 --card areas end
@@ -803,9 +888,7 @@ SMODS.Consumable {
         end
     end,
     use = function(self, card)
-        for i = 1, #G.hand.highlighted do
-            G.hand.highlighted[i]:set_ability('m_jjok_resonated')
-        end
+        JJOK.flip_enhance(card, 'm_jjok_resonated')
     end
 }
 
@@ -1353,13 +1436,17 @@ SMODS.Consumable {
 
         if _card[3] ~= nil then
             G.hand.highlighted[1]:set_edition(_card[3])
+            card:juice_up(0.3, 0.5)
         else
             G.hand.highlighted[1]:set_edition()
+            card:juice_up(0.3, 0.5)
         end
         if _card[1] ~= nil then
             G.hand.highlighted[2]:set_edition(_card[1])
+            card:juice_up(0.3, 0.5)
         else
             G.hand.highlighted[2]:set_edition()
+            card:juice_up(0.3, 0.5)
         end
         if _card[4] ~= nil then
             G.hand.highlighted[1]:set_seal(_card[4])
@@ -1483,7 +1570,7 @@ SMODS.Consumable {
             'into a card, creating a random',
             '{C:jjok_ctools}Cursed Tool' } },
     can_use = function(card, self)
-        if G.consumeables.config.card_limit >= #G.consumeables.cards then
+        if G.consumeables.config.card_limit > #G.consumeables.cards then
             return { true }
         end
     end,
@@ -1873,8 +1960,8 @@ SMODS.Joker {
     rarity = 4,
     loc_txt = { name = 'Yorozu',
         text = {
-            'Add another {C:attention}card slot{}, {C:attention}booster',
-            'pack and {c:attention}voucher{} to the shop'
+            'Add another {C:attention}Card{} slot, {C:attention}Booster',
+            'pack and {C:attention}Voucher{} to the shop'
         } },
     add_to_deck = function(self, card, from_debuff)
         SMODS.change_booster_limit(1)
@@ -1924,15 +2011,6 @@ SMODS.Joker {
     end
 }
 
-SMODS.Enhancement:take_ownership('glass', {
-    calculate = function(self, card, context)
-        if context.destroy_card and context.cardarea == G.play and context.destroy_card == card and pseudorandom('glass') < G.GAME.probabilities.normal / card.ability.extra then
-            SMODS.calculate_context { glass_shattered = card }
-            return { remove = true }
-        end
-    end,
-}, true)
-
 SMODS.Atlas {
     key = 'yuki',
     path = 'yuki.png',
@@ -1975,7 +2053,7 @@ SMODS.Joker {
             else
                 card.ability.extra.consc = 0
                 card.ability.extra.consc_unc = 0
-                if pseudorandom('hakbad', 1, 5) == 4 then
+                if pseudorandom('hakbad', 1, 4) == 4 then
                     G.GAME.chips = -G.GAME.blind.chips
                 end
             end
@@ -2102,8 +2180,8 @@ SMODS.Joker {
             '{C:attention}create{} 1 of the ten shadows shikigami' } },
     calculate = function(self, card, context)
         if context.setting_blind and G.GAME.blind.boss == true then
-            _card = pseudorandom_element(G.P_CENTER_POOLS.meg_shi, pseduoseed('megumi'))
-            SMODS.add_card({ set = 'Joker', area = G.jokers, key = _card.config.center.key })
+            local _card = pseudorandom_element(G.P_CENTER_POOLS.meg_shi, pseudoseed('megumi'))
+            SMODS.add_card({ set = 'Joker', area = G.jokers, key = _card.key })
         end
     end
 }
@@ -2189,7 +2267,7 @@ SMODS.Joker {
         return { vars = { center.ability.extra.Xmult } }
     end,
     calculate = function(self, card, context)
-        if context.joker_main or context.blueprint then
+        if context.joker_main then
             return { Xmult = card.ability.extra.Xmult }
         end
         if context.setting_blind and not context.blueprint then
