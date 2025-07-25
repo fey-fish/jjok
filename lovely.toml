@@ -1,0 +1,240 @@
+# manifest
+[manifest]
+version = "0.1.0"
+dump_lua = true
+priority = 0
+
+#for calculating cardareas
+[[patches]]
+[patches.pattern]
+target = '=[SMODS _ "src/utils.lua"]'
+pattern = "-- TARGET: add your own CardAreas for joker evaluation"
+position = 'before'
+match_indent = true
+payload = '''
+table.insert(t, G.domain)
+'''
+
+#hands bigger than 5
+[[patches]]
+[patches.pattern]
+target = 'functions/button_callbacks.lua'
+pattern = 'if #G.hand.highlighted <= 0 or G.GAME.blind.block_play or #G.hand.highlighted > math.max(G.GAME.starting_params.play_limit, 1) then'
+position = 'at'
+payload = 'if #G.hand.highlighted <= 0 or G.GAME.blind.block_play or #G.hand.highlighted > G.hand.config.highlighted_limit then'
+match_indent = true
+[[patches]]
+[patches.pattern]
+target = 'functions/button_callbacks.lua'
+pattern = 'if G.GAME.current_round.discards_left <= 0 or #G.hand.highlighted <= 0 or #G.hand.highlighted > math.max(G.GAME.starting_params.discard_limit, 0) then'
+position = 'at'
+payload = 'if G.GAME.current_round.discards_left <= 0 or #G.hand.highlighted <= 0 or #G.hand.highlighted > G.hand.config.highlighted_limit then'
+match_indent = true
+
+#load anim
+[[patches]]
+[patches.pattern]
+target = "game.lua"
+pattern = "SC = Card(G.ROOM.T.w/2 - SC_scale*G.CARD_W/2, 10. + G.ROOM.T.h/2 - SC_scale*G.CARD_H/2, SC_scale*G.CARD_W, SC_scale*G.CARD_H, G.P_CARDS.empty, G.P_CENTERS['j_joker'])"
+position = "after"
+payload = '''
+	SC = Card(G.ROOM.T.w/2 - SC_scale*G.CARD_W/2, 10. + G.ROOM.T.h/2 - SC_scale*G.CARD_H/2, SC_scale*G.CARD_W, SC_scale*G.CARD_H, G.P_CARDS.empty, G.P_CENTERS['j_jjok_tgojo'],{bypass_discovery_center = true, bypass_discovery_ui = true})
+'''
+match_indent = true
+
+#splash card
+[[patches]]
+[patches.pattern]
+target = 'game.lua'
+pattern = "local replace_card = Card(self.title_top.T.x, self.title_top.T.y, 1.2*G.CARD_W*SC_scale, 1.2*G.CARD_H*SC_scale, G.P_CARDS.S_A, G.P_CENTERS.c_base)"
+position = 'at'
+match_indent = true
+payload = '''
+local replace_card = Card(self.title_top.T.x, self.title_top.T.y, 1.2*G.CARD_W*SC_scale, 1.2*G.CARD_H*SC_scale, G.P_CENTERS.j_jjok_tgojo, G.P_CENTERS.c_base)
+'''
+
+#takako
+[[patches]]
+[patches.pattern]
+target = 'card.lua'
+pattern = "if self.seal == 'Blue' and #G.consumeables.cards + G.GAME.consumeable_buffer < G.consumeables.config.card_limit and not self.ability.extra_enhancement then"
+position = 'before'
+match_indent = true
+payload = '''
+local _found = {}
+for i,v in ipairs(G.jokers.cards) do
+	if v.config.center.key == 'j_jjok_takako' then
+		table.insert(_found, v)
+	end
+end
+if #_found > 0 and self.seal == 'Blue' then
+				local _planet = nil
+					for k, v in pairs(G.P_CENTER_POOLS.Planet) do
+                        if v.config.hand_type == G.GAME.last_hand_played then
+                            _planet = v.key
+                        end
+                    end
+    for i = 1, (#_found * 3) do
+		    SMODS.add_card({set = 'Planet', area = G.consumeables, key = _planet, edition = 'e_negative'})
+	    end
+	    self:juice_up()
+            return {
+                message = '+'.. #_found*3 ..' Planets!', colour = G.C.SECONDARY_SET.Planet
+            }
+else
+'''
+
+[[patches]]
+[patches.pattern]
+target = 'card.lua'
+pattern = '''
+ret.effect = true
+end
+'''
+position = 'after'
+match_indent = false
+payload = '''
+end
+'''
+
+#ctools tracking
+[[patches]]
+[patches.pattern]
+target = 'functions/misc_functions.lua'
+pattern = "elseif card.config.center.set == 'Spectral' then  G.GAME.consumeable_usage_total.spectral = G.GAME.consumeable_usage_total.spectral + 1"
+position = 'after'
+match_indent = true
+payload = '''
+elseif card.config.center.set == 'ctools' then  G.GAME.consumeable_usage_total.ctools = G.GAME.consumeable_usage_total.ctools + 1
+'''
+
+[[patches]]
+[patches.pattern]
+target = 'functions/misc_functions.lua'
+pattern = "G.GAME.consumeable_usage_total = G.GAME.consumeable_usage_total or {tarot = 0, planet = 0, spectral = 0, tarot_planet = 0, all = 0}"
+position = 'at'
+match_indent = true
+payload = '''
+G.GAME.consumeable_usage_total = G.GAME.consumeable_usage_total or {tarot = 0, planet = 0, spectral = 0, ctools = 0, tarot_planet = 0, all = 0}
+'''
+
+#outer swirl main menu
+[[patches]]
+[patches.pattern]
+target = "game.lua"
+pattern = "{name = 'colour_1', ref_table = G.C, ref_value = 'RED'},"
+position = "at"
+payload = "{name = 'colour_1', ref_table = G.C.SPLASH, ref_value = 1},"
+match_indent = true
+
+#inner swirl main menu
+[[patches]]
+[patches.pattern]
+target = "game.lua"
+pattern = "{name = 'colour_2', ref_table = G.C, ref_value = 'BLUE'},"
+position = "at"
+payload = "{name = 'colour_2', ref_table = G.C.SPLASH, ref_value = 2},"
+match_indent = true
+
+#ancient fix
+[[patches]]
+[patches.pattern]
+target = 'functions/common_events.lua'
+pattern = '''
+local ancient_suits = {}
+    for k, v in ipairs({'Spades','Hearts','Clubs','Diamonds'}) do
+        if v ~= G.GAME.current_round.ancient_card.suit then ancient_suits[#ancient_suits + 1] = v end
+    end
+    local ancient_card = pseudorandom_element(ancient_suits, pseudoseed('anc'..G.GAME.round_resets.ante))
+    G.GAME.current_round.ancient_card.suit = ancient_card
+'''
+position = 'at'
+payload = '''
+G.GAME.current_round.ancient_card.suit = 'Spades'
+    local valid_ancient_cards = {}
+    for k, v in ipairs(G.playing_cards) do
+        if v.ability.effect ~= 'Stone Card' then
+            if not SMODS.has_no_suit(v) then
+                table.insert(valid_ancient_cards, v)
+            end
+        end
+    end
+    if valid_ancient_cards[1] then 
+        local ancient_card = pseudorandom_element(valid_ancient_cards, pseudoseed('anc'..G.GAME.round_resets.ante))
+        G.GAME.current_round.ancient_card.suit = ancient_card.base.suit
+    end
+'''
+match_indent = true
+
+# Hook into Card:highlight for card alignment
+[[patches]]
+[patches.pattern]
+target = "card.lua"
+pattern = '''
+config = {align=
+        ((self.area == G.jokers) or (self.area == G.consumeables)) and "cr" or
+        "bmi"
+    , offset = 
+        ((self.area == G.jokers) or (self.area == G.consumeables)) and {x=x_off - 0.4,y=0} or
+        {x=0,y=0.65},
+    parent =self}
+'''
+position = "at"
+payload = '''
+config = {align=
+        ((self.area == G.jokers) or (self.area == G.consumeables) or (self.area == G.domain)) and "cr" or
+        "bmi"
+    , offset = 
+        ((self.area == G.jokers) or (self.area == G.consumeables) or (self.area == G.domain)) and {x=x_off - 0.4,y=0} or
+        {x=0,y=0.65},
+    parent =self}
+'''
+match_indent = true
+
+#hakari
+[[patches]]
+[patches.pattern]
+target = "card.lua"
+pattern = '''
+if pseudorandom('lucky_mult') < G.GAME.probabilities.normal/5 then
+'''
+position = "at"
+match_indent = true
+payload = '''
+if (pseudorandom('lucky_mult') < G.GAME.probabilities.normal/5) or JJOK.find_joker('j_jjok_hak') ~= nil then
+'''
+
+[[patches]]
+[patches.pattern]
+target = "card.lua"
+pattern = '''
+if pseudorandom('lucky_money') < G.GAME.probabilities.normal/15 then
+'''
+position = "at"
+match_indent = true
+payload = '''
+if (pseudorandom('lucky_money') < G.GAME.probabilities.normal/15) or JJOK.find_joker('j_jjok_hak') ~= nil then
+'''
+
+[[patches]]
+[patches.pattern]
+target = 'functions/UI_definitions.lua'
+pattern = '''
+if card.ability.consumeable and card.area == G.pack_cards and booster_obj and booster_obj.select_card and card:selectable_from_pack(booster_obj) then
+'''
+position = 'before'
+match_indent = true
+payload = '''
+if card.config.center.key == 'j_jjok_kenny' then
+use = {n=G.UIT.C, config={align = "cr"}, nodes={
+      {n=G.UIT.C, config={ref_table = card, align = "cr",padding = 0.1, r=0.08, minw = 1.25, hover = true, shadow = true, colour = G.C.UI.BACKGROUND_INACTIVE, one_press = true, button = 'jjok_kenny_use', func = 'jjok_kenny_can'}, nodes={
+        {n=G.UIT.B, config = {w=0.1,h=0.6}},
+        {n=G.UIT.C, config={align = "tm"}, nodes={
+          {n=G.UIT.R, config={align = "cm", maxw = 1.25}, nodes={ {n=G.UIT.T, config={text = 'BODY',colour = G.C.UI.TEXT_LIGHT, scale = 0.4, shadow = true}}}},
+          {n=G.UIT.R, config={align = "cm", maxw = 1.25}, nodes={ {n=G.UIT.T, config={text = 'HOP',colour = G.C.UI.TEXT_LIGHT, scale = 0.4, shadow = true}}}}
+          }
+        }
+      }}
+    }}
+end
+'''
