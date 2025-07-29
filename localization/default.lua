@@ -16,6 +16,19 @@ return {
                                     '{C:green}Guaranteed{} to give',
                                     '{C:mult}+20{} Mult and {C:money}$20{} Dollars'
                                 }}
+        },
+        Other = {
+            jjok_electric_seal = {name = 'Conductive Seal',
+        text = { 'After scoring, this seal gains',
+            '{C:attention}#1#{} charge when played',
+            '{C:inactive}(Currently {C:jjok_lblue}#2#{C:inactive} Charges)',
+            '{C:jjok_lblue}1{} Charge:',
+            '{C:attention,s:0.8}1{C:inactive,s:0.8} Retrigger',
+            '{C:jjok_lblue}2{} Charges:',
+            '{C:attention,s:0.8}2{C:inactive,s:0.8} Retriggers, {C:white,X:chips,s:0.8}X1.5{C:inactive,s:0.8} Chips when scored',
+            '{C:jjok_lblue}3{} Charges:',
+            '{C:attention,s:0.8}3{C:inactive,s:0.8} Retriggers, {C:white,X:chips,s:0.8}X2{C:inactive,s:0.8} Chips when scored',
+            '{C:inactive,s:0.8}(self destructs)' }},
         }
     },
     misc = {
@@ -26,6 +39,9 @@ return {
             k_legendary="Grade 1",
 
             jjok_tac = 'Art by Tacashumi'
+        },
+        labels = {
+            jjok_electric_seal = 'Conductive Seal'
         }
     }
 }
