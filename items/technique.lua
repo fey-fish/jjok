@@ -13,7 +13,7 @@ SMODS.Voucher {
     loc_txt = {name = 'Cursed Inheritance',
                 text = {'Allows {C:jjok_tech}Cursed Techniques',
                         'to appear in the {C:attention}shop'}},
-    apply = function(self,card)
+    redeem = function(self,card)
         G.GAME.ct_rate = 2
     end
 }

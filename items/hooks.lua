@@ -260,22 +260,22 @@ function set_discover_tallies()
         G.DISCOVER_TALLIES.Rarities[v.key] = { tally = 0, of = 0, key = v.key }
     end
     for i, v in ipairs(G.P_CENTER_POOLS.Joker) do
-            local disc, rar
-            if v.discovered then
-                disc = true
-            end
-            
-            if v.rarity == 1 then rar = 'Common' end
-            if v.rarity == 2 then rar = 'Uncommon' end
-            if v.rarity == 3 then rar = 'Rare' end
-            if v.rarity == 4 then rar = 'Legendary' end
+        local disc, rar
+        if v.discovered then
+            disc = true
+        end
 
-            if not rar then
-                rar = v.rarity
-            end
-            G.DISCOVER_TALLIES.Rarities[rar].of = G.DISCOVER_TALLIES.Rarities[rar].of + 1
-            if disc then
-                G.DISCOVER_TALLIES.Rarities[rar].tally = G.DISCOVER_TALLIES.Rarities[rar].tally + 1
-            end
+        if v.rarity == 1 then rar = 'Common' end
+        if v.rarity == 2 then rar = 'Uncommon' end
+        if v.rarity == 3 then rar = 'Rare' end
+        if v.rarity == 4 then rar = 'Legendary' end
+
+        if not rar then
+            rar = v.rarity
+        end
+        G.DISCOVER_TALLIES.Rarities[rar].of = G.DISCOVER_TALLIES.Rarities[rar].of + 1
+        if disc then
+            G.DISCOVER_TALLIES.Rarities[rar].tally = G.DISCOVER_TALLIES.Rarities[rar].tally + 1
+        end
     end
 end

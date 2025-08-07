@@ -17,32 +17,6 @@ self.slots = center.slots or 1
 '''
 match_indent = true
 
-[[patches]]
-[patches.pattern]
-target = 'card.lua'
-pattern = '''
-return generate_card_ui(self.config.center, nil, loc_vars, card_type, badges, hide_desc, main_start, main_end, self)
-'''
-position = "at"
-payload = '''
-local full_UI_table = generate_card_ui(self.config.center, nil, loc_vars, card_type, badges, hide_desc, main_start, main_end, self)
-if self and self.slots ~= 1 then
-  full_UI_table.multi_box = full_UI_table.multi_box or {}
-  local mb = #full_UI_table.multi_box
-  full_UI_table.main.main_box_flag = true
-  local k = G.localization.descriptions['Other']['jjok_slots']
-  for i, box in ipairs(k.text_parsed) do
-    for j, line in ipairs(box) do
-      local o = SMODS.localize_box(line, {scale = 1, vars = {tostring(self.slots)}})
-      full_UI_table.multi_box[mb + 1] = full_UI_table.multi_box[mb + 1] or {}
-      full_UI_table.multi_box[mb + 1][#full_UI_table.multi_box[mb + 1] + 1] = o
-    end
-  end
-end
-return full_UI_table
-'''
-match_indent = true
-
 #random slots (polled by rarity, edition and stickers)
 [[patches]]
 [patches.pattern]
@@ -50,8 +24,9 @@ target = 'functions/common_events.lua'
 pattern = '''
 card:set_edition(edition)
         check_for_unlock({type = 'have_edition'})
-        end'''
-position = "at"
+end
+'''
+position = "after"
 payload = '''
 if Jjok.config.slotsystem then
     local slots, pool = card.slots or 1, 0
@@ -94,7 +69,6 @@ if Jjok.config.slotsystem then
       if pseudorandom('jjok_slots', 1, 100) <= (pool * 100) then
         card.slots = 2
       end
-    end
     end
 end
 '''
