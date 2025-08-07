@@ -15,7 +15,7 @@ SMODS.Enhancement:take_ownership('glass', {
 SMODS.Enhancement:take_ownership('lucky', {
     loc_vars = function(self, info_queue, center)
         if G.jokers then
-            if JJOK.find_joker('j_jjok_hak') then
+            if SMODS.find_card('j_jjok_hak')[1] then
                 return { key = 'm_jjok_lucky_hak' }
             else
                 return {vars = {G.GAME.probabilities.normal, 20, 5, 20, 15}}

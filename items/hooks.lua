@@ -6,7 +6,7 @@ function end_round()
         SMODS.calculate_context { boss_defeat = true }
         if G.domain.cards[1] then
             for i, v in ipairs(G.domain.cards) do
-                if v.config.center.set == 'Domain' then
+                if v.config.center.set == 'domain' then
                     v.ability.extra.used_this_ante = false
                 end
             end
@@ -31,6 +31,13 @@ function end_round()
             end
         end
     }))
+    if G.GAME.cursed_energy and G.GAME.cursed_energy_limit then
+        if G.GAME.cursed_energy >= G.GAME.cursed_energy_limit then
+            ease_ce(-G.GAME.cursed_energy)
+            local joker = G.P_CENTER_POOLS.curses[pseudorandom('cursedenergy', 1, #G.P_CENTER_POOLS.curses)]
+            SMODS.add_card({ key = joker.key, no_edition = true })
+        end
+    end
     return ret
 end
 
@@ -50,13 +57,6 @@ function love.update(dt)
     ante = G.GAME.round_resets.ante
     if G.TIMERS.naoya then
         G.GAME.naoya_mult = (G.GAME.round_resets.ante ^ 2) - (G.GAME.round / 100 * G.TIMERS.n_round)
-    end
-    if G.GAME.cursed_energy and G.GAME.cursed_energy_limit then
-        if G.GAME.cursed_energy >= G.GAME.cursed_energy_limit then
-            ease_ce(-G.GAME.cursed_energy)
-            local joker = G.P_CENTER_POOLS.curses[pseudorandom('cursedenergy', 1, #G.P_CENTER_POOLS.curses)]
-            SMODS.add_card({ key = joker.key, no_edition = true })
-        end
     end
     return ret
 end
@@ -118,7 +118,7 @@ function Card:set_ability(center, initial, delay_sprites)
                 self.config.center.pos = { x = 6, y = 2 }
             elseif self.config.center.set == 'Spectral' then
                 self.config.center.pos = { x = 5, y = 2 }
-            elseif self.config.center.set == ('ctools' or 'domain') then
+            elseif self.config.center.set == 'ctools' or self.config.center.set == 'domain' then
                 self.config.center.pos = { x = 7, y = 2 }
             end
         end
@@ -219,7 +219,7 @@ function G.FUNCS.check_for_buy_space(card)
             if card.edition.negative then negative = true end
         end
         local space = G.jokers.config.card_limit - G.jokers.config.card_count
-        if space >= card.slots or negative then
+        if (space >= card.slots) or negative then
             return true
         else
             alert_no_space(card, card.ability.consumeable and G.consumeables or G.jokers)
@@ -239,7 +239,7 @@ G.FUNCS.can_select_card = function(e)
             if card.edition.negative then negative = true end
         end
         local space = G.jokers.config.card_limit - G.jokers.config.card_count
-        if space >= card.slots or negative then
+        if (space >= card.slots) or negative then
             e.config.colour = G.C.GREEN
             e.config.button = 'use_card'
         else
@@ -248,5 +248,34 @@ G.FUNCS.can_select_card = function(e)
         end
     else
         return csc(e)
+    end
+end
+
+local sdt = set_discover_tallies
+function set_discover_tallies()
+    sdt()
+    G.DISCOVER_TALLIES = G.DISCOVER_TALLIES or {}
+    G.DISCOVER_TALLIES.Rarities = {}
+    for i, v in pairs(SMODS.Rarities) do
+        G.DISCOVER_TALLIES.Rarities[v.key] = { tally = 0, of = 0, key = v.key }
+    end
+    for i, v in ipairs(G.P_CENTER_POOLS.Joker) do
+            local disc, rar
+            if v.discovered then
+                disc = true
+            end
+            
+            if v.rarity == 1 then rar = 'Common' end
+            if v.rarity == 2 then rar = 'Uncommon' end
+            if v.rarity == 3 then rar = 'Rare' end
+            if v.rarity == 4 then rar = 'Legendary' end
+
+            if not rar then
+                rar = v.rarity
+            end
+            G.DISCOVER_TALLIES.Rarities[rar].of = G.DISCOVER_TALLIES.Rarities[rar].of + 1
+            if disc then
+                G.DISCOVER_TALLIES.Rarities[rar].tally = G.DISCOVER_TALLIES.Rarities[rar].tally + 1
+            end
     end
 end

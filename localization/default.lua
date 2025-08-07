@@ -19,7 +19,7 @@ return {
         },
         Other = {
             jjok_electric_seal = {name = 'Conductive Seal',
-        text = { 'After scoring, this seal gains',
+                text = { 'After scoring, this seal gains',
             '{C:attention}#1#{} charge when played',
             '{C:inactive}(Currently {C:jjok_lblue}#2#{C:inactive} Charges)',
             '{C:jjok_lblue}1{} Charge:',
@@ -29,6 +29,9 @@ return {
             '{C:jjok_lblue}3{} Charges:',
             '{C:attention,s:0.8}3{C:inactive,s:0.8} Retriggers, {C:white,X:chips,s:0.8}X2{C:inactive,s:0.8} Chips when scored',
             '{C:inactive,s:0.8}(self destructs)' }},
+
+            jjok_slots = {text = {{'Requires {C:attention}#1#{} Slots'}}},
+            jjok_ce_cost = {text = {{'Costs {C:dark_edition}#1#{} Cursed Energy'}}},
         }
     },
     misc = {
@@ -37,6 +40,9 @@ return {
             k_uncommon="Grade 3",
             k_rare="Grade 2",
             k_legendary="Grade 1",
+
+            b_rarities = 'Rarities',
+            b_roll = 'Roll!',
 
             jjok_tac = 'Art by Tacashumi'
         },

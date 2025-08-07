@@ -1,0 +1,47 @@
+[manifest]
+version = "0.1.0"
+dump_lua = true
+priority = 0
+
+#modular system UI
+[[patches]]
+[patches.pattern]
+target = 'card.lua'
+pattern = '''
+return generate_card_ui(self.config.center, nil, loc_vars, card_type, badges, hide_desc, main_start, main_end, self)
+'''
+position = "at"
+payload = '''
+local full_UI_table = generate_card_ui(self.config.center, nil, loc_vars, card_type, badges, hide_desc, main_start, main_end, self)
+if self and self.ce_cost then
+  full_UI_table.multi_box = full_UI_table.multi_box or {}
+  local mb = #full_UI_table.multi_box
+  full_UI_table.main.main_box_flag = true
+  local k = G.localization.descriptions['Other']['jjok_ce_cost']
+  for i, box in ipairs(k.text_parsed) do
+    for j, line in ipairs(box) do
+      local o = SMODS.localize_box(line, {scale = 1, vars = {tostring(self.ce_cost)}})
+      full_UI_table.multi_box[mb + 1] = full_UI_table.multi_box[mb + 1] or {}
+      full_UI_table.multi_box[mb + 1][#full_UI_table.multi_box[mb + 1] + 1] = o
+    end
+  end
+end
+return full_UI_table
+'''
+match_indent = true
+
+#random ce cost
+[[patches]]
+[patches.pattern]
+target = 'functions/common_events.lua'
+pattern = '''
+card:set_edition(edition)
+        check_for_unlock({type = 'have_edition'})
+        end'''
+position = "at"
+payload = '''
+if center.set == 'ct' then
+    card.ce_cost = pseudorandom('ce_cost', 0, 75)
+end
+'''
+match_indent = true

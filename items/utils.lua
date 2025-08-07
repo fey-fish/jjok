@@ -167,8 +167,6 @@ function ease_ce(mod)
     G.E_MANAGER:add_event(Event({
         trigger = 'immediate',
         func = function()
-            local ce_UI = G.HUD:get_UIE_by_ID('CE_UI_count')
-
             mod = (mod or 0) + G.GAME.cursed_energy
 
             G.E_MANAGER:add_event(Event({
@@ -177,17 +175,109 @@ function ease_ce(mod)
                 ref_table = G.GAME,
                 ref_value = 'cursed_energy',
                 ease_to = mod,
-                delay =  0,
+                delay = 0,
                 func = (function(t) return math.floor(t) end)
             }))
             play_sound('timpani')
             return true
         end
-      }))
+    }))
 end
 
 function G.FUNCS.ce_bar_update(self)
     local op = (G.GAME.cursed_energy / 100) + 0.1
     self.config.progress_bar.filled_col = adjust_alpha(G.C.JJOK.LBLUE, op)
     self.config.progress_bar.max = G.GAME.cursed_energy_limit
+end
+
+G.FUNCS.your_collection_rarities = function(e)
+    G.SETTINGS.paused = true
+    G.FUNCS.overlay_menu {
+        definition = create_UIBox_Rarities(),
+    }
+end
+
+G.FUNCS.your_collection_jokers_of_rar = function(e)
+    G.SETTINGS.paused = true
+    G.FUNCS.overlay_menu {
+        definition = create_UIBox_your_collection_rars(e),
+    }
+end
+
+function create_UIBox_your_collection_rars(e)
+    local config = e.config.ref_table
+    local jokersofrar = {}
+    for i, v in ipairs(G.P_CENTER_POOLS.Joker) do
+        if v.discovered then
+            if config.key == 'Common' then
+                if v.rarity == 1 then
+                    table.insert(jokersofrar, v)
+                end
+            elseif config.key == 'Uncommon' then
+                if v.rarity == 2 then
+                    table.insert(jokersofrar, v)
+                end
+            elseif config.key == 'Rare' then
+                if v.rarity == 3 then
+                    table.insert(jokersofrar, v)
+                end
+            elseif config.key == 'Legendary' then
+                if v.rarity == 4 then
+                    table.insert(jokersofrar, v)
+                end
+            elseif v.rarity == config.key then
+                table.insert(jokersofrar, v)
+            end
+        end
+    end
+    return SMODS.card_collection_UIBox(jokersofrar, { 5, 5, 5 }, {
+        no_materialize = true,
+        modify_card = function(card, center) card.sticker = get_joker_win_sticker(center) end,
+        h_mod = 0.95,
+        back_func = 'your_collection_rarities'
+    })
+end
+
+function create_UIBox_Rarities()
+    local rars = {}
+    for i, v in pairs(SMODS.Rarities) do
+        local add = false
+        for k, m in pairs(G.P_CENTER_POOLS.Joker) do
+            local center, val_rar = m, false
+            if v.key == 'Common' then
+                if center.rarity == 1 then
+                    val_rar = true
+                end
+            elseif v.key == 'Uncommon' then
+                if center.rarity == 2 then
+                    val_rar = true
+                end
+            elseif v.key == 'Rare' then
+                if center.rarity == 3 then
+                    val_rar = true
+                end
+            elseif v.key == 'Legendary' then
+                if center.rarity == 4 then
+                    val_rar = true
+                end
+            elseif center.rarity == v.key then
+                val_rar = true
+            end
+            if center.discovered and val_rar then
+                add = true
+            end
+        end
+        if add then
+            local loc_key, col = 'k_' .. string.lower(v.key), G.C.RARITY[v.key]
+            rars[#rars + 1] = UIBox_button({ ref_table = v, button = 'your_collection_jokers_of_rar', label = { localize(loc_key) }, minw = 5, colour =
+            col, count = G.DISCOVER_TALLIES.Rarities[v.key] })
+        end
+    end
+
+    local t = create_UIBox_generic_options({
+        back_func = 'your_collection_other_gameobjects',
+        contents = {
+            { n = G.UIT.C, config = { align = "cm", padding = 0.15 }, nodes = rars } }
+    })
+    return t
 end

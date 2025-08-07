@@ -178,7 +178,7 @@ SMODS.Joker {
                 Xmult = card.ability.extra.Xmult,
             }
         end
-        if context.end_of_round then
+        if context.end_of_round and context.main_eval then
             card:start_dissolve()
             ease_dollars(card.ability.extra.dollars)
         end
