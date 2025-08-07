@@ -322,3 +322,16 @@ payload = '''
 }
 '''
 match_indent = true
+
+#domains dont close packs
+[[patches]]
+[patches.pattern]
+target = 'functions/button_callbacks.lua'
+position = 'at'
+pattern = '''
+if area == G.consumeables then
+'''
+payload = '''
+if area == G.consumeables or area == G.domain then
+'''
+match_indent = true

@@ -819,25 +819,6 @@ SMODS.Voucher {
     end
 }
 
-SMODS.Voucher {
-    key = 'debtv',
-    cost = 10,
-    loc_txt = { name = 'Gojos Cheque',
-        text = {
-            'Go {C:money}$#1#{} extra dollars in debt' } },
-    loc_vars = function(self, info_queue, center)
-        return {
-            vars = {
-                center.ability.extra.debt
-            }
-        }
-    end,
-    config = { extra = { debt = 20 } },
-    redeem = function(self, card)
-        G.GAME.bankrupt_at = G.GAME.bankrupt_at - card.ability.extra.debt
-    end
-}
-
 --new hands
 
 SMODS.PokerHand {
@@ -1098,9 +1079,6 @@ SMODS.Consumable {
     set = 'Spectral',
     loc_txt = { name = 'Reversed Cursed Technique',
         text = { 'Turn {C:dark_edition}#1#{} active' } },
-    hidden = true,
-    soul_set = 'Spectral',
-    soul_rate = 0.06,
     in_pool = function(self, args)
         if #G.domain.cards > 0 then
             return true
@@ -1190,11 +1168,11 @@ SMODS.ConsumableType {
 }
 
 SMODS.Booster {
-    key = 'ctbooster',
+    key = 'cbooster',
     config = { extra = 3, choose = 1 },
-    loc_txt = { name = 'Cursed Tools Booster',
+    loc_txt = { name = 'Cursed Booster',
         text = { 'Choose {C:attention}#1# of {C:attention}#2#',
-            'Cursed tools' },
+            'Cursed cards' },
         group_name = { 'Select a cursed tool' } },
     draw_hand = true,
     loc_vars = function(self, info_queue, center)
@@ -1205,19 +1183,19 @@ SMODS.Booster {
             }
         }
     end,
-    cost = 8,
+    cost = 6,
     in_pool = function(self, args)
         return true
     end,
     create_card = function(self, card, i)
         return
             SMODS.create_card({
-                set = 'ctools',
+                set = pseudorandom_element({'ct', 'ctools'}, pseudoseed('cbooster')),
                 area = G.pack_cards,
                 skip_materialize = true
             })
     end,
-    weight = 0.4
+    weight = 0.7
 }
 
 SMODS.Consumable {
@@ -1286,23 +1264,7 @@ SMODS.Consumable {
     use = function(self, card, context)
         local pos, temp, valid, counter = {}, nil, true, 0
         for i = 1, card.ability.extra.req do
-            repeat
-                temp = pseudorandom('invspear', 1, #G.jokers.cards)
-                for k, v in ipairs(pos) do
-                    if v == temp then
-                        valid = false
-                    else
-                        counter = counter + 1
-                    end
-                    if counter == #G.jokers.cards then
-                        valid = true
-                    end
-                end
-            until valid == true
-            pos[i] = temp
-        end
-        for i = 1, card.ability.extra.req do
-            G.jokers.cards[pos[i]]:start_dissolve()
+            pseudorandom_element(G.jokers.cards, pseudoseed('invspear')):start_dissolve()
         end
         G.jokers.config.card_limit = G.jokers.config.card_limit + card.ability.extra.slots
     end
@@ -1450,56 +1412,6 @@ SMODS.Joker {
 }
 
 SMODS.Consumable {
-    key = 'uzuma',
-    loc_txt = { name = 'Uzumaki',
-        text = { '{C:attention}Fuse Jokers{} using Cursed',
-            "Spirit manipulation's {C:jjok_special}Supreme Art{}!",
-            '{C:attention,s:0.8}4 {C:common,s:0.8}Common {C:attention,s:0.8}Jokers{,s:0.8} = {C:uncommon,s:0.8}Uncommon',
-            '{C:attention,s:0.8}3 {C:uncommon,s:0.8}Uncommon {C:attention,s:0.8}Jokers{,s:0.8} = {C:rare,s:0.8}Rare',
-            '{C:attention,s:0.8}2 {C:rare,s:0.8}Rare {C:attention,s:0.8}Jokers{,s:0.8} = {C:legendary,s:0.8}Legendary', } },
-    set = 'Tarot',
-    config = { extra = { common = false, uncommon = false, rare = false } },
-    can_use = function(self, card)
-        card.ability.extra.common = false
-        card.ability.extra.uncommon = false
-        card.ability.extra.rare = false
-        local rars = JJOK.pool_rarities()
-        if rars[1] >= 4 then
-            card.ability.extra.common = true
-        end
-        if rars[2] >= 3 then
-            card.ability.extra.uncommon = true
-        end
-        if rars[3] >= 2 then
-            card.ability.extra.rare = true
-        end
-        if rars[1] >= 4 or rars[2] >= 3 or rars[3] >= 2 then
-            return true
-        end
-    end,
-    use = function(self, card)
-        if card.ability.extra.common == true then
-            for i, v in ipairs(JJOK.find_rar(1)) do
-                v:start_dissolve()
-            end
-            SMODS.add_card({ set = 'Joker', rarity = 'Uncommon' })
-        end
-        if card.ability.extra.uncommon == true then
-            for i, v in ipairs(JJOK.find_rar(2)) do
-                v:start_dissolve()
-            end
-            SMODS.add_card({ set = 'Joker', rarity = 'Rare' })
-        end
-        if card.ability.extra.rare == true then
-            for i, v in ipairs(JJOK.find_rar(3)) do
-                v:start_dissolve()
-            end
-            SMODS.add_card({ set = 'Joker', rarity = 'Legendary' })
-        end
-    end
-}
-
-SMODS.Consumable {
     key = 'pride',
     set = 'Tarot',
     cost = 5,
@@ -1594,37 +1506,6 @@ SMODS.Consumable {
         local lustcard = pseudorandom_element(G.jokers.cards, pseudoseed('lust'))
         lustcard:set_edition('e_polychrome')
         lustcard.ability.eternal = true
-    end
-}
-
-SMODS.Consumable {
-    key = 'wallet',
-    set = 'Tarot',
-    cost = 1,
-    loc_txt = { name = 'Tojis Wallet',
-        text = {
-            'Multiply current {C:money}balance{} by {C:red}#1#'
-        } },
-    config = { extra = { dollars = -2 } },
-    loc_vars = function(self, info_queue, center)
-        return {
-            vars = {
-                center.ability.extra.dollars
-            }
-        }
-    end,
-    can_use = function(self, card)
-        return true
-    end,
-    use = function(self, card)
-        ease_dollars(G.GAME.dollars * card.ability.extra.dollars)
-    end,
-    in_pool = function(self, args)
-        if G.GAME.dollars < 0 then
-            return true
-        else
-            return false
-        end
     end
 }
 
