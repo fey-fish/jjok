@@ -142,7 +142,7 @@ function Card:can_use_consumeable(any_state, skip_check)
     if SMODS.find_card('j_jjok_onna')[1] then
         return false
     end
-    if self.config.center.key == ('c_wraith' or 'c_judgement') then
+    if self.config.center.key == ('c_wraith' or 'c_judgement' or 'c_soul') then
         local space = G.jokers.config.card_limit - G.jokers.config.card_count
         if space >= 1 then
             return true

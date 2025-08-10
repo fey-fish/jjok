@@ -332,6 +332,6 @@ pattern = '''
 if area == G.consumeables then
 '''
 payload = '''
-if area == G.consumeables or area == G.domain then
+if not area == G.pack_cards then
 '''
 match_indent = true

@@ -52,7 +52,7 @@ SMODS.Consumable {
     cost = 5,
     loc_txt = {name = 'Piercing Blood',
                 text = {'{C:attention}Destroy{} a',
-                        'selected {C:attention}Joker'}},
+                        'selected {C:red}Joker'}},
     set = 'ct',
     can_use = function(self,card)
         if #G.jokers.highlighted == 1 and G.GAME.cursed_energy >= card.ce_cost and
@@ -121,5 +121,45 @@ SMODS.Consumable {
             SMODS.add_card({ set = 'Joker', rarity = 'Legendary' })
         end
         ease_ce(card.ce_cost)
+    end
+}
+
+SMODS.Consumable {
+    key = 'rct',
+    set = 'ct',
+    cost = 5,
+    loc_txt = { name = 'Reversed Cursed Technique',
+        text = { 'Turn {C:dark_edition}#1#{} active' } },
+    in_pool = function(self, args)
+        if #G.domain.cards > 0 then
+            return true
+        end
+    end,
+    loc_vars = function(self, info_queue, center)
+        local str
+        if G.domain then
+            if #G.domain.cards > 1 then
+                str = 'your domains'
+            else
+                str = 'your domain'
+            end
+        else
+            str = 'your domain'
+        end
+        return {
+            vars = {
+                str
+            }
+        }
+    end,
+    can_use = function(self, card)
+        if #G.domain.cards > 0 then
+            return true
+        end
+    end,
+    use = function(self, card)
+        for i, v in ipairs(G.domain.cards) do
+            v.ability.extra.used_this_ante = false
+        end
     end
 }

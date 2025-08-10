@@ -955,44 +955,44 @@ SMODS.Seal {
     key = 'electric',
     atlas = 'seal',
     pos = { x = 0, y = 0 },
-    config = { extra = { gain = 1, charges = 0 } },
+    config = { gain = 1, charges = 0  },
     loc_vars = function(self, info_queue, center)
         return {
             vars = {
-                self.config.extra.gain,
-                self.config.extra.charges
+                self.config.gain,
+                self.config.charges
             }
         }
     end,
     badge_colour = HEX('3d85c6'),
     calculate = function(self, card, context)
         if context.after and context.cardarea == G.play then
-            if card.ability.seal.extra.charges == 3 then
+            if card.ability.seal.charges == 3 then
                 card:start_dissolve()
             end
-            card.ability.seal.extra.charges = card.ability.seal.extra.charges + card.ability.seal.extra.gain
+            card.ability.seal.charges = card.ability.seal.charges + card.ability.seal.gain
         end
         if context.repetitions then
-            if card.ability.seal.extra.charges == 1 then
+            if card.ability.seal.charges == 1 then
                 return {
                     repetitions = 1
                 }
-            elseif card.ability.seal.extra.charges == 2 then
+            elseif card.ability.seal.charges == 2 then
                 return {
                     repetitions = 2
                 }
-            elseif card.ability.seal.extra.charges == 3 then
+            elseif card.ability.seal.charges == 3 then
                 return {
                     repetitions = 3
                 }
             end
         end
         if context.individual and context.cardarea == G.play then
-            if card.ability.seal.extra.charges == 2 then
+            if card.ability.seal.charges == 2 then
                 return {
                     Xchips = 1.5
                 }
-            elseif card.ability.seal.extra.charges == 3 then
+            elseif card.ability.seal.charges == 3 then
                 return {
                     Xchips = 2
                 }
@@ -1074,45 +1074,6 @@ SMODS.Consumable {
     end
 }
 
-SMODS.Consumable {
-    key = 'rct',
-    set = 'Spectral',
-    loc_txt = { name = 'Reversed Cursed Technique',
-        text = { 'Turn {C:dark_edition}#1#{} active' } },
-    in_pool = function(self, args)
-        if #G.domain.cards > 0 then
-            return true
-        end
-    end,
-    loc_vars = function(self, info_queue, center)
-        local str
-        if G.domain then
-            if #G.domain.cards > 1 then
-                str = 'your domains'
-            else
-                str = 'your domain'
-            end
-        else
-            str = 'your domain'
-        end
-        return {
-            vars = {
-                str
-            }
-        }
-    end,
-    can_use = function(self, card)
-        if #G.domain.cards > 0 then
-            return true
-        end
-    end,
-    use = function(self, card)
-        for i, v in ipairs(G.domain.cards) do
-            v.ability.extra.used_this_ante = false
-        end
-    end
-}
-
 SMODS.Joker {
     key = 'yuji',
     rarity = 3,
@@ -1121,7 +1082,7 @@ SMODS.Joker {
     loc_txt = { name = 'Yuji Itadori',
         text = { '{C:mult}Mult{} cards give',
             '{C:white,X:mult}X#1#{} Mult when scored,',
-            '{C:green}#2#/#3#{} chance to do nothing, else',
+            '{C:green}#2#/#3#{} chance to',
             '{C:attention}remove{} Mult enhancement' } },
     config = { extra = { Xmult = 2.5, odds = 5 } },
     loc_vars = function(self, info_queue, center)
@@ -1195,7 +1156,7 @@ SMODS.Booster {
                 skip_materialize = true
             })
     end,
-    weight = 0.7
+    weight = 0.45
 }
 
 SMODS.Consumable {
@@ -1565,7 +1526,14 @@ SMODS.Consumable {
             'into a card, creating a random',
             '{C:jjok_ctools}Cursed Tool' } },
     can_use = function(card, self)
-        if G.consumeables.config.card_limit > #G.consumeables.cards then
+        local held = false
+        for i,v in ipairs(G.consumeables.cards) do
+            if v == card then
+                held = true
+            end
+        end
+        if (G.consumeables.config.card_limit > #G.consumeables.cards) or 
+        (G.consumeables.config.card_limit >= #G.consumeables.cards and held) then
             return true
         end
     end,
