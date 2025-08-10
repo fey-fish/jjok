@@ -2309,9 +2309,9 @@ SMODS.Joker {
     loc_txt = { name = 'Panda',
         text = {
             'Gain {C:money}$#1#{} dollars when scoring',
-            'a seal, {C:attention}destroy{} the seal',
+            'an enhancment, {C:attention}destroy{} the seal',
             'and increase payout by {C:money}$#2#',
-            '{C:inactive}(Reset if scored card doesnt have a seal)' } },
+            '{C:inactive}(Reset if a scored card doesnt have a seal)' } },
     config = { extra = { cur = 0, inc = 1 } },
     rarity = 3,
     loc_vars = function(self, info_queue, center)
@@ -2325,13 +2325,13 @@ SMODS.Joker {
     cost = 10,
     calculate = function(self, card, context)
         if context.before and context.cardarea == G.play then
-            for i, v in ipairs(G.play.cards) do
-                if v.seal then
+            for i, v in ipairs(context.scoring_hand) do
+                if not v.debuff and not v.config.center == 'c_base' then
                     card.ability.extra.cur = card.ability.extra.cur + card.ability.extra.inc
                     G.E_MANAGER:add_event(Event({
                         trigger = 'immediate',
                         func = function()
-                            playing_card:set_seal()
+                            v:set_ability()
                             return true
                         end
                     }))
@@ -3162,6 +3162,7 @@ SMODS.Joker {
             m2 = c1
         end
         main_end = {
+            {n = G.UIT.R, config = {}, nodes = {
             {
                 n = G.UIT.R,
                 config = { padding = 0.03, align = 'cm' },
@@ -3174,14 +3175,10 @@ SMODS.Joker {
                                 n = G.UIT.R,
                                 config = { align = 'tm' },
                                 nodes = {
-                                    { n = G.UIT.T, config = { text = '(Currently)', scale = 0.28, colour = G.C.UI.TEXT_INACTIVE } }
+                                    { n = G.UIT.T, config = { text = ' (Currently) ', scale = 0.28, colour = G.C.UI.TEXT_INACTIVE } }
                                 }
                             },
-                            {
-                                n = G.UIT.R,
-                                config = { align = 'cm' },
-                                nodes = m1
-                            }
+                            
                         }
                     },
                     {
@@ -3192,19 +3189,46 @@ SMODS.Joker {
                                 n = G.UIT.R,
                                 config = { align = 'tm' },
                                 nodes = {
-                                    { n = G.UIT.T, config = { text = '(Next)', scale = 0.28, colour = G.C.UI.TEXT_INACTIVE } }
+                                    { n = G.UIT.T, config = { text = ' (Next) ', scale = 0.28, colour = G.C.UI.TEXT_INACTIVE } }
                                 }
                             },
+                            
+                        }
+                    }
+                }
+            },
+            {
+                n = G.UIT.R,
+                config = { padding = 0.03, align = 'cm' },
+                nodes = {
+                    {
+                        n = G.UIT.C,
+                        config = { align = 'cm', padding = 0.08 },
+                        nodes = {
+                            {
+                                n = G.UIT.R,
+                                config = { align = 'cm' },
+                                nodes = m1
+                            }
+                            
+                        }
+                    },
+                    {
+                        n = G.UIT.C,
+                        config = { align = 'cm', padding = 0.08 },
+                        nodes = {
                             {
                                 n = G.UIT.R,
                                 config = { align = 'cm' },
                                 nodes = m2
                             }
+                            
                         }
                     }
                 }
             }
-        }
+        }}}
+        
         return { main_end = main_end }
     end,
     config = { extra = { cycles = 1, emp = false, st = 1, scaling = {
