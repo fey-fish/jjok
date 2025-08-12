@@ -1196,10 +1196,7 @@ SMODS.Joker {
         } },
     config = { extra = { Xchips_mod = 0.25 } },
     loc_vars = function(self, info_queue, center)
-        local _xchips = 1
-        if G.GAME.consumeable_usage_total ~= nil then
-            _xchips = 1 + (G.GAME.consumeable_usage_total.ctools * center.ability.extra.Xchips_mod)
-        end
+        _xchips = 1 + (G.GAME.consumeable_usage_total.ctools or 0 * center.ability.extra.Xchips_mod)
         return {
             vars = {
                 center.ability.extra.Xchips_mod,
@@ -1211,7 +1208,7 @@ SMODS.Joker {
         if context.joker_main then
             if G.GAME.consumeable_usage_total then
                 return {
-                    xchips = (G.GAME.consumeable_usage_total.ctools * card.ability.extra.Xchips_mod) + 1
+                    xchips = (G.GAME.consumeable_usage_total.ctools or 0 * card.ability.extra.Xchips_mod) + 1
                 }
             end
         end
