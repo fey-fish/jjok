@@ -281,3 +281,9 @@ function create_UIBox_Rarities()
     })
     return t
 end
+
+function Card:valid_destroy(bypass)
+    if bypass or not SMODS.is_eternal(self) then
+        return self:start_dissolve()
+    end
+end

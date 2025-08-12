@@ -279,3 +279,31 @@ function set_discover_tallies()
         end
     end
 end
+
+local catd = Card.add_to_deck
+function Card:add_to_deck(from_debuff)
+    if self.config.center.set == 'ct' and not self.ce_cost then
+        self.ce_cost = pseudorandom('ce_cost', 0, 75)
+    end
+    return catd(self, from_debuff)
+end
+
+local carc = CardArea.remove_card
+function CardArea:remove_card(card, discarded_only)
+    if card and card.edition and card.edition.card_limit then
+        self.config.card_limit = self.config.card_limit - card.edition.card_limit
+    end
+    return carc(self, card, discarded_only)
+end
+
+local emplace_ref = CardArea.emplace
+function CardArea:emplace(card, location, stay_flipped)
+    if self == G.consumeables and card.ability.set == 'domain' then
+        G.domain:emplace(card, location, stay_flipped)
+        return
+    end
+    if card and card.edition and card.edition.card_limit then
+        self.config.card_limit = self.config.card_limit + card.edition.card_limit
+    end
+    return emplace_ref(self, card, location, stay_flipped)
+end

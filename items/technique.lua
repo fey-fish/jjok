@@ -36,7 +36,7 @@ SMODS.Consumable {
 
         SMODS.add_card({rarity = _card.config.center.rarity, edition = edition})
         _card:start_dissolve()
-        ease_ce(card.ce_cost)
+        ease_ce(-card.ce_cost)
     end,
     in_pool = function(self,args)
         if #G.jokers.cards > 0 then
@@ -62,7 +62,7 @@ SMODS.Consumable {
     end,
     use = function(self,card)
         G.jokers.highlighted[1]:start_dissolve()
-        ease_ce(card.ce_cost)
+        ease_ce(-card.ce_cost)
     end,
     in_pool = function(self,args)
         if #G.jokers.cards > 0 then
@@ -98,29 +98,31 @@ SMODS.Consumable {
             card.ability.extra.rare = true
         end
         if rars[1] >= 4 or rars[2] >= 3 or rars[3] >= 2 then
-            return true
+            if G.GAME.cursed_energy >= card.ce_cost then
+                return true
+            end
         end
     end,
     use = function(self, card)
         if card.ability.extra.common == true then
             for i, v in ipairs(JJOK.find_rar(1)) do
-                v:start_dissolve()
+                v:valid_destroy()
             end
             SMODS.add_card({ set = 'Joker', rarity = 'Uncommon' })
         end
         if card.ability.extra.uncommon == true then
             for i, v in ipairs(JJOK.find_rar(2)) do
-                v:start_dissolve()
+                v:valid_destroy()
             end
             SMODS.add_card({ set = 'Joker', rarity = 'Rare' })
         end
         if card.ability.extra.rare == true then
             for i, v in ipairs(JJOK.find_rar(3)) do
-                v:start_dissolve()
+                v:valid_destroy()
             end
             SMODS.add_card({ set = 'Joker', rarity = 'Legendary' })
         end
-        ease_ce(card.ce_cost)
+        ease_ce(-card.ce_cost)
     end
 }
 
@@ -153,7 +155,7 @@ SMODS.Consumable {
         }
     end,
     can_use = function(self, card)
-        if #G.domain.cards > 0 then
+        if #G.domain.cards > 0 and G.GAME.cursed_energy >= card.ce_cost then
             return true
         end
     end,
@@ -161,5 +163,6 @@ SMODS.Consumable {
         for i, v in ipairs(G.domain.cards) do
             v.ability.extra.used_this_ante = false
         end
+        ease_ce(-card.ce_cost)
     end
 }

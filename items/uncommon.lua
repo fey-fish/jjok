@@ -63,9 +63,9 @@ SMODS.Joker {
             '{s:0.8}"I was worried about you!"' } },
     rarity = 2,
     cost = 5,
-    config = {extra = {slots = 1}},
-    loc_vars = function(self,info_queue,center)
-        return {vars = {center.ability.extra.slots}}
+    config = { extra = { slots = 1 } },
+    loc_vars = function(self, info_queue, center)
+        return { vars = { center.ability.extra.slots } }
     end,
     in_pool = function(self, args)
         if G.GAME.round_resets.ante >= 4 then
@@ -132,23 +132,57 @@ SMODS.Joker {
     key = 'ygeto',
     cost = 6,
     loc_txt = { name = 'Young Geto',
-        text = { 'Upon {C:attention}entering a blind{},',
-            'create 1 of 2 cursed spirits from',
-            'young Getos collection',
-            '{s:0.8}"Are you the strongest because',
-            '{s:0.8}youre Satoru Gojo...' } },
+        text = { '{C:white,X:mult}X#1#{} Mult for each',
+            'unique {C:attention}Joker rarity{} held',
+            '{C:inactive}(Currently {C:white,X:mult}X#2#{C:inactive} Mult)' } },
     rarity = 2,
     blueprint_compat = true,
+    config = { extra = { Xmult = 0.5 } },
+    loc_vars = function(self, info_queue, center)
+        local rars, count = { 2 }, 1
+        local areas = SMODS.get_card_areas('jokers')
+        for l, n in ipairs(areas) do
+            for i, v in ipairs(n.cards) do
+                local unique = true
+                for k, m in ipairs(rars) do
+                    if v.config.center.rarity == m then
+                        unique = false
+                    end
+                end
+                if unique == true then
+                    table.insert(rars, v.config.center.rarity)
+                    count = count + center.ability.extra.Xmult
+                end
+            end
+        end
+        return {
+            vars = {
+                center.ability.extra.Xmult,
+                count
+            }
+        }
+    end,
     calculate = function(card, self, context)
-        if context.setting_blind or (context.setting_blind and context.blueprint) then
-            local _card = pseudorandom_element(G.P_CENTER_POOLS.ygeto, pseudoseed('ygeto'))
-            SMODS.add_card({ key = _card.key })
+        if context.joker_main then
+            local rars, count = { 2 }, 1
+            local areas = SMODS.get_card_areas('jokers')
+            for l, n in ipairs(areas) do
+                for i, v in ipairs(n.cards) do
+                    local unique = true
+                    for k, m in ipairs(rars) do
+                        if v.config.center.rarity == m then
+                            unique = false
+                        end
+                    end
+                    if unique == true then
+                        table.insert(rars, v.config.center.rarity)
+                        count = count + center.ability.extra.Xmult
+                    end
+                end
+            end
+            return { Xmult = count }
         end
     end
-}
-
-SMODS.ObjectType {
-    key = 'ygeto'
 }
 
 SMODS.Joker {
@@ -165,21 +199,18 @@ SMODS.Joker {
     cost = 6,
     rarity = 2,
     calculate = function(self, card, context)
-        if context.skip_blind or context.setting_blind and #G.consumeables.cards < G.consumeables.config.card_limit then
-            local create_consum = nil
+        if (context.skip_blind or context.setting_blind) and #G.consumeables.cards < G.consumeables.config.card_limit then
             local sort = pseudorandom("seed", 1, 10)
             if sort <= 5 then
-                create_consum = SMODS.add_card({ set = 'Tarot', area = G.consumeable })
+                SMODS.add_card({ set = 'Tarot', area = G.consumeable })
             end
             if sort >= 6 and sort ~= 10 then
-                create_consum = SMODS.add_card({ set = 'Spectral', area = G.consumeable })
+                SMODS.add_card({ set = 'Spectral', area = G.consumeable })
             end
             if not context.blueprint then
                 if sort == 10 then
-                    if context ~= context.blueprint then
-                        create_consum = SMODS.add_card({ key = 'c_jjok_makitool', area = G.consumeable })
-                        card:start_dissolve()
-                    end
+                    SMODS.add_card({ key = 'c_jjok_makitool', area = G.consumeable })
+                    card:start_dissolve()
                 end
             end
         end
@@ -223,19 +254,19 @@ SMODS.Joker {
 
 SMODS.Joker {
     key = 'haibara',
-    loc_txt = {name = 'Yu Haibara',
-            text = {
-                'Scoring {C:diamonds}Diamond{} and {C:spades}Spade',
-                '{C:attention}face{} cards become {C:attention}Glass'
-            }},
-    loc_vars = function(self,info_queue,center)
-        info_queue[#info_queue+1] = G.P_CENTERS.m_glass
+    loc_txt = { name = 'Yu Haibara',
+        text = {
+            'Scoring {C:diamonds}Diamond{} and {C:spades}Spade',
+            '{C:attention}face{} cards become {C:attention}Glass'
+        } },
+    loc_vars = function(self, info_queue, center)
+        info_queue[#info_queue + 1] = G.P_CENTERS.m_glass
     end,
     cost = 7,
     rarity = 2,
-    calculate = function(self,card,context)
+    calculate = function(self, card, context)
         if context.before then
-            for i,v in ipairs(context.scoring_hand) do
+            for i, v in ipairs(context.scoring_hand) do
                 if v:is_face() and (v:is_suit('Diamonds') or v:is_suit('Spades')) then
                     v:set_ability(G.P_CENTERS.m_glass)
                     v:juice_up()
