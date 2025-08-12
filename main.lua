@@ -1630,12 +1630,13 @@ SMODS.Atlas {
 
 SMODS.Joker {
     key = 'dagon',
+    atlas = 'dagon',
     loc_txt = { name = 'Dagon',
-        text = { 'The disaster curse rooted in',
-            'the fear of water, the deep and',
-            'ultimately the unknown, {C:attention}fill{} all card',
-            'slots with {C:attention}Splash{} plus {C:dark_edition}+1 negative {C:attention}Splash',
-            'for every {C:dark_edition}non-negative{} joker on {C:attention}selecting{} a blind' } },
+        text = {  'All card areas are filled',
+            'with {C:attention}Splash{} plus {C:dark_edition}1 Negative',
+            '{C:attention}Splash{} for every {C:attention}Non-Negative',
+            'Joker on {C:attention}selecting{} a blind',
+            '{C:inactive,s:0.8}(Must have space)' } },
     cost = 20,
     rarity = 4,
     blueprint_compat = true,
@@ -1652,25 +1653,32 @@ SMODS.Joker {
                     card.ability.extra.jokerslots = card.ability.extra.jokerslots + 1
                 end
             end
-            local emptyJ = G.jokers.config.card_limit - #G.jokers.cards
+            local emptyJ = G.jokers.config.card_limit - G.jokers.config.card_count
             local emptyC = G.consumeables.config.card_limit - #G.consumeables.cards
             local emptyD = G.domain.config.card_limit - #G.domain.cards
             for i = 1, emptyJ do
-                SMODS.add_card({ set = 'Joker', area = G.jokers, key = 'j_splash' })
+                SMODS.add_card({ area = G.jokers, key = 'j_splash' })
             end
             for i = 1, emptyC do
-                SMODS.add_card({ set = 'Joker', area = G.consumeables, key = 'j_splash' })
+                SMODS.add_card({ area = G.consumeables, key = 'j_splash' })
             end
             for i = 1, emptyD do
-                SMODS.add_card({ set = 'Joker', area = G.domain, key = 'j_splash' })
+                SMODS.add_card({ area = G.domain, key = 'j_splash' })
             end
         end
         if context.setting_blind then
             for i = 1, card.ability.extra.jokerslots do
-                SMODS.add_card({ set = 'Joker', area = G.jokers, key = 'j_splash', edition = 'e_negative' })
+                SMODS.add_card({ key = 'j_splash', edition = 'e_negative' })
             end
         end
     end
+}
+
+SMODS.Atlas {
+    key = 'dagon',
+    path = 'Cthulu.png',
+    px = 71,
+    py = 95
 }
 
 SMODS.Joker {
@@ -1784,39 +1792,6 @@ SMODS.Consumable {
         G.orbital_hand = G.GAME.current_round.most_played_poker_hand
         local tag = pseudorandom_element(G.P_CENTER_POOLS.Tag, pseudoseed('puppet'))
         add_tag(Tag(tag.key, false, 'Small'))
-    end
-}
-
-SMODS.Joker {
-    key = 'kusa',
-    rarity = 3,
-    cost = 8,
-    blueprint_compat = true,
-    loc_txt = {
-        name = 'Atsuya Kusakabe',
-        text = {
-            'On {C:attention}selecting{} a blind, turn all but 1 {C:blue}hand{} into',
-            '{C:red}discards{}, gain {C:red}2 discards{} for every {C:blue}hand{} lost,',
-            'at {C:attention}end of round{}, gain {C:money}$#1#{} for every {C:attention}unused {C:red}discard',
-            '{s:0.8}"Strongest sorceror in the immediate area"' } },
-    config = { extra = { dollars = 5 } },
-    loc_vars = function(self, info_queue, center)
-        return {
-            vars = {
-                center.ability.extra.dollars
-            }
-        }
-    end,
-    calculate = function(self, card, context)
-        if context.setting_blind then
-            local hands = G.GAME.round_resets.hands - 1
-            ease_hands_played(-hands)
-            G.GAME.current_round.discards_left = G.GAME.current_round.discards_left + (hands * 2)
-        end
-    end,
-    calc_dollar_bonus = function(self, card)
-        local money = G.GAME.current_round.discards_left * card.ability.extra.dollars
-        return money
     end
 }
 

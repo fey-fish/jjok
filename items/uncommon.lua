@@ -218,6 +218,36 @@ SMODS.Joker {
 }
 
 SMODS.Joker {
+    key = 'kusa',
+    rarity = 2,
+    cost = 7,
+    blueprint_compat = false,
+    loc_txt = {
+        name = 'Atsuya Kusakabe',
+        text = {
+            '{C:attention}Lose{} all but {C:blue}1{} hand,',
+            '{C:attention}+#1#{} Hand Size',
+            '{s:0.8}"Strongest sorceror in the immediate area"' } },
+    config = { extra = { hand_size = 5, hands = 0 } },
+    loc_vars = function(self, info_queue, center)
+        return {
+            vars = {
+                center.ability.extra.hand_size
+            }
+        }
+    end,
+    add_to_deck = function(self,card)
+        card.ability.extra.hands = G.GAME.round_resets.hands
+        G.GAME.round_resets.hands = 1
+        G.hand:change_size(card.ability.extra.hand_size)
+    end,
+    remove_from_deck = function(self,card)
+        G.GAME.round_resets.hands = card.ability.extra.hands
+        G.hand:change_size(-card.ability.extra.hand_size)
+    end
+}
+
+SMODS.Joker {
     key = 'nobara',
     cost = 6,
     rarity = 2,
