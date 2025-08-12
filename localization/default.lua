@@ -35,7 +35,8 @@ return {
             b_rarities = 'Rarities',
             b_roll = 'Roll!',
 
-            jjok_tac = 'Art by Tacashumi'
+            jjok_tac = 'Art by Tacashumi',
+            jjok_fey = 'Art by fey :p'
         },
         labels = {
             jjok_electric_seal = 'Conductive Seal'

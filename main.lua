@@ -561,7 +561,7 @@ SMODS.Joker {
         end
     end,
     set_badges = function(self, card, badges)
-        badges[#badges + 1] = JJOK.credit()
+        badges[#badges + 1] = JJOK.credit('tac')
     end,
     update = function(self, card, dt)
         if G[card.ability.extra.name] then
@@ -1196,7 +1196,10 @@ SMODS.Joker {
         } },
     config = { extra = { Xchips_mod = 0.25 } },
     loc_vars = function(self, info_queue, center)
-        _xchips = 1 + (G.GAME.consumeable_usage_total.ctools or 0 * center.ability.extra.Xchips_mod)
+        local _xchips = 1
+        if G.GAME.consumeable_usage_total then
+            _xchips = 1 + (G.GAME.consumeable_usage_total.ctools or 0 * center.ability.extra.Xchips_mod)
+        end
         return {
             vars = {
                 center.ability.extra.Xchips_mod,
@@ -1262,7 +1265,7 @@ SMODS.Consumable {
         end
     end,
     set_badges = function(self, card, badges)
-        badges[#badges + 1] = JJOK.credit()
+        badges[#badges + 1] = JJOK.credit('tac')
     end,
     use = function(self, card)
         local card1 = copy_card(G.hand.highlighted[1])
@@ -1428,7 +1431,7 @@ SMODS.Joker {
         text = {} },
     config = { extra = { phase = 1, fingers = 1, mult = 20, Xmult = 1, dollars = 10 } },
     set_badges = function(self, card, badges)
-        badges[#badges + 1] = JJOK.credit()
+        badges[#badges + 1] = JJOK.credit('tac')
     end,
     loc_vars = function(self, info_queue, center)
         info_queue[#info_queue + 1] = G.P_CENTERS.j_jjok_sukfin
@@ -1600,7 +1603,7 @@ SMODS.Joker {
         end
     end,
     set_badges = function(self, card, badges)
-        badges[#badges + 1] = JJOK.credit()
+        badges[#badges + 1] = JJOK.credit('tac')
     end,
     update = function(self, card, dt)
         if Jjok.config.majito then
@@ -1920,7 +1923,7 @@ SMODS.Joker {
         end
     end,
     set_badges = function(self, card, badges)
-        badges[#badges + 1] = JJOK.credit()
+        badges[#badges + 1] = JJOK.credit('tac')
     end,
 }
 
@@ -1943,7 +1946,7 @@ SMODS.Joker {
         info_queue[#info_queue + 1] = G.P_CENTERS.m_lucky
     end,
     set_badges = function(self, card, badges)
-        badges[#badges + 1] = JJOK.credit()
+        badges[#badges + 1] = JJOK.credit('tac')
     end
 }
 
@@ -2051,10 +2054,12 @@ SMODS.Joker {
             for i = 1, space do
                 SMODS.add_card({ set = 'Joker' })
             end
+            if G.consumeables.config.card_limit - #G.consumeables.cards < 0 then
             for i = 1, G.consumeables.config.card_limit - #G.consumeables.cards do
                 local _ctype = pseudorandom_element(SMODS.ConsumableTypes, pseudoseed('sugurugeto'))
                 SMODS.add_card({ set = _ctype.key })
             end
+        end
             if G.domain.config.card_limit - #G.domain.cards < 0 then
                 for i = 1, G.domain.config.card_limit - #G.domain.cards do
                     SMODS.add_card({ set = 'domain' })
@@ -2090,7 +2095,7 @@ SMODS.Joker {
         }
     end,
     set_badges = function(self, card, badges)
-        badges[#badges + 1] = JJOK.credit()
+        badges[#badges + 1] = JJOK.credit('tac')
     end,
     calculate = function(self, card, context)
         if context.end_of_round and context.main_eval and not context.blueprint then
@@ -2172,7 +2177,7 @@ SMODS.Joker {
     rarity = 4,
     cost = 8,
     set_badges = function(self, card, badges)
-        badges[#badges + 1] = JJOK.credit()
+        badges[#badges + 1] = JJOK.credit('tac')
     end,
     discovered = true
 }
@@ -2420,6 +2425,7 @@ SMODS.Joker {
     key = 'flyhead',
     rarity = 'jjok_cs',
     cost = 1,
+    atlas = 'flyhead',
     blueprint_compat = true,
     loc_txt = { name = 'Fly Heads',
         text = { 'A useless {C:common}Grade 4',
@@ -2432,6 +2438,9 @@ SMODS.Joker {
                 center.ability.extra.chips }
         }
     end,
+    set_badges = function(self, card, badges)
+        badges[#badges + 1] = JJOK.credit('fey')
+    end,
     calculate = function(self, card, context)
         if context.joker_main then
             return {
@@ -2440,6 +2449,13 @@ SMODS.Joker {
             }
         end
     end
+}
+
+SMODS.Atlas {
+    key = 'flyhead',
+    path = 'flyheads.png',
+    px = 71,
+    py = 95
 }
 
 SMODS.Joker {
@@ -2662,7 +2678,7 @@ SMODS.Joker {
     rarity = 4,
     cost = 20,
     set_badges = function(self, card, badges)
-        badges[#badges + 1] = JJOK.credit()
+        badges[#badges + 1] = JJOK.credit('tac')
     end,
     calculate = function(self, card, context)
         if context.destroying_card and context.cardarea == G.play and context.destroying_card == context.full_hand[1] and not context.blueprint then
@@ -2817,7 +2833,7 @@ SMODS.Joker {
 
     },
     set_badges = function(self, card, badges)
-        badges[#badges + 1] = JJOK.credit()
+        badges[#badges + 1] = JJOK.credit('tac')
     end,
     blueprint_compat = false,
     rarity = 'jjok_special',
@@ -2857,7 +2873,7 @@ SMODS.Joker {
         end
     end,
     set_badges = function(self, card, badges)
-        badges[#badges + 1] = JJOK.credit()
+        badges[#badges + 1] = JJOK.credit('tac')
     end,
     calculate = function(self, card, context)
         if context.individual and context.cardarea == G.play then
@@ -3096,7 +3112,7 @@ SMODS.Joker {
         }
     end,
     set_badges = function(self, card, badges)
-        badges[#badges + 1] = JJOK.credit()
+        badges[#badges + 1] = JJOK.credit('tac')
     end,
     loc_txt = {
         name = 'Young Gojo',
@@ -3158,7 +3174,7 @@ SMODS.Joker {
     rarity = "jjok_special",
     cost = 40,
     set_badges = function(self, card, badges)
-        badges[#badges + 1] = JJOK.credit()
+        badges[#badges + 1] = JJOK.credit('tac')
     end,
     loc_vars = function(self, info_queue, center)
         return { vars = { center.ability.extra.retriggers } }

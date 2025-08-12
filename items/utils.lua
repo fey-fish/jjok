@@ -122,8 +122,12 @@ JJOK.poll_suits = function()
     return suits
 end
 
-JJOK.credit = function()
-    return create_badge(localize('jjok_tac'), G.C.JJOK.LBLUE, G.C.WHITE, 0.8)
+JJOK.credit = function(author)
+    if author == 'tac' then
+        return create_badge(localize('jjok_tac'), G.C.JJOK.LBLUE, G.C.WHITE, 0.8)
+    elseif author == 'fey' then
+        return create_badge(localize('jjok_fey'), G.C.JJOK.PINK, G.C.WHITE, 0.8)
+    end
 end
 
 JJOK.create_cardarea = function(cardarea, name, counter)
