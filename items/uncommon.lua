@@ -176,7 +176,7 @@ SMODS.Joker {
                     end
                     if unique == true then
                         table.insert(rars, v.config.center.rarity)
-                        count = count + card.ability.extra.Xmult
+                        count = (count * card.ability.extra.Xmult) + 1
                     end
                 end
             end

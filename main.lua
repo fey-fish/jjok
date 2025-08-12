@@ -1197,7 +1197,7 @@ SMODS.Joker {
     config = { extra = { Xchips_mod = 0.25 } },
     loc_vars = function(self, info_queue, center)
         local _xchips = 1
-        if G.GAME.consumeable_usage_total ~= nil then
+        if G.GAME.consumeable_usage_total and G.GAME.consumeable_usage_total.ctools then
             _xchips = 1 + (G.GAME.consumeable_usage_total.ctools * center.ability.extra.Xchips_mod)
         end
         return {
@@ -1209,7 +1209,7 @@ SMODS.Joker {
     end,
     calculate = function(self, card, context)
         if context.joker_main then
-            if G.GAME.consumeable_usage_total then
+            if G.GAME.consumeable_usage_total and G.GAME.consumeable_usage_total.ctools then
                 return {
                     xchips = (G.GAME.consumeable_usage_total.ctools * card.ability.extra.Xchips_mod) + 1
                 }
@@ -1394,7 +1394,6 @@ SMODS.Consumable {
             '{s:0.8}"Each containing the soul of Ryomen Sukuna"' } },
     loc_vars = function(self, info_queue, center)
         info_queue[#info_queue + 1] = G.P_CENTERS.j_jjok_yuji
-        info_queue[#info_queue + 1] = G.P_CENTERS.j_jjok_sukuna
     end,
     can_use = function(self, card)
         card.ability.extra.yuji_pre = JJOK.find_joker('j_jjok_yuji')
@@ -2051,7 +2050,8 @@ SMODS.Joker {
     cost = 40,
     calculate = function(self, card, context)
         if context.setting_blind then
-            for i = 1, G.jokers.config.card_limit - #G.jokers.cards do
+            local space = G.jokers.config.card_limit - G.jokers.config.card_count
+            for i = 1, space do
                 SMODS.add_card({ set = 'Joker' })
             end
             for i = 1, G.consumeables.config.card_limit - #G.consumeables.cards do
