@@ -618,21 +618,6 @@ SMODS.Back {
     end
 }
 
---card areas
-
-local start_run_ref = Game.start_run
-function Game:start_run(args)
-    start_run_ref(self, args)
-    self.GAME.starting_params.domain_slots = 1
-    self.domain = CardArea(0, 0, G.CARD_W * 1.2, G.CARD_H, {
-        card_limit = self.GAME.starting_params.domain_slots,
-        type = "joker",
-        highlight_limit = 1,
-        view_deck = true
-    })
-    set_screen_positions()
-end
-
 local set_screen_positions_func = set_screen_positions
 function set_screen_positions()
     set_screen_positions_func()
@@ -810,87 +795,6 @@ SMODS.Voucher {
     end
 }
 
---new hands
-
-SMODS.PokerHand {
-    key = '6oak',
-    loc_txt = { name = 'Six of a Kind',
-        description = {
-            '6 cards with the same rank'
-        } },
-    visible = false,
-    example = {
-        { 'S_K', true },
-        { 'S_K', true },
-        { 'D_K', true },
-        { 'H_K', true },
-        { 'D_K', true },
-        { 'C_K', true } },
-    mult = 20, chips = 200,
-    l_mult = 5, l_chips = 50,
-    evaluate = function(parts, hand)
-        return parts.jjok_6
-    end
-}
-
-SMODS.PokerHand {
-    key = 'f6',
-    loc_txt = { name = 'Flush Six',
-        description = {
-            '6 cards with the same rank and suit'
-        } },
-    visible = false,
-    example = {
-        { 'H_K', true },
-        { 'H_K', true },
-        { 'H_K', true },
-        { 'H_K', true },
-        { 'H_K', true },
-        { 'H_K', true } },
-    mult = 30, chips = 300,
-    l_mult = 6, l_chips = 60,
-    evaluate = function(parts, hand)
-        return next(parts.jjok_6) and next(parts.jjok_flush)
-            and { SMODS.merge_lists(parts.jjok_6, parts.jjok_flush) } or {}
-    end
-}
-
-SMODS.PokerHandPart {
-    key = '6',
-    func = function(hand)
-        return get_X_same(6, hand)
-    end
-}
-SMODS.PokerHandPart {
-    key = 'flush',
-    func = function(hand)
-        local ret = {}
-        local four_fingers = next(find_joker('Four Fingers'))
-        local suits = SMODS.Suit.obj_buffer
-        if #hand < (6 - (four_fingers and 1 or 0)) then
-            return ret
-        else
-            for j = 1, #suits do
-                local t = {}
-                local suit = suits[j]
-                local flush_count = 0
-                for i = 1, #hand do
-                    if hand[i]:is_suit(suit, nil, true) then
-                        flush_count = flush_count + 1; t[#t + 1] = hand[i]
-                    end
-                end
-                if flush_count >= (6 - (four_fingers and 1 or 0)) then
-                    table.insert(ret, t)
-                    return ret
-                end
-            end
-            return {}
-        end
-    end
-}
-
---end of new hands
-
 --enhancements
 SMODS.Enhancement {
     key = 'resonated',
@@ -941,56 +845,6 @@ SMODS.Seal {
         if context.before and context.cardarea == G.play then
             local edition = poll_edition('greenseal', nil, true, true)
             card:set_edition(edition)
-        end
-    end
-}
-
-SMODS.Seal {
-    key = 'electric',
-    atlas = 'seal',
-    pos = { x = 0, y = 0 },
-    config = { gain = 1, charges = 0 },
-    loc_vars = function(self, info_queue, center)
-        return {
-            vars = {
-                self.config.gain,
-                self.config.charges
-            }
-        }
-    end,
-    badge_colour = HEX('3d85c6'),
-    calculate = function(self, card, context)
-        if context.after and context.cardarea == G.play then
-            if card.ability.seal.charges == 3 then
-                card:start_dissolve()
-            end
-            card.ability.seal.charges = card.ability.seal.charges + card.ability.seal.gain
-        end
-        if context.repetitions then
-            if card.ability.seal.charges == 1 then
-                return {
-                    repetitions = 1
-                }
-            elseif card.ability.seal.charges == 2 then
-                return {
-                    repetitions = 2
-                }
-            elseif card.ability.seal.charges == 3 then
-                return {
-                    repetitions = 3
-                }
-            end
-        end
-        if context.individual and context.cardarea == G.play then
-            if card.ability.seal.charges == 2 then
-                return {
-                    Xchips = 1.5
-                }
-            elseif card.ability.seal.charges == 3 then
-                return {
-                    Xchips = 2
-                }
-            end
         end
     end
 }
@@ -1576,7 +1430,7 @@ SMODS.Joker {
     rarity = 'jjok_special',
     loc_txt = { name = '{V:1}#1#',
         text = {} },
-    config = { extra = { phase = 3, fingers = 1, mult = 20, Xmult = 1, dollars = 10 } },
+    config = { extra = { phase = 1, fingers = 1, mult = 20, Xmult = 1, dollars = 10 } },
     set_badges = function(self, card, badges)
         badges[#badges + 1] = JJOK.credit()
     end,
@@ -1653,16 +1507,10 @@ SMODS.Joker {
                                 {n = G.UIT.T, config = {text = (' Mult for every finger'), scale = 0.28, colour = G.C.UI.TEXT_DARK}}
                             }},
                         }},
-                        {n = G.UIT.R, config = {align = 'cm'}, nodes = {
-                            {n = G.UIT.C, config = {padding = 0.03}, nodes = {
-                                {n = G.UIT.T, config = {text = 'and ', scale = 0.28, colour = G.C.UI.TEXT_DARK}}
-                            }},
-                            {n = G.UIT.C, config = { align = 'cm' }, nodes = {
-                                {n = G.UIT.T, config = {text = '$10', scale = 0.28, colour = G.C.MONEY}},
-                            }},
-                            {n = G.UIT.C, config = {align = 'cm'}, nodes = {
-                                {n = G.UIT.T, config = {text = ' when scored', scale = 0.28, colour = G.C.UI.TEXT_DARK}}
-                            }},
+                        {n = G.UIT.R, config = {align = 'cm', padding = 0.03}, nodes = {
+                            {n = G.UIT.T, config = {text = 'and ', scale = 0.28, colour = G.C.UI.TEXT_DARK}},
+                            {n = G.UIT.T, config = {text = '$10', scale = 0.28, colour = G.C.MONEY}},
+                            {n = G.UIT.T, config = {text = ' when scored', scale = 0.28, colour = G.C.UI.TEXT_DARK}}
                         }},
                         {n = G.UIT.R, config = {align = 'cm'}, nodes = {
                             {n = G.UIT.C, config = {padding = 0.03}, nodes = {
@@ -1973,7 +1821,7 @@ SMODS.Joker {
     end
 }
 
-SMODS.Joker {
+--[[SMODS.Joker {
     key = 'kash',
     loc_txt = { name = 'Hajime Kashimo',
         text = { 'The strongest of the edo period,',
@@ -2000,7 +1848,7 @@ SMODS.Joker {
             end
         end
     end
-}
+}]]
 
 SMODS.Joker {
     key = 'tengen',
@@ -2348,7 +2196,7 @@ SMODS.Joker {
             'and increase payout by {C:money}$#2#',
             "{C:inactive}(Reset if a scored card isn't enhanced)" } },
     config = { extra = { cur = 0, inc = 1 } },
-    rarity = 3,
+    rarity = 2,
     loc_vars = function(self, info_queue, center)
         return {
             vars = {
@@ -2357,7 +2205,7 @@ SMODS.Joker {
             }
         }
     end,
-    cost = 10,
+    cost = 6,
     calculate = function(self, card, context)
         if context.before and context.cardarea == G.play then
             for i, v in ipairs(context.scoring_hand) do

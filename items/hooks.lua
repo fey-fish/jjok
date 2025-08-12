@@ -26,7 +26,9 @@ function end_round()
         func = function()
             if G.domain then
                 local ce_min = #G.domain.cards * -10
-                ease_ce(ce_min)
+                if G.GAME.cursed_energy >= ce_min then
+                    ease_ce(ce_min)
+                end
                 return true
             end
         end
@@ -118,7 +120,7 @@ function Card:set_ability(center, initial, delay_sprites)
                 self.config.center.pos = { x = 6, y = 2 }
             elseif self.config.center.set == 'Spectral' then
                 self.config.center.pos = { x = 5, y = 2 }
-            elseif self.config.center.set == 'ctools' or self.config.center.set == 'domain' then
+            elseif self.config.center.set == 'ctools' or self.config.center.set == 'ct' or self.config.center.set == 'domain' or self.config.center.set == 'Planet' then
                 self.config.center.pos = { x = 7, y = 2 }
             end
         end

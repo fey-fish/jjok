@@ -4,7 +4,7 @@ version = "0.1.0"
 dump_lua = true
 priority = 0
 
-#for calculating cardareas
+#domain stuff lol
 [[patches]]
 [patches.pattern]
 target = '=[SMODS _ "src/utils.lua"]'
@@ -13,6 +13,27 @@ position = 'before'
 match_indent = true
 payload = '''
 table.insert(t, G.domain)
+'''
+
+[[patches]]
+[patches.pattern]
+target = 'game.lua'
+pattern = '''
+self.play = CardArea(
+        0, 0,
+        CAI.play_W,CAI.play_H, 
+        {card_limit = 5, type = 'play'})
+'''
+position = 'after'
+match_indent = true
+payload = '''
+self.GAME.starting_params.domain_slots = 1
+    self.domain = CardArea(0, 0, G.CARD_W * 1.2, G.CARD_H, {
+        card_limit = self.GAME.starting_params.domain_slots,
+        type = "joker",
+        highlight_limit = 1,
+        view_deck = true
+    })
 '''
 
 #hands bigger than 5
@@ -368,5 +389,22 @@ else
                 end
 '''
 payload = '''
+'''
+match_indent = true
+
+#planet badges
+[[patches]]
+[patches.pattern]
+target = 'functions/UI_definitions.lua'
+position = 'at'
+pattern = '''
+badges[#badges + 1] = create_badge(((card.ability.name == 'Pluto' or card.ability.name == 'Ceres' or card.ability.name == 'Eris') and localize('k_dwarf_planet')) or (card.ability.name == 'Planet X' and localize('k_planet_q') or card_type),card_type_colour, nil, 1.2)
+'''
+payload = '''
+if card.ability.name == 'c_jjok_milky' or card.ability.name == 'c_jjok_sun' then
+    badges[#badges + 1] = create_badge((card.ability.name == 'c_jjok_sun' and localize('k_star_planet')) or (card.ability.name == 'c_jjok_milky' and localize('k_galaxy_planet') or card_type),card_type_colour, nil, 1.2)
+else
+    badges[#badges + 1] = create_badge(((card.ability.name == 'Pluto' or card.ability.name == 'Ceres' or card.ability.name == 'Eris') and localize('k_dwarf_planet')) or (card.ability.name == 'Planet X' and localize('k_planet_q') or card_type),card_type_colour, nil, 1.2)
+end
 '''
 match_indent = true
