@@ -9,7 +9,7 @@ priority = 0
 [patches.pattern]
 target = '=[SMODS _ "src/utils.lua"]'
 pattern = "-- TARGET: add your own CardAreas for joker evaluation"
-position = 'before'
+position = 'after'
 match_indent = true
 payload = '''
 table.insert(t, G.domain)
