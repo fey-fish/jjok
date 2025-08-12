@@ -21,7 +21,13 @@ Jjok.config_tab = function()
                             create_toggle { col = true, label = 'Jujutsu Jokers only', scale = 1, w = 0, shadow = true, ref_table = Jjok.config, ref_value = "jjok_only"},
                             create_toggle { col = true, label = 'Majito', scale = 1, w = 0, shadow = true, ref_table = Jjok.config, ref_value = "majito" },
                         }
-                    }
+                    },
+                    {
+                        n = G.UIT.R,
+                        config = { align = "tm" },
+                        nodes = {
+                            create_toggle { col = true, label = 'Multi-Slot System', scale = 1, w = 0, shadow = true, ref_table = Jjok.config, ref_value = "slotsystem" }                        }
+                    },
                 }
             }
         }

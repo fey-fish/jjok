@@ -1,0 +1,22 @@
+[manifest]
+version = "0.1.0"
+dump_lua = true
+priority = 0
+
+#random ce cost
+[[patches]]
+[patches.pattern]
+target = 'functions/common_events.lua'
+pattern = '''
+if _type == 'Joker' then
+        if G.GAME.modifiers.all_eternal then
+            card:set_eternal(true)
+        end
+'''
+position = "before"
+payload = '''
+if center.set == 'ct' then
+    card.ce_cost = pseudorandom('ce_cost', 0, 75)
+end
+'''
+match_indent = true

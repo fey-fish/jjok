@@ -5,12 +5,11 @@ SMODS.current_mod.optional_features = function()
     }
 end
 
-assert(SMODS.load_file('items/common.lua'))()
-assert(SMODS.load_file('items/uncommon.lua'))()
-assert(SMODS.load_file('items/utils.lua'))()
-assert(SMODS.load_file('items/hooks.lua'))()
-assert(SMODS.load_file('items/take.lua'))()
-assert(SMODS.load_file('items/config_tab.lua'))()
+local items = NFS.getDirectoryItems(SMODS.current_mod.path .. "items")
+for _, file in ipairs(items) do
+    sendInfoMessage("Loading " .. file, "Jujutsu Jokers")
+    assert(SMODS.load_file("items/" .. file))()
+end
 
 --colours
 
@@ -20,7 +19,8 @@ G.C.JJOK = {
     PINK = HEX("A64D79"),
     LBLUE = HEX('3D85C6'),
     NAVY = HEX('134f5c'),
-    JJK = HEX('660000')
+    JJK = HEX('660000'),
+    TECH = HEX('F52742')
 }
 
 SMODS.Gradient {
@@ -42,6 +42,7 @@ function loc_colour(_c, _default)
     G.ARGS.LOC_COLOURS.jjok_nature = G.C.JJOK.NATURE
     G.ARGS.LOC_COLOURS.jjok_jjk = G.C.JJOK.JJK
     G.ARGS.LOC_COLOURS.jjok_lblue = G.C.JJOK.LBLUE
+    G.ARGS.LOC_COLOURS.jjok_tech = G.C.JJOK.TECH
     G.ARGS.LOC_COLOURS.jjok_ctools = SMODS.Gradients.jjok_ctools
     G.ARGS.LOC_COLOURS.jjok_special = SMODS.Gradients.jjok_specialgrad
 
@@ -82,9 +83,9 @@ SMODS.Blind {
 }]]
 
 SMODS.Blind {
-    key = 'flyheadblind',
+    key = 'hospital',
     loc_txt = {
-        name = 'Swarm of Flyheads',
+        name = 'The Hospital',
         text = {
             'Disable all',
             'Grade 4 Jokers'
@@ -393,7 +394,7 @@ SMODS.Consumable {
     use = function(self, card)
         card.ability.extra.used_this_ante = true
         for i, v in ipairs(G.hand.cards) do
-            v:start_dissolve()
+            v:valid_destroy()
             ease_dollars(card.ability.extra.money)
         end
     end
@@ -453,7 +454,6 @@ SMODS.Consumable {
             '{s:0.8,C:inactive}(Currently #3#)' } },
     config = { extra = { emult = 1.2, scale = 0.05, used_this_ante = false } },
     loc_vars = function(self, info_queue, center)
-        info_queue[#info_queue + 1] = G.P_CENTERS.j_jjok_sukuna
         local ac
         if center.ability.extra.used_this_ante == true then
             ac = 'Inactive'
@@ -618,21 +618,6 @@ SMODS.Back {
     end
 }
 
---card areas
-
-local start_run_ref = Game.start_run
-function Game:start_run(args)
-    start_run_ref(self, args)
-    self.GAME.starting_params.domain_slots = 1
-    self.domain = CardArea(0, 0, G.CARD_W * 1.2, G.CARD_H, {
-        card_limit = self.GAME.starting_params.domain_slots,
-        type = "joker",
-        highlight_limit = 1,
-        view_deck = true
-    })
-    set_screen_positions()
-end
-
 local set_screen_positions_func = set_screen_positions
 function set_screen_positions()
     set_screen_positions_func()
@@ -642,15 +627,6 @@ function set_screen_positions()
         G.domain.T.y = 3
         G.domain:hard_set_VT()
     end
-end
-
-local emplace_ref = CardArea.emplace
-function CardArea:emplace(card, location, stay_flipped)
-    if self == G.consumeables and card.ability.set == 'domain' then
-        G.domain:emplace(card, location, stay_flipped)
-        return
-    end
-    emplace_ref(self, card, location, stay_flipped)
 end
 
 local use_and_sell_buttonsref = G.UIDEF.use_and_sell_buttons
@@ -819,112 +795,15 @@ SMODS.Voucher {
     end
 }
 
-SMODS.Voucher {
-    key = 'debtv',
-    cost = 10,
-    loc_txt = { name = 'Gojos Cheque',
-        text = {
-            'Go {C:money}$#1#{} extra dollars in debt' } },
-    loc_vars = function(self, info_queue, center)
-        return {
-            vars = {
-                center.ability.extra.debt
-            }
-        }
-    end,
-    config = { extra = { debt = 20 } },
-    redeem = function(self, card)
-        G.GAME.bankrupt_at = G.GAME.bankrupt_at - card.ability.extra.debt
-    end
-}
-
---new hands
-
-SMODS.PokerHand {
-    key = '6oak',
-    loc_txt = { name = 'Six of a Kind',
-        description = {
-            '6 cards with the same rank'
-        } },
-    visible = false,
-    example = {
-        { 'S_K', true },
-        { 'S_K', true },
-        { 'D_K', true },
-        { 'H_K', true },
-        { 'D_K', true },
-        { 'C_K', true } },
-    mult = 20, chips = 200,
-    l_mult = 5, l_chips = 50,
-    evaluate = function(parts, hand)
-        return parts.jjok_6
-    end
-}
-
-SMODS.PokerHand {
-    key = 'f6',
-    loc_txt = { name = 'Flush Six',
-        description = {
-            '6 cards with the same rank and suit'
-        } },
-    visible = false,
-    example = {
-        { 'H_K', true },
-        { 'H_K', true },
-        { 'H_K', true },
-        { 'H_K', true },
-        { 'H_K', true },
-        { 'H_K', true } },
-    mult = 30, chips = 300,
-    l_mult = 6, l_chips = 60,
-    evaluate = function(parts, hand)
-        return next(parts.jjok_6) and next(parts.jjok_flush)
-            and { SMODS.merge_lists(parts.jjok_6, parts.jjok_flush) } or {}
-    end
-}
-
-SMODS.PokerHandPart {
-    key = '6',
-    func = function(hand)
-        return get_X_same(6, hand)
-    end
-}
-SMODS.PokerHandPart {
-    key = 'flush',
-    func = function(hand)
-        local ret = {}
-        local four_fingers = next(find_joker('Four Fingers'))
-        local suits = SMODS.Suit.obj_buffer
-        if #hand < (6 - (four_fingers and 1 or 0)) then
-            return ret
-        else
-            for j = 1, #suits do
-                local t = {}
-                local suit = suits[j]
-                local flush_count = 0
-                for i = 1, #hand do
-                    if hand[i]:is_suit(suit, nil, true) then
-                        flush_count = flush_count + 1; t[#t + 1] = hand[i]
-                    end
-                end
-                if flush_count >= (6 - (four_fingers and 1 or 0)) then
-                    table.insert(ret, t)
-                    return ret
-                end
-            end
-            return {}
-        end
-    end
-}
-
---end of new hands
-
 --enhancements
 SMODS.Enhancement {
     key = 'resonated',
-    config = { x_chips = 1.2 },
+    config = { x_chips = 1.75 },
     loc_txt = { name = 'Resonated',
-        text = { '{C:white,X:chips}X1.2{} Chips when scored' } }
+        text = { '{C:white,X:chips}X#1#{} Chips when scored' } },
+    loc_vars = function(self, info_queue, center)
+        return { vars = { center.ability.x_chips } }
+    end
 }
 
 SMODS.Consumable {
@@ -966,68 +845,6 @@ SMODS.Seal {
         if context.before and context.cardarea == G.play then
             local edition = poll_edition('greenseal', nil, true, true)
             card:set_edition(edition)
-        end
-    end
-}
-
-SMODS.Seal {
-    key = 'electric',
-    atlas = 'seal',
-    pos = { x = 0, y = 0 },
-    loc_txt = { name = 'Conductive Seal',
-        text = { 'After scoring, this seal gains',
-            '{C:attention}#1#{} charge when played',
-            '{C:inactive}(Currently {C:jjok_lblue}#2#{C:inactive} Charges)',
-            '{C:jjok_lblue}1{} Charge:',
-            '{C:attention,s:0.8}1{C:inactive,s:0.8} Retrigger',
-            '{C:jjok_lblue}2{} Charges:',
-            '{C:attention,s:0.8}2{C:inactive,s:0.8} Retriggers, {C:white,X:chips,s:0.8}X1.5{C:inactive,s:0.8} Chips when scored',
-            '{C:jjok_lblue}3{} Charges:',
-            '{C:attention,s:0.8}3{C:inactive,s:0.8} Retriggers, {C:white,X:chips,s:0.8}X2{C:inactive,s:0.8} Chips when scored',
-            '{C:inactive,s:0.8}(self destructs)' },
-        label = 'Conductive Seal' },
-    config = { extra = { gain = 1, charges = 0 } },
-    loc_vars = function(self, info_queue, center)
-        return {
-            vars = {
-                self.config.extra.gain,
-                self.config.extra.charges
-            }
-        }
-    end,
-    badge_colour = HEX('3d85c6'),
-    calculate = function(self, card, context)
-        if context.after and context.cardarea == G.play then
-            if card.ability.seal.extra.charges == 3 then
-                card:start_dissolve()
-            end
-            card.ability.seal.extra.charges = card.ability.seal.extra.charges + card.ability.seal.extra.gain
-        end
-        if context.repetitions then
-            if card.ability.seal.extra.charges == 1 then
-                return {
-                    repetitions = 1
-                }
-            elseif card.ability.seal.extra.charges == 2 then
-                return {
-                    repetitions = 2
-                }
-            elseif card.ability.seal.extra.charges == 3 then
-                return {
-                    repetitions = 3
-                }
-            end
-        end
-        if context.individual and context.cardarea == G.play then
-            if card.ability.seal.extra.charges == 2 then
-                return {
-                    Xchips = 1.5
-                }
-            elseif card.ability.seal.extra.charges == 3 then
-                return {
-                    Xchips = 2
-                }
-            end
         end
     end
 }
@@ -1105,44 +922,44 @@ SMODS.Consumable {
     end
 }
 
-SMODS.Consumable {
-    key = 'rct',
-    set = 'Spectral',
-    loc_txt = { name = 'Reversed Cursed Technique',
-        text = { 'Turn {C:dark_edition}#1#{} active' } },
-    hidden = true,
-    soul_set = 'Spectral',
-    soul_rate = 0.06,
-    in_pool = function(self, args)
-        if #G.domain.cards > 0 then
-            return true
-        end
-    end,
+SMODS.Joker {
+    key = 'yuji',
+    rarity = 3,
+    cost = 7,
+    blueprint_compat = true,
+    loc_txt = { name = 'Yuji Itadori',
+        text = { '{C:mult}Mult{} cards give',
+            '{C:white,X:mult}X#1#{} Mult when scored,',
+            '{C:green}#2#/#3#{} chance to',
+            '{C:attention}remove{} Mult enhancement' } },
+    config = { extra = { Xmult = 2.5, odds = 5 } },
     loc_vars = function(self, info_queue, center)
-        local str
-        if G.domain then
-            if #G.domain.cards > 1 then
-                str = 'your domains'
-            else
-                str = 'your domain'
-            end
-        else
-            str = 'your domain'
-        end
+        info_queue[#info_queue + 1] = G.P_CENTERS.m_mult
         return {
             vars = {
-                str
-            }
+                center.ability.extra.Xmult,
+                G.GAME.probabilities.normal,
+                center.ability.extra.odds }
         }
     end,
-    can_use = function(self, card)
-        if #G.domain.cards > 0 then
-            return true
+    calculate = function(self, card, context)
+        if context.individual and context.cardarea == G.play then
+            if SMODS.has_enhancement(context.other_card, 'm_mult') then
+                return {
+                    Xmult = card.ability.extra.Xmult,
+                    colour = G.C.MULT,
+                    card = context.other_card
+                }
+            end
         end
-    end,
-    use = function(self, card)
-        for i, v in ipairs(G.domain.cards) do
-            v.ability.extra.used_this_ante = false
+        if context.after then
+            for i, v in ipairs(context.scoring_hand) do
+                if SMODS.has_enhancement(v, 'm_mult') and SMODS.pseudorandom_probability(card, 'yujiitadori', G.GAME.probabilities.normal, card.ability.extra.odds) then
+                    v:set_ability(G.P_CENTERS.c_base, nil, true)
+                    v:juice_up()
+                end
+            end
+            delay(0.5)
         end
     end
 }
@@ -1160,11 +977,11 @@ SMODS.ConsumableType {
 }
 
 SMODS.Booster {
-    key = 'ctbooster',
+    key = 'cbooster',
     config = { extra = 3, choose = 1 },
-    loc_txt = { name = 'Cursed Tools Booster',
+    loc_txt = { name = 'Cursed Booster',
         text = { 'Choose {C:attention}#1# of {C:attention}#2#',
-            'Cursed tools' },
+            'Cursed cards' },
         group_name = { 'Select a cursed tool' } },
     draw_hand = true,
     loc_vars = function(self, info_queue, center)
@@ -1175,19 +992,19 @@ SMODS.Booster {
             }
         }
     end,
-    cost = 8,
+    cost = 6,
     in_pool = function(self, args)
         return true
     end,
     create_card = function(self, card, i)
         return
             SMODS.create_card({
-                set = 'ctools',
+                set = pseudorandom_element({ 'ct', 'ctools' }, pseudoseed('cbooster')),
                 area = G.pack_cards,
                 skip_materialize = true
             })
     end,
-    weight = 0.4
+    weight = 0.45
 }
 
 SMODS.Consumable {
@@ -1218,9 +1035,7 @@ SMODS.Consumable {
     use = function(self, card)
         local _card = pseudorandom_element(G.jokers.cards, pseudoseed('possword'))
         if pseudorandom('possword') < G.GAME.probabilities.normal / card.ability.extra.odds then
-            if not SMODS.is_eternal(_card, card) then
-                _card:start_dissolve()
-            end
+            _card:valid_destroy()
         else
             local copied_joker = copy_card(_card, nil, nil, nil, _card.edition and _card.edition.negative)
             copied_joker:start_materialize()
@@ -1256,23 +1071,7 @@ SMODS.Consumable {
     use = function(self, card, context)
         local pos, temp, valid, counter = {}, nil, true, 0
         for i = 1, card.ability.extra.req do
-            repeat
-                temp = pseudorandom('invspear', 1, #G.jokers.cards)
-                for k, v in ipairs(pos) do
-                    if v == temp then
-                        valid = false
-                    else
-                        counter = counter + 1
-                    end
-                    if counter == #G.jokers.cards then
-                        valid = true
-                    end
-                end
-            until valid == true
-            pos[i] = temp
-        end
-        for i = 1, card.ability.extra.req do
-            G.jokers.cards[pos[i]]:start_dissolve()
+            pseudorandom_element(G.jokers.cards, pseudoseed('invspear')):valid_destroy()
         end
         G.jokers.config.card_limit = G.jokers.config.card_limit + card.ability.extra.slots
     end
@@ -1317,7 +1116,7 @@ SMODS.Consumable {
     end,
     use = function(card, self)
         for i = 1, #Destroyed_cards do
-            Destroyed_cards[i]:start_dissolve()
+            Destroyed_cards[i]:valid_destroy()
         end
     end
 }
@@ -1374,7 +1173,7 @@ SMODS.Consumable {
                 M = i
             end
         end
-        if M ~= nil then
+        if M then
             return { true }
         end
     end,
@@ -1412,56 +1211,6 @@ SMODS.Joker {
                     xchips = (G.GAME.consumeable_usage_total.ctools or 0 * card.ability.extra.Xchips_mod) + 1
                 }
             end
-        end
-    end
-}
-
-SMODS.Consumable {
-    key = 'uzuma',
-    loc_txt = { name = 'Uzumaki',
-        text = { '{C:attention}Fuse Jokers{} using Cursed',
-            "Spirit manipulation's {C:jjok_special}Supreme Art{}!",
-            '{C:attention,s:0.8}4 {C:common,s:0.8}Common {C:attention,s:0.8}Jokers{,s:0.8} = {C:uncommon,s:0.8}Uncommon',
-            '{C:attention,s:0.8}3 {C:uncommon,s:0.8}Uncommon {C:attention,s:0.8}Jokers{,s:0.8} = {C:rare,s:0.8}Rare',
-            '{C:attention,s:0.8}2 {C:rare,s:0.8}Rare {C:attention,s:0.8}Jokers{,s:0.8} = {C:legendary,s:0.8}Legendary', } },
-    set = 'Tarot',
-    config = { extra = { common = false, uncommon = false, rare = false } },
-    can_use = function(self, card)
-        card.ability.extra.common = false
-        card.ability.extra.uncommon = false
-        card.ability.extra.rare = false
-        local rars = JJOK.pool_rarities()
-        if rars[1] >= 4 then
-            card.ability.extra.common = true
-        end
-        if rars[2] >= 3 then
-            card.ability.extra.uncommon = true
-        end
-        if rars[3] >= 2 then
-            card.ability.extra.rare = true
-        end
-        if rars[1] >= 4 or rars[2] >= 3 or rars[3] >= 2 then
-            return true
-        end
-    end,
-    use = function(self, card)
-        if card.ability.extra.common == true then
-            for i, v in ipairs(JJOK.find_rar(1)) do
-                v:start_dissolve()
-            end
-            SMODS.add_card({ set = 'Joker', rarity = 'Uncommon' })
-        end
-        if card.ability.extra.uncommon == true then
-            for i, v in ipairs(JJOK.find_rar(2)) do
-                v:start_dissolve()
-            end
-            SMODS.add_card({ set = 'Joker', rarity = 'Rare' })
-        end
-        if card.ability.extra.rare == true then
-            for i, v in ipairs(JJOK.find_rar(3)) do
-                v:start_dissolve()
-            end
-            SMODS.add_card({ set = 'Joker', rarity = 'Legendary' })
         end
     end
 }
@@ -1516,12 +1265,12 @@ SMODS.Consumable {
         badges[#badges + 1] = JJOK.credit()
     end,
     use = function(self, card)
-        local card1 = copy_card(G.hand.highlighted[1], card1)
-        local card2 = copy_card(G.hand.highlighted[2], card2)
-        G.hand.highlighted[1]:set_edition(card2.edition.key or '')
-        G.hand.highlighted[1]:set_seal(card2.seal or '')
-        G.hand.highlighted[2]:set_edition(card1.edition.key or '')
-        G.hand.highlighted[2]:set_seal(card1.seal or '')
+        local card1 = copy_card(G.hand.highlighted[1])
+        local card2 = copy_card(G.hand.highlighted[2])
+        G.hand.highlighted[1]:set_edition((card2.edition and card2.edition.key))
+        G.hand.highlighted[1]:set_seal(card2.seal)
+        G.hand.highlighted[2]:set_edition((card1.edition and card1.edition.key))
+        G.hand.highlighted[2]:set_seal(card1.seal)
         card1:remove()
         card2:remove()
     end
@@ -1540,7 +1289,7 @@ SMODS.Consumable {
     end,
     use = function(self, card)
         SMODS.add_card({ set = 'Joker', key = 'j_jjok_flyhead' })
-        if pseudorandom('sloth', 1, (100/G.GAME.probabilities.normal)) == 100 then
+        if pseudorandom('sloth', 1, (100 / G.GAME.probabilities.normal)) == 100 then
             SMODS.add_card({ set = 'Joker', rarity = 'jjok_special' })
         end
     end
@@ -1561,30 +1310,6 @@ SMODS.Consumable {
         local lustcard = pseudorandom_element(G.jokers.cards, pseudoseed('lust'))
         lustcard:set_edition('e_polychrome')
         lustcard.ability.eternal = true
-    end
-}
-
-SMODS.Consumable {
-    key = 'wallet',
-    set = 'Tarot',
-    cost = 1,
-    loc_txt = { name = 'Tojis Wallet',
-        text = {
-            'Multiply current {C:money}balance{} by {C:red}#1#'
-        } },
-    config = { extra = { dollars = -2 } },
-    loc_vars = function(self, info_queue, center)
-        return {
-            vars = {
-                center.ability.extra.dollars
-            }
-        }
-    end,
-    can_use = function(self, card)
-        return true
-    end,
-    use = function(self, card)
-        ease_dollars(G.GAME.dollars * card.ability.extra.dollars)
     end
 }
 
@@ -1644,7 +1369,7 @@ SMODS.Consumable {
             'into a card, creating a random',
             '{C:jjok_ctools}Cursed Tool' } },
     can_use = function(card, self)
-        if G.consumeables.config.card_limit > #G.consumeables.cards then
+        if #G.consumeables.cards < G.consumeables.config.card_limit or card.area == G.consumeables then
             return true
         end
     end,
@@ -1679,7 +1404,7 @@ SMODS.Consumable {
     end,
     use = function(self, card)
         if card.ability.extra.yuji_pre then
-            G.jokers.cards[card.ability.extra.yuji_pre]:start_dissolve()
+            G.jokers.cards[card.ability.extra.yuji_pre]:valid_destroy(true)
             SMODS.add_card({ set = 'Joker', are = G.jokers, key = 'j_jjok_sukuna' })
         else
             G.jokers.cards[card.ability.extra.suku_pre].ability.extra.fingers = G.jokers.cards
@@ -1700,65 +1425,109 @@ SMODS.Joker {
     atlas = 'yujikuna',
     hidden = true,
     rarity = 'jjok_special',
-    loc_txt = { name = '{V:1,B:2}#1#',
-        text = { '#2#',
-            '#3# {V:3,B:4}#4#{} #5#{V:6}#8#{}#9#',
-            '{s:0.8,C:inactive}(Current fingers: {s:0.8,V:5}#6#{s:0.8,C:inactive})',
-            '{s:0.8}"#7#"' } },
-    config = { extra = { phase = 1, fingers = 1, mult = 5, Xmult = 1, dollars = 10 } },
+    loc_txt = { name = '{V:1}#1#',
+        text = {} },
+    config = { extra = { phase = 1, fingers = 1, mult = 20, Xmult = 1, dollars = 10 } },
     set_badges = function(self, card, badges)
         badges[#badges + 1] = JJOK.credit()
     end,
     loc_vars = function(self, info_queue, center)
         info_queue[#info_queue + 1] = G.P_CENTERS.j_jjok_sukfin
-        if center.ability.extra.phase == 1 or center.ability.extra.phase == nil then
-            return {
-                vars = {
-                    'Yuji-kuna',
-                    'The first vessel of the legendary myth.',
-                    'Currently gives',
-                    '+' .. center.ability.extra.mult,
-                    '(+5 for each finger)',
-                    center.ability.extra.fingers,
-                    'Without a doubt, he is the king of curses',
-                    '',
-                    '',
-                    colours = { G.C.WHITE, G.C.INACTIVE, G.C.MULT, G.C.WHITE, G.C.MULT, G.C.WHITE }
+        local name, colours = nil, {}
+        local main_end = {}
+        if center.ability.extra.phase == 1 or not center.ability.extra.phase then
+            name = 'Yuji-Kuna'
+            colours = { G.C.WHITE }
+            main_end = {
+                {
+                    n = G.UIT.C, config = {padding = 0.03}, nodes = {
+                        {n = G.UIT.R, config = {}, nodes = {
+                            {n = G.UIT.T, config = {text = 'The first vessel of the King', scale = 0.32, colour = G.C.UI.TEXT_INACTIVE}}}
+                        },
+                        {n = G.UIT.R, config = {align = 'cm', padding = 0.03}, nodes = {
+                            {n = G.UIT.T, config = {text = '+20', scale = 0.28, colour = G.C.MULT}},
+                            {n = G.UIT.T, config = {text = (' Mult for every finger'), scale = 0.28, colour = G.C.UI.TEXT_DARK}}
+                        }},
+                        {n = G.UIT.R, config = {align = 'cm'}, nodes = {
+                            {n = G.UIT.T, config = {text = '(Currently ', scale = 0.32, colour = G.C.UI.TEXT_INACTIVE}},
+                            {n = G.UIT.T, config = {text = ('+'..center.ability.extra.fingers*20), scale = 0.32, colour = G.C.MULT}},
+                            {n = G.UIT.T, config = {text = ' Mult)', scale = 0.32, colour = G.C.UI.TEXT_INACTIVE}},
+                        }},
+                    }
+                }
+            }
+        elseif center.ability.extra.phase == 2 then
+            name = 'Meg-una'
+            colours = { G.C.RED }
+            main_end = {
+                {
+                    n = G.UIT.C, config = {padding = 0.03}, nodes = {
+                        {n = G.UIT.R, config = {}, nodes = {
+                            {n = G.UIT.T, config = {text = "This mug's more handsome", scale = 0.32, colour = G.C.UI.TEXT_INACTIVE}}}
+                        },
+                        {n = G.UIT.R, config = {align = 'cm'}, nodes = {
+                            {n = G.UIT.C, config = { colour = G.C.MULT, r = 0.05, padding = 0.03, res = 0.15, align = 'cm' }, nodes = {
+                                {n = G.UIT.T, config = {text = 'X0.75', scale = 0.28, colour = G.C.WHITE}},
+                            }},
+                            {n = G.UIT.C, config = {padding = 0.03}, nodes = {
+                                {n = G.UIT.T, config = {text = (' Mult for every finger'), scale = 0.28, colour = G.C.UI.TEXT_DARK}}
+                            }},
+                        }},
+                        {n = G.UIT.R, config = {align = 'cm'}, nodes = {
+                            {n = G.UIT.C, config = {padding = 0.03}, nodes = {
+                                {n = G.UIT.T, config = {text = '(Currently ', scale = 0.32, colour = G.C.UI.TEXT_INACTIVE}}
+                            }},
+                            {n = G.UIT.C, config = { colour = G.C.MULT, r = 0.05, padding = 0.03, res = 0.15, align = 'cm' }, nodes = {
+                                {n = G.UIT.T, config = {text = ('X'..((center.ability.extra.fingers*0.75)+1)), scale = 0.32, colour = G.C.WHITE}},
+                            }},
+                            {n = G.UIT.C, config = {padding = 0.03}, nodes = {
+                                {n = G.UIT.T, config = {text = (' Mult)'), scale = 0.32, colour = G.C.UI.TEXT_INACTIVE}}
+                            }},
+                        }}
+                    }
+                }
+            }
+        elseif center.ability.extra.phase == 3 then
+            name = 'True-Form Sukuna'
+            colours = { G.C.BLACK }
+            main_end = {
+                {
+                    n = G.UIT.C, config = {padding = 0.03}, nodes = {
+                        {n = G.UIT.R, config = {align = 'cm'}, nodes = {
+                            {n = G.UIT.T, config = {text = "The King of Curses", scale = 0.32, colour = G.C.UI.TEXT_INACTIVE}}}
+                        },
+                        {n = G.UIT.R, config = {align = 'cm'}, nodes = {
+                            {n = G.UIT.C, config = { colour = G.C.MULT, r = 0.05, padding = 0.03, res = 0.15, align = 'cm' }, nodes = {
+                                {n = G.UIT.T, config = {text = 'X2.5', scale = 0.28, colour = G.C.WHITE}},
+                            }},
+                            {n = G.UIT.C, config = {padding = 0.03}, nodes = {
+                                {n = G.UIT.T, config = {text = (' Mult for every finger'), scale = 0.28, colour = G.C.UI.TEXT_DARK}}
+                            }},
+                        }},
+                        {n = G.UIT.R, config = {align = 'cm', padding = 0.03}, nodes = {
+                            {n = G.UIT.T, config = {text = 'and ', scale = 0.28, colour = G.C.UI.TEXT_DARK}},
+                            {n = G.UIT.T, config = {text = '$10', scale = 0.28, colour = G.C.MONEY}},
+                            {n = G.UIT.T, config = {text = ' when scored', scale = 0.28, colour = G.C.UI.TEXT_DARK}}
+                        }},
+                        {n = G.UIT.R, config = {align = 'cm'}, nodes = {
+                            {n = G.UIT.C, config = {padding = 0.03}, nodes = {
+                                {n = G.UIT.T, config = {text = '(Currently ', scale = 0.32, colour = G.C.UI.TEXT_INACTIVE}}
+                            }},
+                            {n = G.UIT.C, config = { colour = G.C.MULT, r = 0.05, padding = 0.03, res = 0.15, align = 'cm' }, nodes = {
+                                {n = G.UIT.T, config = {text = ('X'..(center.ability.extra.fingers*2.5)), scale = 0.32, colour = G.C.WHITE}},
+                            }},
+                            {n = G.UIT.C, config = {padding = 0.03}, nodes = {
+                                {n = G.UIT.T, config = {text = (' Mult)'), scale = 0.32, colour = G.C.UI.TEXT_INACTIVE}}
+                            }},
+                        }}
+                    }
                 }
             }
         end
-        if center.ability.extra.phase == 2 then
-            return {
-                vars = {
-                    'Meg-una',
-                    'The vessel to defeat the chosen one.',
-                    'Currently gives',
-                    'X' .. center.ability.extra.Xmult,
-                    '(+0.75 for each finger)',
-                    center.ability.extra.fingers,
-                    'The strongest sorceror in history',
-                    '',
-                    '',
-                    colours = { G.C.WHITE, G.C.RED, G.C.WHITE, G.C.MULT, G.C.MULT, G.C.WHITE }
-                }
-            }
-        end
-        if center.ability.extra.phase == 3 then
-            return {
-                vars = {
-                    'True Form Sukuna',
-                    'The Heian and final form of the king of the curses.',
-                    'Currently gives',
-                    'X' .. center.ability.extra.Xmult,
-                    ' (+X2 for each finger) and ',
-                    center.ability.extra.fingers,
-                    'The demon king',
-                    center.ability.extra.dollars,
-                    ' dollars',
-                    colours = { G.C.RED, HEX('000000'), G.C.WHITE, G.C.MULT, G.C.MULT, G.C.MONEY }
-                }
-            }
-        end
+        return {
+            vars = {name, colours = colours},
+            main_end = main_end
+        }
     end,
     update = function(self, card, context)
         if card.ability.extra.phase == 1 then
@@ -1769,24 +1538,22 @@ SMODS.Joker {
         if card.ability.extra.phase == 1 then
             for i = 1, #G.jokers.cards do
                 if G.jokers.cards[i].config.center.key == 'j_jjok_meg' then
-                    G.jokers.cards[i]:start_dissolve()
+                    G.jokers.cards[i]:valid_destroy(true)
                     card.ability.extra.phase = 2
                 end
             end
         end
-        if card.ability.extra.fingers == 19 then
+        if card.ability.extra.fingers == 20 then
             card.ability.extra.phase = 3
         end
-
-        card.ability.extra.mult = card.ability.extra.fingers * 5
-        if card.ability.extra.phase == 2 then
-            card.ability.extra.Xmult = (card.ability.extra.fingers * 0.75) + 1
-        end
-        if card.ability.extra.phase == 3 then
-            card.ability.extra.Xmult = (card.ability.extra.fingers * 2)
-        end
-
         if context.joker_main then
+            card.ability.extra.mult = card.ability.extra.fingers * 20
+            if card.ability.extra.phase == 2 then
+                card.ability.extra.Xmult = (card.ability.extra.fingers * 0.75) + 1
+            end
+            if card.ability.extra.phase == 3 then
+                card.ability.extra.Xmult = (card.ability.extra.fingers * 2.5)
+            end
             if card.ability.extra.phase == 1 then
                 return {
                     mult = card.ability.extra.mult,
@@ -1797,10 +1564,9 @@ SMODS.Joker {
             end
             if card.ability.extra.phase == 3 then
                 return {
-                        Xmult = card.ability.extra.Xmult,
-                        message = { '$' .. card.ability.extra.dollars, colour = G.C.MONEY }
-                    },
-                    ease_dollars(card.ability.extra.dollars)
+                    Xmult = card.ability.extra.Xmult,
+                    dollars = card.ability.extra.dollars
+                }
             end
         end
     end
@@ -1826,6 +1592,7 @@ SMODS.Joker {
             '{s:0.8}"I truly am a curse!"' } },
     config = { extra = { hand_size = nil } },
     add_to_deck = function(self, card)
+        ease_ce(10)
         card.ability.extra.hand_size = G.hand.config.card_limit
     end,
     calculate = function(self, card, context)
@@ -1955,7 +1722,7 @@ SMODS.Joker {
             local sv = (G.consumeables.cards[_card].sell_cost / 5)
             card.ability.extra.Xmult = card.ability.extra.Xmult + sv
             card.sell_cost = card.sell_cost + sv * 5
-            G.consumeables.cards[_card]:start_dissolve()
+            G.consumeables.cards[_card]:valid_destroy()
             return {
                 message = localize { type = 'variable', key = 'a_xmult', vars = { sv } }
             }
@@ -2051,7 +1818,7 @@ SMODS.Joker {
     end
 }
 
-SMODS.Joker {
+--[[SMODS.Joker {
     key = 'kash',
     loc_txt = { name = 'Hajime Kashimo',
         text = { 'The strongest of the edo period,',
@@ -2078,7 +1845,7 @@ SMODS.Joker {
             end
         end
     end
-}
+}]]
 
 SMODS.Joker {
     key = 'tengen',
@@ -2191,21 +1958,26 @@ SMODS.Atlas {
 SMODS.Joker {
     key = 'meg',
     cost = 12,
-    rarity = 3,
+    rarity = 2,
     blueprint_compat = true,
     loc_txt = { name = 'Megumi Fushiguro',
         text = { 'Upon selecting a {C:attention}boss blind,',
-            '{C:attention}create{} 1 of the ten shadows shikigami' } },
+            '{C:attention}create{} 1 a Ten Shadows',
+            'shikigami' } },
     calculate = function(self, card, context)
         if context.setting_blind and G.GAME.blind.boss == true then
             local _card = pseudorandom_element(G.P_CENTER_POOLS.meg_shi, pseudoseed('megumi'))
-            SMODS.add_card({ set = 'Joker', area = G.jokers, key = _card.key })
+            SMODS.add_card({ key = _card.key })
         end
     end
 }
 
 SMODS.ObjectType {
     key = 'meg_shi'
+}
+
+SMODS.ObjectType {
+    key = 'curses'
 }
 
 --fuck it, all the shikigami
@@ -2283,8 +2055,10 @@ SMODS.Joker {
                 local _ctype = pseudorandom_element(SMODS.ConsumableTypes, pseudoseed('sugurugeto'))
                 SMODS.add_card({ set = _ctype.key })
             end
-            for i = 1, G.domain.config.card_limit - #G.domain.cards do
-                SMODS.add_card({ set = 'domain' })
+            if G.domain.config.card_limit - #G.domain.cards < 0 then
+                for i = 1, G.domain.config.card_limit - #G.domain.cards do
+                    SMODS.add_card({ set = 'domain' })
+                end
             end
         end
     end
@@ -2368,9 +2142,11 @@ SMODS.Joker {
             for i = 1, #G.jokers.cards do
                 if G.jokers.cards[i] == card then
                     if #G.jokers.cards >= i + 1 then
-                        card.ability.extra.Xmult = card.ability.extra.Xmult + (G.jokers.cards[i + 1].sell_cost / 5)
-                        G.jokers.cards[i + 1]:start_dissolve()
-                        play_sound('slice1', 0.96 + math.random() * 0.08)
+                        if not SMODS.is_eternal(G.jokers.cards[i + 1]) then
+                            card.ability.extra.Xmult = card.ability.extra.Xmult + (G.jokers.cards[i + 1].sell_cost / 5)
+                            G.jokers.cards[i + 1]:valid_destroy()
+                            play_sound('slice1', 0.96 + math.random() * 0.08)
+                        end
                     end
                 end
                 if G.jokers.cards[i].config.center.key == 'j_jjok_flyhead' and (G.jokers.cards[i].edition == nil or G.jokers.cards[i].edition.negative == false) then
@@ -2413,11 +2189,11 @@ SMODS.Joker {
     loc_txt = { name = 'Panda',
         text = {
             'Gain {C:money}$#1#{} dollars when scoring',
-            'a seal, {C:attention}destroy{} the seal',
+            'an enhancment, {C:attention}destroy{} the enhancement',
             'and increase payout by {C:money}$#2#',
-            '{C:inactive}(Reset if scored card doesnt have a seal)' } },
+            "{C:inactive}(Reset if a scored card isn't enhanced)" } },
     config = { extra = { cur = 0, inc = 1 } },
-    rarity = 3,
+    rarity = 2,
     loc_vars = function(self, info_queue, center)
         return {
             vars = {
@@ -2426,16 +2202,16 @@ SMODS.Joker {
             }
         }
     end,
-    cost = 10,
+    cost = 6,
     calculate = function(self, card, context)
         if context.before and context.cardarea == G.play then
-            for i, v in ipairs(G.play.cards) do
-                if v.seal then
+            for i, v in ipairs(context.scoring_hand) do
+                if not v.debuff and not v.config.center == 'c_base' then
                     card.ability.extra.cur = card.ability.extra.cur + card.ability.extra.inc
                     G.E_MANAGER:add_event(Event({
                         trigger = 'immediate',
                         func = function()
-                            playing_card:set_seal()
+                            v:set_ability()
                             return true
                         end
                     }))
@@ -2667,9 +2443,144 @@ SMODS.Joker {
 }
 
 SMODS.Joker {
+    key = 'swarm',
+    rarity = 'jjok_cs',
+    in_pool = function(self, card)
+        return false
+    end,
+    cost = 0,
+    pools = { ['curses'] = true },
+    loc_txt = {
+        name = 'Swarm of Flyheads',
+        text = { 'Duplicate in {C:attention}#1#{} rounds',
+            '{s:0.8,C:inactive}(Must have space)',
+            '{s:0.8,C:inactive}(Cannot be sold)' }
+    },
+    config = { extra = { rounds = 2 } },
+    loc_vars = function(self, info_queue, center)
+        return {
+            vars = {
+                center.ability.extra.rounds,
+            }
+        }
+    end,
+    blueprint_compat = false,
+    eternal_compat = false,
+    calculate = function(self, card, context)
+        if context.end_of_round and context.main_eval then
+            card.ability.extra.rounds = card.ability.extra.rounds - 1
+            if card.ability.extra.rounds == 0 then
+                card.ability.extra.rounds = 2
+                if #G.jokers.cards < G.jokers.config.card_limit then
+                    local copied_joker = copy_card(card, nil, nil, nil, card.edition and card.edition.negative)
+                    copied_joker:start_materialize()
+                    copied_joker:add_to_deck()
+                    G.jokers:emplace(copied_joker)
+                end
+            else
+                return {
+                    message = tostring(card.ability.extra.rounds),
+                    message_card = card
+                }
+            end
+        end
+    end
+}
+
+SMODS.Joker {
+    key = 'smallpox',
+    rarity = 'jjok_cs',
+    in_pool = function(self, card)
+        return false
+    end,
+    cost = 0,
+    pools = { ['curses'] = true },
+    loc_txt = {
+        name = 'Smallpox Deity',
+        text = { 'Destroy within {C:attention}#1#',
+            'rounds, else {C:mult}lose',
+            'this run',
+            '{s:0.8,C:inactive}(Cannot be sold)' }
+    },
+    config = { extra = { rounds = 6 } },
+    loc_vars = function(self, info_queue, center)
+        return {
+            vars = {
+                center.ability.extra.rounds
+            }
+        }
+    end,
+    blueprint_compat = false,
+    eternal_compat = false,
+    calculate = function(self, card, context)
+        if context.end_of_round and context.main_eval then
+            card.ability.extra.rounds = card.ability.extra.rounds - 1
+            if card.ability.extra.rounds == 0 then
+                G.STATE = G.STATES.GAME_OVER
+                G.STATE_COMPLETE = false
+            else
+                return {
+                    message = tostring(card.ability.extra.rounds),
+                    message_card = card
+                }
+            end
+        end
+    end
+}
+
+SMODS.Joker {
+    key = 'kuro',
+    rarity = 'jjok_cs',
+    in_pool = function(self, card)
+        return false
+    end,
+    cost = 0,
+    pools = { ['curses'] = true },
+    loc_txt = {
+        name = 'Kurourushi',
+        text = { 'Destroys {C:attention}#1#{} Joker',
+            'at the end of',
+            'each {C:attention}ante',
+            '{s:0.8,C:inactive}(Cannot be sold)' }
+    },
+    config = { extra = { cards = 1 } },
+    loc_vars = function(self, info_queue, center)
+        return {
+            vars = {
+                center.ability.extra.cards
+            }
+        }
+    end,
+    blueprint_compat = false,
+    eternal_compat = false,
+    calculate = function(self, card, context)
+        if context.boss_defeat then
+            pseudorandom_element(G.jokers.cards, pseudoseed('kuro'))
+        end
+    end
+}
+
+SMODS.Joker {
+    key = 'onna',
+    cost = 1,
+    pools = { ['curses'] = true },
+    in_pool = function(self, card)
+        return false
+    end,
+    rarity = 'jjok_cs',
+    loc_txt = { name = 'Kuchisake Onna',
+        text = {
+            'Cards can no',
+            'longer be bought',
+            '{s:0.8,C:inactive}(Cannot be sold)'
+        } }
+}
+
+SMODS.Joker {
     key = 'fb',
     rarity = 'jjok_cs',
     cost = 2,
+    eternal_compat = false,
     loc_txt = { name = 'Finger Bearer',
         text = { 'Gain one of {C:red}Sukunas Fingers{} upon',
             '{C:attention}defeating{} the boss blind',
@@ -2720,82 +2631,6 @@ SMODS.Joker {
             return {
                 Xmult = card.ability.extra.Xmult
             }
-        end
-    end
-}
-
-SMODS.Joker {
-    key = 'rainbowdragon',
-    loc_txt = { name = 'Rainbow Dragon',
-        text = { 'One of the most powerful cursed',
-            'spirits in young Getos collection,',
-            'exorcised by Toji Zenin, gives',
-            '{C:mult}+#1#{} Mult {C:inactive}(based on current round)',
-            '{s:0.8,C:inactive}(Destroyed at end of round)' } },
-    loc_vars = function(self, info_queue, card)
-        return { vars = { G.GAME.round * G.GAME.round_resets.ante } }
-    end,
-    pools = {
-        ygeto = true
-    },
-    hidden = true,
-    no_collection = true,
-    blueprint_compat = false,
-    rarity = 'jjok_cs',
-    add_to_deck = function(card, self, context)
-        G.jokers.config.card_limit = G.jokers.config.card_limit + 1
-    end,
-    remove_from_deck = function(card, self, context)
-        G.jokers.config.card_limit = G.jokers.config.card_limit - 1
-    end,
-    calculate = function(self, card, context)
-        for i = 1, #G.jokers.cards do
-            if G.jokers.cards[i] == card then
-                D = i
-            end
-        end
-        if context.joker_main then
-            return {
-                card = card,
-                mult = (G.GAME.round * G.GAME.round_resets.ante),
-            }
-        end
-        if context.end_of_round then
-            G.E_MANAGER:add_event(Event({
-                trigger = 'immediate',
-                func = function()
-                    card:start_dissolve()
-                    return true
-                end
-            }))
-        end
-    end
-}
-
-SMODS.Joker {
-    key = 'flyingspirit',
-    no_collection = true,
-    pools = {
-        ygeto = true
-    },
-    rarity = 'jjok_cs',
-    hidden = true,
-    blueprint_compat = false,
-    loc_txt = { name = 'Flying Cursed Spirit',
-        text = { 'A minor cursed spirit in',
-            'young Getos collection that',
-            'can fly with people, adds',
-            '{C:attention}1 extra joker slot{} temporarily',
-            '{s:0.8,C:inactive}(Destroyed at end of round)' } },
-    add_to_deck = function(self, card, context)
-        G.jokers.config.card_limit = G.jokers.config.card_limit + 2
-    end,
-    remove_from_deck = function(self, card, context)
-        G.jokers.config.card_limit = G.jokers.config.card_limit - 2
-    end,
-    calculate = function(self, card, context)
-        if context.end_of_round and context.cardarea == G.jokers then
-            card:start_dissolve()
         end
     end
 }
@@ -3050,7 +2885,7 @@ SMODS.Joker {
     cost = 10,
     loc_txt = { name = 'Takuma Ino',
         text = { '{C:attention}Cycles{} through {C:attention}3{} effects,',
-                '{C:attention}scales{} after each effect',
+            '{C:attention}scales{} after each effect',
             '{s:0.8,C:inactive}(Changes each round)', } },
     blueprint_compat = true,
     loc_vars = function(self, info_queue, card)
@@ -3123,47 +2958,75 @@ SMODS.Joker {
         main_end = {
             {
                 n = G.UIT.R,
-                config = { padding = 0.03, align = 'cm' },
+                config = {},
                 nodes = {
                     {
-                        n = G.UIT.C,
-                        config = { align = 'cm', padding = 0.08 },
+                        n = G.UIT.R,
+                        config = { padding = 0.03, align = 'cm' },
                         nodes = {
                             {
-                                n = G.UIT.R,
-                                config = { align = 'tm' },
+                                n = G.UIT.C,
+                                config = { align = 'cm', padding = 0.08 },
                                 nodes = {
-                                    {n = G.UIT.T, config = {text = '(Currently)', scale = 0.28, colour = G.C.UI.TEXT_INACTIVE}}
+                                    {
+                                        n = G.UIT.R,
+                                        config = { align = 'tm' },
+                                        nodes = {
+                                            { n = G.UIT.T, config = { text = ' (Currently) ', scale = 0.28, colour = G.C.UI.TEXT_INACTIVE } }
+                                        }
+                                    },
+
                                 }
                             },
                             {
-                                n = G.UIT.R,
-                                config = { align = 'cm' },
-                                nodes = m1
+                                n = G.UIT.C,
+                                config = { align = 'cm', padding = 0.08 },
+                                nodes = {
+                                    {
+                                        n = G.UIT.R,
+                                        config = { align = 'tm' },
+                                        nodes = {
+                                            { n = G.UIT.T, config = { text = ' (Next) ', scale = 0.28, colour = G.C.UI.TEXT_INACTIVE } }
+                                        }
+                                    },
+
+                                }
                             }
                         }
                     },
                     {
-                        n = G.UIT.C,
-                        config = { align = 'cm', padding = 0.08 },
+                        n = G.UIT.R,
+                        config = { padding = 0.03, align = 'cm' },
                         nodes = {
                             {
-                                n = G.UIT.R,
-                                config = { align = 'tm' },
+                                n = G.UIT.C,
+                                config = { align = 'cm', padding = 0.08 },
                                 nodes = {
-                                    {n = G.UIT.T, config = {text = '(Next)', scale = 0.28, colour = G.C.UI.TEXT_INACTIVE}}
+                                    {
+                                        n = G.UIT.R,
+                                        config = { align = 'cm' },
+                                        nodes = m1
+                                    }
+
                                 }
                             },
                             {
-                                n = G.UIT.R,
-                                config = { align = 'cm' },
-                                nodes = m2
+                                n = G.UIT.C,
+                                config = { align = 'cm', padding = 0.08 },
+                                nodes = {
+                                    {
+                                        n = G.UIT.R,
+                                        config = { align = 'cm' },
+                                        nodes = m2
+                                    }
+
+                                }
                             }
                         }
                     }
                 }
-            }
-        }
+            } }
+
         return { main_end = main_end }
     end,
     config = { extra = { cycles = 1, emp = false, st = 1, scaling = {
@@ -3288,6 +3151,7 @@ SMODS.Joker {
         text = {
             'Rika {C:attention}retriggers Jokers{} to',
             'the {C:blue}left{} and {C:red}right',
+            '#1# times',
             '{s:0.8}"The cursed child..."{}'
         }
     },
@@ -3296,8 +3160,11 @@ SMODS.Joker {
     set_badges = function(self, card, badges)
         badges[#badges + 1] = JJOK.credit()
     end,
+    loc_vars = function(self, info_queue, center)
+        return { vars = { center.ability.extra.retriggers } }
+    end,
     blueprint_compat = false,
-    config = { extra = { retriggers = 1 } },
+    config = { extra = { retriggers = 2 } },
     discovered = true,
     calculate = function(self, card, context)
         if context.retrigger_joker_check and not context.retrigger_joker and not context.other_card == card then
@@ -3325,5 +3192,4 @@ SMODS.Atlas {
     path = 'futa.png',
     px = 71,
     py = 95
-
 }

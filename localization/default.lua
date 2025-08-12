@@ -16,6 +16,10 @@ return {
                                     '{C:green}Guaranteed{} to give',
                                     '{C:mult}+20{} Mult and {C:money}$20{} Dollars'
                                 }}
+        },
+        Other = {
+            jjok_slots = {text = {{'Requires {C:attention}#1#{} Slots'}}},
+            jjok_ce_cost = {text = {{'Costs {C:dark_edition}#1#{} Cursed Energy'}}},
         }
     },
     misc = {
@@ -25,7 +29,16 @@ return {
             k_rare="Grade 2",
             k_legendary="Grade 1",
 
+            k_star_planet = 'Star',
+            k_galaxy_planet = 'Galaxy',
+
+            b_rarities = 'Rarities',
+            b_roll = 'Roll!',
+
             jjok_tac = 'Art by Tacashumi'
+        },
+        labels = {
+            jjok_electric_seal = 'Conductive Seal'
         }
     }
 }

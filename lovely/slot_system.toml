@@ -1,0 +1,66 @@
+[manifest]
+version = "0.1.0"
+dump_lua = true
+priority = 0
+
+#modular system UI
+[[patches]]
+[patches.pattern]
+target = 'card.lua'
+pattern = '''
+self.unique_val = 1-self.ID/1603301
+self.edition = nil
+'''
+position = "after"
+payload = '''
+self.slots = center.slots or 1
+'''
+match_indent = true
+
+#random slots (polled by rarity, edition and stickers)
+[[patches]]
+[patches.pattern]
+target = 'functions/common_events.lua'
+pattern = '''
+card:set_edition(edition)
+        check_for_unlock({type = 'have_edition'})
+end
+'''
+position = "after"
+payload = '''
+if Jjok.config.slotsystem then
+    local pool = 0
+
+    -- Base pool from rarity
+    if center.rarity == 2 then pool = 1.2
+    elseif center.rarity == 3 then pool = 1.4
+    elseif center.rarity == 4 then pool = 1.8
+    elseif center.rarity == 'jjok_special' then pool = 2.1
+    end
+
+    if card.edition then
+        if card.edition.key == 'e_foil' then
+            pool = pool + 0.1
+        elseif card.edition.key == 'e_holo' or card.edition.key == 'e_polychrome' then
+            pool = pool + 0.2
+        end
+    end
+
+    if card.ability then
+        local st = card.ability
+        if st.rental then
+            pool = pool - 0.4
+        elseif st.eternal then
+            pool = pool - 0.6
+        elseif st.perishable then
+            pool = pool - 0.3
+        end
+    end
+
+    local slots = pool + pseudorandom('jjok_slots', -0.25, 0.25)
+
+    -- round/clamp
+    card.slots = math.max(1, math.floor(slots + 0.5))
+end
+'''
+match_indent = true

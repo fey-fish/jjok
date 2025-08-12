@@ -10,7 +10,7 @@ SMODS.Joker {
     blueprint_compat = true,
     cost = 3,
     rarity = 1,
-    config = { extra = { Xmult = 1.5, } },
+    config = { extra = { Xmult = 2, } },
     loc_vars = function(self, info_queue, center)
         return { vars = { center.ability.extra.Xmult } }
     end,
@@ -166,7 +166,7 @@ SMODS.Joker {
             'earn {C:money}$#2#{}',
             '{C:inactive}(self destructs)'
         } },
-    config = { extra = { dollars = 3, Xmult = 1.5 } },
+    config = { extra = { dollars = 3, Xmult = 3 } },
     loc_vars = function(self, info_queue, center)
         return { vars = {
             center.ability.extra.Xmult,
@@ -178,7 +178,7 @@ SMODS.Joker {
                 Xmult = card.ability.extra.Xmult,
             }
         end
-        if context.end_of_round then
+        if context.end_of_round and context.main_eval then
             card:start_dissolve()
             ease_dollars(card.ability.extra.dollars)
         end

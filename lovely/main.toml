@@ -4,7 +4,7 @@ version = "0.1.0"
 dump_lua = true
 priority = 0
 
-#for calculating cardareas
+#domain stuff lol
 [[patches]]
 [patches.pattern]
 target = '=[SMODS _ "src/utils.lua"]'
@@ -13,6 +13,27 @@ position = 'before'
 match_indent = true
 payload = '''
 table.insert(t, G.domain)
+'''
+
+[[patches]]
+[patches.pattern]
+target = 'game.lua'
+pattern = '''
+self.play = CardArea(
+        0, 0,
+        CAI.play_W,CAI.play_H, 
+        {card_limit = 5, type = 'play'})
+'''
+position = 'after'
+match_indent = true
+payload = '''
+self.GAME.starting_params.domain_slots = 1
+    self.domain = CardArea(0, 0, G.CARD_W * 1.2, G.CARD_H, {
+        card_limit = self.GAME.starting_params.domain_slots,
+        type = "joker",
+        highlight_limit = 1,
+        view_deck = true
+    })
 '''
 
 #hands bigger than 5
@@ -196,24 +217,24 @@ match_indent = true
 [patches.pattern]
 target = "card.lua"
 pattern = '''
-if pseudorandom('lucky_mult') < G.GAME.probabilities.normal/5 then
+if SMODS.pseudorandom_probability(self, 'lucky_mult', 1, 5) then
 '''
 position = "at"
 match_indent = true
 payload = '''
-if (pseudorandom('lucky_mult') < G.GAME.probabilities.normal/5) or JJOK.find_joker('j_jjok_hak') ~= nil then
+if SMODS.pseudorandom_probability(self, 'lucky_mult', 1, 5) or SMODS.find_card('j_jjok_hak')[1] then
 '''
 
 [[patches]]
 [patches.pattern]
 target = "card.lua"
 pattern = '''
-if pseudorandom('lucky_money') < G.GAME.probabilities.normal/15 then
+if SMODS.pseudorandom_probability(self, 'lucky_money', 1, 15) then
 '''
 position = "at"
 match_indent = true
 payload = '''
-if (pseudorandom('lucky_money') < G.GAME.probabilities.normal/15) or JJOK.find_joker('j_jjok_hak') ~= nil then
+if SMODS.pseudorandom_probability(self, 'lucky_money', 1, 15) or SMODS.find_card('j_jjok_hak')[1] then
 '''
 
 [[patches]]
@@ -238,3 +259,152 @@ use = {n=G.UIT.C, config={align = "cr"}, nodes={
     }}
 end
 '''
+
+[[patches]]
+[patches.pattern]
+target = 'functions/UI_definitions.lua'
+pattern = '''
+{n=G.UIT.R, config={align = "cm", minh = 0.3}, nodes={}},
+'''
+position = 'after'
+match_indent = true
+payload = '''
+contents.cursed,
+'''
+[[patches]]
+[patches.pattern]
+target = 'functions/UI_definitions.lua'
+pattern = '''
+contents.hand =
+'''
+position = 'before'
+match_indent = true
+payload = '''
+contents.cursed = 
+   {n=G.UIT.R, config={align = "cm",r=0.1, padding = 0,colour = G.C.DYN_UI.BOSS_MAIN, emboss = 0.05 }, nodes={
+      {n=G.UIT.C, config={align = "cm", padding = 0.1}, nodes={
+        {n=G.UIT.C, config={align = "cm", minw = 1}, nodes={
+          {n=G.UIT.R, config={align = "cm", padding = 0, maxw = 1.3}, nodes={
+            {n=G.UIT.T, config={text = 'Cursed', scale = 0.32, colour = G.C.UI.TEXT_LIGHT, shadow = true}}
+          }},
+          {n=G.UIT.R, config={align = "cm", padding = 0, maxw = 1.3}, nodes={
+            {n=G.UIT.T, config={text ='energy', scale = 0.32, colour = G.C.UI.TEXT_LIGHT, shadow = true}}
+          }}
+        }},
+        {n=G.UIT.C, config={align = "cm", minw = 3.3, minh = 0.4, r = 0.1, colour = G.C.DYN_UI.BOSS_DARK, emboss = 0.05}, nodes={
+            {n=G.UIT.C, config = {align = 'cm', minw = 3.2, minh = 0.4, r = 0.1, colour = G.C.UI.TEXT_INACTIVE, id = 'CE_UI_count',
+            progress_bar = {
+                max = G.GAME.cursed_energy_limit or 100, ref_table = G.GAME, ref_value = 'cursed_energy', empty_col = G.C.UI.TEXT_INACTIVE, filled_col = adjust_alpha(G.C.JJOK.LBLUE, 0.1)
+            }, func = 'ce_bar_update' }, nodes = {
+                {n = G.UIT.T, config = {ref_table = G.GAME, ref_value = 'cursed_energy', scale = 0.32, colour = G.C.WHITE}}
+            }}
+        }}
+      }}
+    }}
+'''
+
+[[patches]]
+[patches.pattern]
+target = 'cardarea.lua'
+pattern = '''
+self.config.temp_limit = math.max(#self.cards, self.config.card_limit)
+    self.config.card_count = #self.cards
+'''
+position = "at"
+payload = '''
+local count = 0
+for i,v in ipairs(self.cards) do
+    count = count + v.slots
+end
+self.config.temp_limit = math.max(#self.cards, self.config.card_limit)
+self.config.card_count = count
+'''
+match_indent = true
+
+#collection rarities
+[[patches]]
+[patches.pattern]
+target = '=[SMODS _ "src/ui.lua"]'
+position = 'at'
+pattern = '''
+{
+            count = G.ACTIVE_MOD_UI and modsCollectionTally(SMODS.Stickers), --Returns nil outside of G.ACTIVE_MOD_UI but we don't use it anyways
+            button = UIBox_button({button = 'your_collection_stickers', label = {localize('b_stickers')}, count = G.ACTIVE_MOD_UI and modsCollectionTally(SMODS.Stickers), minw = 5, id = 'your_collection_stickers'})
+        }
+'''
+payload = '''
+{
+    count = G.ACTIVE_MOD_UI and modsCollectionTally(SMODS.Stickers), --Returns nil outside of G.ACTIVE_MOD_UI but we don't use it anyways
+    button = UIBox_button({button = 'your_collection_stickers', label = {localize('b_stickers')}, count = G.ACTIVE_MOD_UI and modsCollectionTally(SMODS.Stickers), minw = 5, id = 'your_collection_stickers'})
+},
+{
+    count = G.ACTIVE_MOD_UI and modsCollectionTally(SMODS.Stickers), --Returns nil outside of G.ACTIVE_MOD_UI but we don't use it anyways
+    button = UIBox_button({button = 'your_collection_rarities', label = {localize('b_rarities')}, minw = 5, id = 'your_collection_rarities'}),
+}
+'''
+match_indent = true
+
+#domains dont close packs
+[[patches]]
+[patches.pattern]
+target = 'functions/button_callbacks.lua'
+position = 'at'
+pattern = '''
+if area == G.consumeables then
+'''
+payload = '''
+if area ~= G.pack_cards then
+'''
+match_indent = true
+
+[[patches]]
+[patches.pattern]
+target = 'card.lua'
+position = 'at'
+pattern = '''
+else
+if self.edition and self.edition.card_limit then
+                    if self.ability.consumeable then
+                        G.consumeables.config.card_limit = G.consumeables.config.card_limit + self.edition.card_limit
+                    else
+                        G.jokers.config.card_limit = G.jokers.config.card_limit + self.edition.card_limit
+                    end
+                end
+'''
+payload = '''
+'''
+match_indent = true
+[[patches]]
+[patches.pattern]
+target = 'card.lua'
+position = 'at'
+pattern = '''
+else
+                if self.edition and self.edition.card_limit then
+                    if self.ability.consumeable then
+                        G.consumeables.config.card_limit = G.consumeables.config.card_limit - self.edition.card_limit
+                    elseif self.ability.set == 'Joker' then
+                        G.jokers.config.card_limit = G.jokers.config.card_limit - self.edition.card_limit
+                    end
+                end
+'''
+payload = '''
+'''
+match_indent = true
+
+#planet badges
+[[patches]]
+[patches.pattern]
+target = 'functions/UI_definitions.lua'
+position = 'at'
+pattern = '''
+badges[#badges + 1] = create_badge(((card.ability.name == 'Pluto' or card.ability.name == 'Ceres' or card.ability.name == 'Eris') and localize('k_dwarf_planet')) or (card.ability.name == 'Planet X' and localize('k_planet_q') or card_type),card_type_colour, nil, 1.2)
+'''
+payload = '''
+if card.ability.name == 'c_jjok_milky' or card.ability.name == 'c_jjok_sun' then
+    badges[#badges + 1] = create_badge((card.ability.name == 'c_jjok_sun' and localize('k_star_planet')) or (card.ability.name == 'c_jjok_milky' and localize('k_galaxy_planet') or card_type),card_type_colour, nil, 1.2)
+else
+    badges[#badges + 1] = create_badge(((card.ability.name == 'Pluto' or card.ability.name == 'Ceres' or card.ability.name == 'Eris') and localize('k_dwarf_planet')) or (card.ability.name == 'Planet X' and localize('k_planet_q') or card_type),card_type_colour, nil, 1.2)
+end
+'''
+match_indent = true
