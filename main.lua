@@ -1196,7 +1196,10 @@ SMODS.Joker {
         } },
     config = { extra = { Xchips_mod = 0.25 } },
     loc_vars = function(self, info_queue, center)
-        _xchips = 1 + (G.GAME.consumeable_usage_total.ctools or 0 * center.ability.extra.Xchips_mod)
+        local _xchips = 1
+        if G.GAME.consumeable_usage_total then
+            _xchips = 1 + (G.GAME.consumeable_usage_total.ctools or 0 * center.ability.extra.Xchips_mod)
+        end
         return {
             vars = {
                 center.ability.extra.Xchips_mod,
@@ -2051,10 +2054,12 @@ SMODS.Joker {
             for i = 1, space do
                 SMODS.add_card({ set = 'Joker' })
             end
+            if G.consumeables.config.card_limit - #G.consumeables.cards < 0 then
             for i = 1, G.consumeables.config.card_limit - #G.consumeables.cards do
                 local _ctype = pseudorandom_element(SMODS.ConsumableTypes, pseudoseed('sugurugeto'))
                 SMODS.add_card({ set = _ctype.key })
             end
+        end
             if G.domain.config.card_limit - #G.domain.cards < 0 then
                 for i = 1, G.domain.config.card_limit - #G.domain.cards do
                     SMODS.add_card({ set = 'domain' })
