@@ -239,3 +239,49 @@ SMODS.Joker {
         end
     end
 }
+
+--charles
+SMODS.Joker = {
+    key = 'charles',
+    rarity = 1,
+    cost = 8,
+    loc_txt = {name = 'Charles',
+                text = {
+                    'See the top {C:attention}#1#{}',
+                    'cards of your deck',
+                    '{s:0.8,C:Inactive}(Increase by {s:0.8,C:attention}#2#{s:0.8,C:inactive} when',
+                    '{s:0.8,C:inactive}defeating a boss, max)',
+                    '{s:0.8,C:inactive}of {s:0.8,C:attention}#3#{s:0.8,C:inactive})'
+                }},
+    config = {extra = {cards = 2, increase = 1, max = 5}},
+    blueprint_compat = false,
+    loc_vars = function(self,info_queue,center)
+        local cardarea = CardArea(0, 0, G.CARD_W * (center.ability.extra.increase * 0.7), G.CARD_H, {
+            card_limit = center.ability.extra.max,
+            type = "title",
+            highlight_limit = 0
+        })
+        local temp = #G.deck.cards
+        for i = 1, center.ability.extra.cards do
+            local copy = copy_card(G.deck.cards[temp])
+            cardarea:emplace(copy)
+            temp = temp - 1
+        end
+        local main_end = {
+            {n = G.UIT.O, config = {object = cardarea}}
+        }
+        return {vars = {
+            center.ability.extra.cards,
+            center.ability.extra.increase,
+            center.ability.extra.max
+        }, main_end = main_end}
+    end,
+    calculate = function(self,card,context)
+        if context.boss_defeat and not context.blueprint then
+            if not card.ability.extra.cards == card.ability.extra.max then
+                card.ability.extra.cards = card.ability.extra.cards + card.ability.extra.increase
+                return {message = '+'..card.ability.extra.increase, colour = G.C.FILTER}
+            end
+        end
+    end
+}

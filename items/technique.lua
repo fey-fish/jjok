@@ -166,3 +166,27 @@ SMODS.Consumable {
         ease_ce(-card.ce_cost)
     end
 }
+
+SMODS.Consumable {
+    key = 'drumming',
+    set = 'ct',
+    cost = 5,
+    loc_txt = {name = 'Unblockable Drumming-beat',
+                text = {'Fully {C:attention}strip{} a selected',
+                        'Playing Card back to base'}},
+    can_use = function(self,card)
+        if #G.hand.highlighted == 1 and G.GAME.cursed_energy >= card.ce_cost then
+            return true
+        end
+    end,
+    use = function(self,card)
+        local c = G.hand.highlighted[1]
+        c:set_edition()
+        C:set_ability('c_base')
+        for i,v in ipairs(SMODS.Stickers) do
+            local k = v.key
+            c.ability.key = nil
+        end
+        ease_ce(-card.ce_cost)
+    end
+}
