@@ -567,6 +567,11 @@ SMODS.Joker {
         if G[card.ability.extra.name] then
             G[card.ability.extra.name].T.x = card.T.x - 0.2
             G[card.ability.extra.name].T.y = card.T.y + card.T.h
+
+            --change width and heioght
+            G[card.ability.extra.name].T.x = card.T.x - 0.2
+            G[card.ability.extra.name].T.y = card.T.y + card.T.h
+
         end
         if G.jokers then
             if G.jokers.highlighted[1] == card then

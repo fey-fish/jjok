@@ -10,7 +10,7 @@ SMODS.Joker {
     blueprint_compat = true,
     cost = 3,
     rarity = 1,
-    config = { extra = { Xmult = 2, } },
+    config = { extra = { Xmult = 1.5, } },
     loc_vars = function(self, info_queue, center)
         return { vars = { center.ability.extra.Xmult } }
     end,
@@ -159,6 +159,7 @@ SMODS.Joker {
     key = 'haruta',
     cost = 2,
     rarity = 1,
+    atlas = 'haruta',
     blueprint_compat = true,
     eternal_compat = false,
     loc_txt = { name = 'Haruta',
@@ -183,6 +184,13 @@ SMODS.Joker {
             ease_dollars(card.ability.extra.dollars)
         end
     end
+}
+
+SMODS.Atlas {
+    key = 'haruta',
+    path = 'fraud.png',
+    px = 71,
+    py = 95
 }
 
 --toge
