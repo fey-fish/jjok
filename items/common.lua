@@ -1,6 +1,7 @@
 --maki
 SMODS.Joker {
     key = 'maki',
+    atlas = 'maki',
     loc_txt = {
         name = 'Maki Zenin',
         text = {
@@ -21,6 +22,13 @@ SMODS.Joker {
             }
         end
     end
+}
+
+SMODS.Atlas {
+    key = 'maki',
+    path = 'maki.png',
+    px = 71,
+    py = 95
 }
 
 --momo
@@ -63,7 +71,7 @@ SMODS.Joker {
                         end
                     end
                 end
-                SMODS.add_card({key = suit})
+                SMODS.add_card({ key = suit })
             end
         end
     end
@@ -142,7 +150,7 @@ SMODS.Joker {
             if context.card.config.center.key == 'j_jjok_flyhead' then
                 card.ability.extra.Xmult = card.ability.extra.Xmult + card.ability.extra.Xmult_gain
                 return {
-                    message = 'X'..card.ability.extra.Xmult, colour = G.C.MULT
+                    message = 'X' .. card.ability.extra.Xmult, colour = G.C.MULT
                 }
             end
         end
@@ -169,9 +177,11 @@ SMODS.Joker {
         } },
     config = { extra = { dollars = 3, Xmult = 3 } },
     loc_vars = function(self, info_queue, center)
-        return { vars = {
-            center.ability.extra.Xmult,
-            center.ability.extra.dollars } }
+        return {
+            vars = {
+                center.ability.extra.Xmult,
+                center.ability.extra.dollars }
+        }
     end,
     calculate = function(self, card, context)
         if context.joker_main then
@@ -183,7 +193,10 @@ SMODS.Joker {
             card:start_dissolve()
             ease_dollars(card.ability.extra.dollars)
         end
-    end
+    end,
+    set_badges = function(self, card, badges)
+        badges[#badges + 1] = JJOK.credit('fey')
+    end,
 }
 
 SMODS.Atlas {
@@ -203,9 +216,9 @@ SMODS.Joker {
             '{C:mult}+Mult{} equal to value of leftmost card',
             'and {C:chips}+Chips{} equal to X#1# of rightmost card',
             '{s:0.8}"Stop breathing!"' } },
-    config = { extra = {chips = 5 } },
-    loc_vars = function(self,info_queue,center)
-        return {vars = {center.ability.extra.chips}}
+    config = { extra = { chips = 5 } },
+    loc_vars = function(self, info_queue, center)
+        return { vars = { center.ability.extra.chips } }
     end,
     calculate = function(self, card, context)
         if context.joker_main then
@@ -241,46 +254,52 @@ SMODS.Joker {
 }
 
 --charles
-SMODS.Joker = {
+SMODS.Joker {
     key = 'charles',
     rarity = 1,
     cost = 8,
-    loc_txt = {name = 'Charles',
-                text = {
-                    'See the top {C:attention}#1#{}',
-                    'cards of your deck',
-                    '{s:0.8,C:Inactive}(Increase by {s:0.8,C:attention}#2#{s:0.8,C:inactive} when',
-                    '{s:0.8,C:inactive}defeating a boss, max)',
-                    '{s:0.8,C:inactive}of {s:0.8,C:attention}#3#{s:0.8,C:inactive})'
-                }},
-    config = {extra = {cards = 2, increase = 1, max = 5}},
+    loc_txt = { name = 'Charles',
+        text = {
+            'See the top {C:attention}#1#{}',
+            'cards of your deck',
+            '{s:0.8,C:inactive}(Increase by {s:0.8,C:attention}#2#{s:0.8,C:inactive} when',
+            '{s:0.8,C:inactive}defeating a boss, max)',
+            '{s:0.8,C:inactive}of {s:0.8,C:attention}#3#{s:0.8,C:inactive})'
+        } },
+    config = { extra = { cards = 2, increase = 1, max = 5 } },
     blueprint_compat = false,
-    loc_vars = function(self,info_queue,center)
-        local cardarea = CardArea(0, 0, G.CARD_W * (center.ability.extra.increase * 0.7), G.CARD_H, {
-            card_limit = center.ability.extra.max,
-            type = "title",
-            highlight_limit = 0
-        })
-        local temp = #G.deck.cards
-        for i = 1, center.ability.extra.cards do
-            local copy = copy_card(G.deck.cards[temp])
-            cardarea:emplace(copy)
-            temp = temp - 1
+    loc_vars = function(self, info_queue, center)
+        local main_end
+        if G.deck then
+            local cardarea = CardArea(0, 0, G.CARD_W  * (center.ability.extra.cards * 0.7), G.CARD_H * 0.9, {
+                card_limit = center.ability.extra.max,
+                type = "title",
+                highlight_limit = 0
+            })
+            local temp = #G.deck.cards
+            for i = 1, center.ability.extra.cards do
+                local copy = copy_card(G.deck.cards[temp], nil, 0.75)
+                cardarea:emplace(copy)
+                temp = temp - 1
+            end
+            main_end = {
+                { n = G.UIT.O, config = { object = cardarea } }
+            }
         end
-        local main_end = {
-            {n = G.UIT.O, config = {object = cardarea}}
+        return {
+            vars = {
+                center.ability.extra.cards,
+                center.ability.extra.increase,
+                center.ability.extra.max
+            },
+            main_end = main_end
         }
-        return {vars = {
-            center.ability.extra.cards,
-            center.ability.extra.increase,
-            center.ability.extra.max
-        }, main_end = main_end}
     end,
-    calculate = function(self,card,context)
+    calculate = function(self, card, context)
         if context.boss_defeat and not context.blueprint then
             if not card.ability.extra.cards == card.ability.extra.max then
                 card.ability.extra.cards = card.ability.extra.cards + card.ability.extra.increase
-                return {message = '+'..card.ability.extra.increase, colour = G.C.FILTER}
+                return { message = '+' .. card.ability.extra.increase, colour = G.C.FILTER }
             end
         end
     end

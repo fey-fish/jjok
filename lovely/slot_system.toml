@@ -13,7 +13,7 @@ self.edition = nil
 '''
 position = "after"
 payload = '''
-self.slots = center.slots or 1
+self.slots = self.slots or center.slots or 1
 '''
 match_indent = true
 

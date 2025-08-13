@@ -23,7 +23,7 @@ SMODS.Consumable {
     key = "sun",
     set = "Planet",
     cost = 3,
-    config = { hand_type = 'jjok_6oak' },
+    config = { hand_type = 'jjok_6oak', softlock = true },
     loc_txt = {name = 'The Sun',
                 text = {
                     "{S:0.8}({S:0.8,V:1}lvl.#1#{S:0.8}){} Level up",
@@ -62,14 +62,14 @@ SMODS.PokerHand {
     evaluate = function(parts, hand)
         return next(parts.jjok_6) and next(parts.jjok_flush)
             and { SMODS.merge_lists(parts.jjok_6, parts.jjok_flush) } or {}
-    end
+    end,
 }
 
 SMODS.Consumable {
     key = "milky",
     set = "Planet",
     cost = 3,
-    config = { hand_type = 'jjok_f6' },
+    config = { hand_type = 'jjok_f6', softlock = true },
     loc_txt = {name = 'The Milky Way',
                 text = {
                     "{S:0.8}({S:0.8,V:1}lvl.#1#{S:0.8}){} Level up",

@@ -14,14 +14,10 @@ SMODS.Enhancement:take_ownership('glass', {
 --hakari lucky desc
 SMODS.Enhancement:take_ownership('lucky', {
     loc_vars = function(self, info_queue, center)
-        if G.jokers then
-            if SMODS.find_card('j_jjok_hak')[1] then
-                return { key = 'm_jjok_lucky_hak' }
-            else
-                return {vars = {G.GAME.probabilities.normal, 20, 5, 20, 15}}
-            end
+        if G.jokers and SMODS.find_card('j_jjok_hak')[1]then
+            return { key = 'm_jjok_lucky_hak' }
         else
-            return {vars = {G.GAME.probabilities.normal, 20, 5, 20, 15}}
+            return {key = 'm_lucky', vars = {G.GAME.probabilities.normal, center.ability.mult, 5, center.ability.p_dollars, 15, G.GAME.probabilities.normal}}
         end
     end
 }, true)
