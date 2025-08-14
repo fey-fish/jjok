@@ -1806,7 +1806,7 @@ SMODS.Joker {
         name = 'Hajime Kashimo',
         text = {
             'Each scored {C:attention}4{} and{C:attention} Ace',
-            'give {C:white,X:chips}X#1#{} Chips'
+            'gives {C:white,X:chips}X#1#{} Chips'
         }},
     loc_vars = function (self,info_queue,center)
         return {vars = {
@@ -2862,6 +2862,9 @@ SMODS.Joker {
         badges[#badges + 1] = JJOK.credit('tac')
     end,
     calculate = function(self, card, context)
+        if SMODS.find_card('j_jjok_haruta')[1] then
+            SMODS.find_card('j_jjok_haruta')[1]:start_dissolve()
+        end
         if context.individual and context.cardarea == G.play then
             if context.other_card:get_id() == 7 or context.other_card:get_id() == 3 then
                 card:juice_up()

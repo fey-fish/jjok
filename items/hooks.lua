@@ -82,14 +82,17 @@ end
 --jjok only
 local gsr = Game.start_run
 function Game:start_run(args)
+    local saveTable = args.savetext or nil
     local ret = gsr(self, args)
     if Jjok.config.jjok_only == true then
         self.GAME.jjok_only = true
     else
         self.GAME.jjok_only = false
     end
-    self.GAME.cursed_energy = 0
-    self.GAME.cursed_energy_limit = 100
+    if not saveTable then
+        self.GAME.cursed_energy = 0
+        self.GAME.cursed_energy_limit = 100
+    end
     return ret
 end
 
