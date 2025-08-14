@@ -1800,34 +1800,32 @@ SMODS.Consumable {
     end
 }
 
---[[SMODS.Joker {
+SMODS.Joker {
     key = 'kash',
-    loc_txt = { name = 'Hajime Kashimo',
-        text = { 'The strongest of the edo period,',
-            'if any {C:attention}played card{} has seal, give every',
-            'played card an {C:jjok_lblue}Conductive{} seal' } },
-    loc_vars = function(self, info_queue, center)
-        info_queue[#info_queue + 1] = G.P_SEALS.jjok_electric
+    loc_txt = {
+        name = 'Hajime Kashimo',
+        text = {
+            'Each scored {C:attention}4{} and{C:attention} Ace',
+            'give {C:white,X:chips}X#1#{} Chips'
+        }},
+    loc_vars = function (self,info_queue,center)
+        return {vars = {
+            center.ability.extra.xchips
+        }}
     end,
-    rarity = 3,
-    cost = 6,
+    config = {extra = {xchips = 2.5}},
+    rarity = 4,
+    cost = 20,
     calculate = function(self, card, context)
-        local seal = false
-        if context.before then
-            for i, v in ipairs(G.play.cards) do
-                if v.seal ~= nil then
-                    seal = true
-                end
-            end
-            if seal == true then
-                for i, v in ipairs(G.play.cards) do
-                    v:set_seal('jjok_electric', nil, true)
-                end
-                return { message = 'Electrified!', message_card = card, colour = G.C.BLUE }
+        if context.individual and context.cardarea == G.play then
+            if context.other_card:get_id() == (4 or 14) then
+                return {
+                    Xchips = card.ability.extra.xchips
+                }
             end
         end
     end
-}]]
+}
 
 SMODS.Joker {
     key = 'tengen',
