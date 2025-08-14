@@ -2600,6 +2600,7 @@ SMODS.Joker {
 
 SMODS.Joker {
     key = 'roppo',
+    atlas = 'roppo',
     loc_txt = { name = 'Roppongi Curse',
         text = { '{C:white,X:mult}X#1#{} Mult if played',
             'hand contains a {C:attention}Flush{},',
@@ -2627,6 +2628,13 @@ SMODS.Joker {
             }
         end
     end
+}
+
+SMODS.Atlas {
+    key = 'roppo',
+    path = 'roppongi.png',
+    px = 71,
+    py = 95
 }
 
 SMODS.Joker {
