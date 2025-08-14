@@ -3121,7 +3121,7 @@ SMODS.Joker {
         if context.individual and context.cardarea == G.play and not context.blueprint then
             card.ability.extra.Xmult = card.ability.extra.Xmult + card.ability.extra.Xmult_gain
             return {
-                message = 'Concept Grasped',
+                message = 'Grasped!',
                 colour = G.C.MULT,
                 message_card = card
             }
@@ -3130,6 +3130,13 @@ SMODS.Joker {
             return {
                 Xmult = card.ability.extra.Xmult
             }
+        end
+    end,
+    update = function(self, card, dt)
+        if Jjok.config.thatoru then
+            card.children.center.atlas = G.ASSET_ATLAS['jjok_thatoru']
+        else
+            card.children.center.atlas = G.ASSET_ATLAS['jjok_ygojo']
         end
     end
 }
@@ -3140,6 +3147,14 @@ SMODS.Atlas {
     px = 71,
     py = 95
 }
+
+SMODS.Atlas {
+    key = 'thatoru',
+    path = 'thatoru.png',
+    px = 71,
+    py = 95
+}
+
 
 SMODS.Atlas {
     key = 'seal',
