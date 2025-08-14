@@ -34,6 +34,9 @@ SMODS.Joker {
         end
         return { vars = { center.ability.extra.Xmult }, main_end = main_end }
     end,
+    set_badges = function(self, card, badges)
+        badges[#badges + 1] = JJOK.credit('fey')
+    end,
     calculate = function(self, card, context)
         if context.joker_main then
             return {
