@@ -13,7 +13,26 @@ SMODS.Joker {
     rarity = 1,
     config = { extra = { Xmult = 1.5, } },
     loc_vars = function(self, info_queue, center)
-        return { vars = { center.ability.extra.Xmult } }
+        local main_end = {}
+        if pseudorandom('maki_me', 1, 10) > 9 then
+            main_end = {
+                {n = G.UIT.C, config = {padding = 0.03}, nodes = {
+                {
+                    n = G.UIT.R, config = {}, nodes = {
+                        {n = G.UIT.T, config = {text = 'Fun fact!: Maki was the',
+                        scale = 0.32 * 0.8, colour = G.C.UI.TEXT_INACTIVE}}
+                    }
+                },
+                {
+                    n = G.UIT.R, config = {}, nodes = {
+                        {n = G.UIT.T, config = {text = 'first Joker I made!',
+                        scale = 0.32 * 0.8, colour = G.C.UI.TEXT_INACTIVE}}
+                    }
+                }
+                }
+                }}
+        end
+        return { vars = { center.ability.extra.Xmult }, main_end = main_end }
     end,
     calculate = function(self, card, context)
         if context.joker_main then
