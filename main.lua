@@ -1573,6 +1573,9 @@ SMODS.Joker {
         info_queue[#info_queue + 1] = G.P_CENTERS.j_splash
     end,
     config = { extra = { joker_slots = 0 } },
+    set_badges = function(self, card, badges)
+        badges[#badges + 1] = JJOK.credit('tac')
+    end,
     calculate = function(self, card, context)
         if context.setting_blind and not context.blueprint then
             card.ability.extra.jokerslots = 0
@@ -2349,7 +2352,11 @@ SMODS.Joker {
 
     },
     set_badges = function(self, card, badges)
-        badges[#badges + 1] = JJOK.credit('tac')
+        if card.children.center.atlas == G.ASSET_ATLAS['jjok_tgojo'] then
+            badges[#badges + 1] = JJOK.credit('tac')
+        else
+            badges[#badges + 1] = JJOK.credit('fey')
+        end
     end,
     blueprint_compat = false,
     rarity = 'jjok_special',
