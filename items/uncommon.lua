@@ -355,7 +355,7 @@ SMODS.Joker {
 
 SMODS.Atlas {
     key = 'panda',
-    path = 'panda.png',
+    path = 'fey/panda.png',
     px = 71,
     py = 95
 }

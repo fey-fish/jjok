@@ -38,9 +38,6 @@ SMODS.Joker {
             }
         }
     end,
-    set_badges = function(self, card, badges)
-        badges[#badges + 1] = JJOK.credit('tac')
-    end,
     calculate = function(self, card, context)
         if context.end_of_round and context.main_eval and not context.blueprint then
             if G.GAME.chips <= G.GAME.blind.chips * 1.1 then
@@ -60,7 +57,7 @@ SMODS.Joker {
 
 SMODS.Atlas {
     key = 'exec',
-    path = 'Exec.png',
+    path = 'tac/Exec.png',
     px = 71,
     py = 95
 }

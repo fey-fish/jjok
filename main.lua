@@ -503,14 +503,14 @@ SMODS.Consumable {
 
 SMODS.Atlas {
     key = 'kenjaku',
-    path = 'Kenjaku.png',
+    path = 'tac/Kenjaku.png',
     px = 71,
     py = 95
 }
 
 SMODS.Atlas {
     key = 'bodyhop',
-    path = 'bodyhop.png',
+    path = 'tac/bodyhop.png',
     px = 71,
     py = 95
 }
@@ -559,9 +559,6 @@ SMODS.Joker {
             G[card.ability.extra.name].config.card_limit = G[card.ability.extra.name].config.card_limit +
                 card.ability.extra.increase
         end
-    end,
-    set_badges = function(self, card, badges)
-        badges[#badges + 1] = JJOK.credit('tac')
     end,
     update = function(self, card, dt)
         if G[card.ability.extra.name] then
@@ -1192,9 +1189,6 @@ SMODS.Consumable {
             return true
         end
     end,
-    set_badges = function(self, card, badges)
-        badges[#badges + 1] = JJOK.credit('tac')
-    end,
     use = function(self, card)
         local card1 = copy_card(G.hand.highlighted[1])
         local card2 = copy_card(G.hand.highlighted[2])
@@ -1358,9 +1352,6 @@ SMODS.Joker {
     loc_txt = { name = '{V:1}#1#',
         text = {} },
     config = { extra = { phase = 1, fingers = 1, mult = 20, Xmult = 1, dollars = 10 } },
-    set_badges = function(self, card, badges)
-        badges[#badges + 1] = JJOK.credit('tac')
-    end,
     loc_vars = function(self, info_queue, center)
         info_queue[#info_queue + 1] = G.P_CENTERS.j_jjok_sukfin
         local name, colours = nil, {}
@@ -1504,7 +1495,7 @@ SMODS.Joker {
 
 SMODS.Atlas {
     key = 'yujikuna',
-    path = 'yujikuna.png',
+    path = 'tac/yujikuna.png',
     px = 71,
     py = 95
 }
@@ -1530,9 +1521,6 @@ SMODS.Joker {
             G.hand.config.card_limit = card.ability.extra.hand_size
         end
     end,
-    set_badges = function(self, card, badges)
-        badges[#badges + 1] = JJOK.credit('tac')
-    end,
     update = function(self, card, dt)
         if Jjok.config.majito then
             card.children.center.atlas = G.ASSET_ATLAS['jjok_majito']
@@ -1544,14 +1532,14 @@ SMODS.Joker {
 
 SMODS.Atlas {
     key = 'mahito',
-    path = 'mahito.png',
+    path = 'tac/mahito.png',
     px = 71,
     py = 95
 }
 
 SMODS.Atlas {
     key = 'majito',
-    path = 'majito.png',
+    path = 'tac/majito.png',
     px = 71,
     py = 95
 }
@@ -1573,9 +1561,6 @@ SMODS.Joker {
         info_queue[#info_queue + 1] = G.P_CENTERS.j_splash
     end,
     config = { extra = { joker_slots = 0 } },
-    set_badges = function(self, card, badges)
-        badges[#badges + 1] = JJOK.credit('tac')
-    end,
     calculate = function(self, card, context)
         if context.setting_blind and not context.blueprint then
             card.ability.extra.jokerslots = 0
@@ -1607,7 +1592,7 @@ SMODS.Joker {
 
 SMODS.Atlas {
     key = 'dagon',
-    path = 'Cthulu.png',
+    path = 'tac/Cthulu.png',
     px = 71,
     py = 95
 }
@@ -1682,7 +1667,7 @@ SMODS.Joker {
 
 SMODS.Atlas {
     key = 'yoro',
-    path = 'yorozu.png',
+    path = 'fey/yorozu.png',
     px = 71,
     py = 95
 }
@@ -1722,15 +1707,12 @@ SMODS.Joker {
                 message_card = context.other_consumeable
             }
         end
-    end,
-    set_badges = function(self, card, badges)
-        badges[#badges + 1] = JJOK.credit('tac')
-    end,
+    end
 }
 
 SMODS.Atlas {
     key = 'yuki',
-    path = 'yuki.png',
+    path = 'tac/yuki.png',
     px = 71,
     py = 95
 }
@@ -1745,15 +1727,12 @@ SMODS.Joker {
             '{s:0.8}"The restless gambler"' } },
     loc_vars = function(self, info_queue, center)
         info_queue[#info_queue + 1] = G.P_CENTERS.m_lucky
-    end,
-    set_badges = function(self, card, badges)
-        badges[#badges + 1] = JJOK.credit('tac')
     end
 }
 
 SMODS.Atlas {
     key = 'hakari',
-    path = 'hakari.png',
+    path = 'tac/hakari.png',
     px = 71,
     py = 95
 }
@@ -1863,15 +1842,12 @@ SMODS.Joker {
             '{C:dark_edition}3 Negative{} {C:planet}Planet{} cards' } },
     rarity = 4,
     cost = 8,
-    set_badges = function(self, card, badges)
-        badges[#badges + 1] = JJOK.credit('tac')
-    end,
     discovered = true
 }
 
 SMODS.Atlas {
     key = 'takako',
-    path = 'takako.png',
+    path = 'tac/takako.png',
     px = 71,
     py = 95
 }
@@ -1893,9 +1869,6 @@ SMODS.Joker {
                 center.ability.extra.chips }
         }
     end,
-    set_badges = function(self, card, badges)
-        badges[#badges + 1] = JJOK.credit('fey')
-    end,
     calculate = function(self, card, context)
         if context.joker_main then
             return {
@@ -1908,7 +1881,7 @@ SMODS.Joker {
 
 SMODS.Atlas {
     key = 'flyhead',
-    path = 'flyheads.png',
+    path = 'fey/flyheads.png',
     px = 71,
     py = 95
 }
@@ -2051,6 +2024,7 @@ SMODS.Joker {
     key = 'fb',
     rarity = 'jjok_cs',
     cost = 2,
+    atlas = 'fingerbearer',
     eternal_compat = false,
     loc_txt = { name = 'Finger Bearer',
         text = { 'Gain one of {C:red}Sukunas Fingers{} upon',
@@ -2073,6 +2047,13 @@ SMODS.Joker {
             card:start_dissolve()
         end
     end
+}
+
+SMODS.Atlas {
+    key = 'fingerbearer',
+    path = 'fey/fb.png',
+    px = 71,
+    py = 95
 }
 
 SMODS.Joker {
@@ -2109,7 +2090,7 @@ SMODS.Joker {
 
 SMODS.Atlas {
     key = 'roppo',
-    path = 'roppongi.png',
+    path = 'fey/roppongi.png',
     px = 71,
     py = 95
 }
@@ -2140,9 +2121,6 @@ SMODS.Joker {
     end,
     rarity = 4,
     cost = 20,
-    set_badges = function(self, card, badges)
-        badges[#badges + 1] = JJOK.credit('tac')
-    end,
     calculate = function(self, card, context)
         if context.destroying_card and context.cardarea == G.play and context.destroying_card == context.full_hand[1] and not context.blueprint then
             card.ability.extra.Xmult = card.ability.extra.Xmult + card.ability.extra.Xmult_gain
@@ -2161,7 +2139,7 @@ SMODS.Joker {
 
 SMODS.Atlas {
     key = 'awakenedmaki',
-    path = 'amaki.png',
+    path = 'tac/amaki.png',
     px = 71,
     py = 95
 }
@@ -2295,9 +2273,6 @@ SMODS.Joker {
         }
 
     },
-    set_badges = function(self, card, badges)
-        badges[#badges+1] = JJOK.credit('tac')
-    end,
     blueprint_compat = false,
     rarity = 'jjok_special',
     cost = 40,
@@ -2311,7 +2286,7 @@ SMODS.Joker {
 
 SMODS.Atlas {
     key = 'tgojo',
-    path = 'Teacher_Gojo.png',
+    path = 'tac/Teacher_Gojo.png',
     px = 71,
     py = 95
 }
@@ -2335,9 +2310,6 @@ SMODS.Joker {
             SMODS.add_card({ key = 'c_jjok_nanamitool' })
         end
     end,
-    set_badges = function(self, card, badges)
-        badges[#badges + 1] = JJOK.credit('tac')
-    end,
     calculate = function(self, card, context)
         if SMODS.find_card('j_jjok_haruta')[1] then
             SMODS.find_card('j_jjok_haruta')[1]:start_dissolve()
@@ -2356,7 +2328,7 @@ SMODS.Joker {
 
 SMODS.Atlas {
     key = 'nanami',
-    path = 'nanami.png',
+    path = 'tac/nanami.png',
     px = 71,
     py = 95
 }
@@ -2370,13 +2342,6 @@ SMODS.Joker {
             vars = { center.ability.extra.Xmult,
                 center.ability.extra.Xmult_gain }
         }
-    end,
-    set_badges = function(self, card, badges)
-        if card.children.center.atlas == G.ASSET_ATLAS['jjok_ygojo'] then
-            badges[#badges + 1] = JJOK.credit('tac')
-        else
-            badges[#badges + 1] = JJOK.credit('fey')
-        end
     end,
     loc_txt = {
         name = 'Young Gojo',
@@ -2418,14 +2383,14 @@ SMODS.Joker {
 
 SMODS.Atlas {
     key = 'ygojo',
-    path = 'Student_Gojo.png',
+    path = 'tac/Student_Gojo.png',
     px = 71,
     py = 95
 }
 
 SMODS.Atlas {
     key = 'thatoru',
-    path = 'thatoru.png',
+    path = 'fey/thatoru.png',
     px = 71,
     py = 95
 }
@@ -2433,7 +2398,7 @@ SMODS.Atlas {
 
 SMODS.Atlas {
     key = 'seal',
-    path = 'seal.png',
+    path = 'fey/seal.png',
     px = 68,
     py = 92
 }
@@ -2452,9 +2417,6 @@ SMODS.Joker {
     },
     rarity = "jjok_special",
     cost = 40,
-    set_badges = function(self, card, badges)
-        badges[#badges + 1] = JJOK.credit('tac')
-    end,
     loc_vars = function(self, info_queue, center)
         return { vars = { center.ability.extra.retriggers } }
     end,
@@ -2484,7 +2446,7 @@ SMODS.Joker {
 
 SMODS.Atlas {
     key = 'yuta',
-    path = 'futa.png',
+    path = 'tac/futa.png',
     px = 71,
     py = 95
 }

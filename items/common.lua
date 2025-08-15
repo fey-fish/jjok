@@ -34,9 +34,6 @@ SMODS.Joker {
         end
         return { vars = { center.ability.extra.Xmult }, main_end = main_end }
     end,
-    set_badges = function(self, card, badges)
-        badges[#badges + 1] = JJOK.credit('fey')
-    end,
     calculate = function(self, card, context)
         if context.joker_main then
             return {
@@ -48,7 +45,7 @@ SMODS.Joker {
 
 SMODS.Atlas {
     key = 'maki',
-    path = 'maki.png',
+    path = 'fey/maki.png',
     px = 71,
     py = 95
 }
@@ -130,6 +127,7 @@ SMODS.Joker {
     key = 'miwa',
     rarity = 1,
     cost = 4,
+    atlas = 'miwa',
     blueprint_compat = false,
     loc_txt = { name = 'Kasumi Miwa',
         text = { '{C:blue}+#1#{} hand each round',
@@ -144,6 +142,13 @@ SMODS.Joker {
     remove_from_deck = function(self, card)
         G.GAME.round_resets.hands = G.GAME.round_resets.hands - card.ability.extra.hands
     end
+}
+
+SMODS.Atlas {
+    key = 'miwa',
+    path = 'fey/miwa.png',
+    px = 71,
+    py = 95
 }
 
 --ogami
@@ -216,14 +221,11 @@ SMODS.Joker {
             ease_dollars(card.ability.extra.dollars)
         end
     end,
-    set_badges = function(self, card, badges)
-        badges[#badges + 1] = JJOK.credit('fey')
-    end,
 }
 
 SMODS.Atlas {
     key = 'haruta',
-    path = 'fraud.png',
+    path = 'fey/fraud.png',
     px = 71,
     py = 95
 }
