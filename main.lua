@@ -1650,7 +1650,7 @@ SMODS.Joker {
         if context.individual and context.cardarea == G.play then
             if context.other_card:get_id() == (4 or 14) then
                 return {
-                    Xchips = card.ability.extra.xchips
+                    xchips = card.ability.extra.xchips
                 }
             end
         end
@@ -1660,11 +1660,13 @@ SMODS.Joker {
 SMODS.Joker {
     key = 'yoro',
     cost = 20,
+    atlas = 'yoro',
     rarity = 4,
     loc_txt = { name = 'Yorozu',
         text = {
-            'Add another {C:attention}Card{} slot, {C:attention}Booster',
-            'pack and {C:attention}Voucher{} to the shop'
+            'Add another {C:attention}Card{} slot,',
+            '{C:attention}Booster{} slot and',
+            '{C:attention}Voucher{} to the shop'
         } },
     add_to_deck = function(self, card, from_debuff)
         SMODS.change_booster_limit(1)
@@ -1676,6 +1678,13 @@ SMODS.Joker {
         SMODS.change_voucher_limit(-1)
         change_shop_size(-1)
     end
+}
+
+SMODS.Atlas {
+    key = 'yoro',
+    path = 'yorozu.png',
+    px = 71,
+    py = 95
 }
 
 SMODS.Joker {
@@ -1882,54 +1891,6 @@ SMODS.Atlas {
     path = 'takako.png',
     px = 71,
     py = 95
-}
-
-SMODS.Joker {
-    key = 'panda',
-    loc_txt = { name = 'Panda',
-        text = {
-            'Gain {C:money}$#1#{} dollars when scoring',
-            'an enhancment, {C:attention}destroy{} the enhancement',
-            'and increase payout by {C:money}$#2#',
-            "{C:inactive}(Reset if a scored card isn't enhanced)" } },
-    config = { extra = { cur = 0, inc = 1 } },
-    rarity = 2,
-    loc_vars = function(self, info_queue, center)
-        return {
-            vars = {
-                center.ability.extra.cur,
-                center.ability.extra.inc
-            }
-        }
-    end,
-    cost = 6,
-    calculate = function(self, card, context)
-        if context.before and context.cardarea == G.play then
-            for i, v in ipairs(context.scoring_hand) do
-                if not v.debuff and not v.config.center == 'c_base' then
-                    card.ability.extra.cur = card.ability.extra.cur + card.ability.extra.inc
-                    G.E_MANAGER:add_event(Event({
-                        trigger = 'immediate',
-                        func = function()
-                            v:set_ability()
-                            return true
-                        end
-                    }))
-                    return {
-                        dollars = card.ability.extra.cur,
-                    }
-                else
-                    card.ability.extra.cur = 0
-                    return {
-                        message = 'Core Destroyed!',
-                        message_card = card,
-                        colour = G.C.FILTER
-                    }
-                end
-            end
-        end
-    end
-
 }
 
 SMODS.Joker {
@@ -2352,11 +2313,7 @@ SMODS.Joker {
 
     },
     set_badges = function(self, card, badges)
-        if card.children.center.atlas == G.ASSET_ATLAS['jjok_tgojo'] then
-            badges[#badges + 1] = JJOK.credit('tac')
-        else
-            badges[#badges + 1] = JJOK.credit('fey')
-        end
+        badges[#badges+1] = JJOK.credit('tac')
     end,
     blueprint_compat = false,
     rarity = 'jjok_special',
@@ -2432,7 +2389,11 @@ SMODS.Joker {
         }
     end,
     set_badges = function(self, card, badges)
-        badges[#badges + 1] = JJOK.credit('tac')
+        if card.children.center.atlas == G.ASSET_ATLAS['jjok_ygojo'] then
+            badges[#badges + 1] = JJOK.credit('tac')
+        else
+            badges[#badges + 1] = JJOK.credit('fey')
+        end
     end,
     loc_txt = {
         name = 'Young Gojo',

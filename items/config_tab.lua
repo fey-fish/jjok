@@ -15,19 +15,26 @@ Jjok.config_tab = function()
                         nodes = { { n = G.UIT.T, config = { text = "Gameplay Settings", colour = G.C.UI.TEXT_LIGHT, scale = 0.5 } } }
                     },
                     {
-                        n = G.UIT.C,
-                        config = { align = "tm", padding = 0.03 },
+                        n = G.UIT.R,
+                        config = { align = "tm", padding = 0.2 },
                         nodes = {
-                            create_toggle { col = true, label = 'Thatoru', scale = 1, w = 0, shadow = true, ref_table = Jjok.config, ref_value = "thatoru" },
-                            create_toggle { col = true, label = 'Majito', scale = 1, w = 0, shadow = true, ref_table = Jjok.config, ref_value = "majito" }
+                            {
+                                n = G.UIT.C,
+                                config = { align = "tm", padding = 0.03 },
+                                nodes = {
+                                    { n = G.UIT.R, config = { padding = 0.03 }, nodes = { create_toggle { col = true, label = 'Thatoru', scale = 1, w = 0, shadow = true, ref_table = Jjok.config, ref_value = "thatoru" } } },
+                                    { n = G.UIT.R, config = { padding = 0.03 }, nodes = { create_toggle { col = true, label = 'Majito', scale = 1, w = 0, shadow = true, ref_table = Jjok.config, ref_value = "majito" } } },
+                                }
+                            },
+                            {
+                                n = G.UIT.C,
+                                config = { align = "tm", padding = 0.03 },
+                                nodes = {
+                                    { n = G.UIT.R, config = { padding = 0.03 }, nodes = { create_toggle { col = true, label = 'Jujutsu Jokers only', scale = 1, w = 0, shadow = true, ref_table = Jjok.config, ref_value = "jjok_only" } } },
+                                    { n = G.UIT.R, config = { padding = 0.03 }, nodes = { create_toggle { col = true, label = 'Multi-Slot System', scale = 1, w = 0, shadow = true, ref_table = Jjok.config, ref_value = "slotsystem" } } },
+                                }
+                            },
                         }
-                    },
-                    {
-                        n = G.UIT.C,
-                        config = { align = "tm", padding = 0.03 },
-                        nodes = {
-                            create_toggle { col = true, label = 'Jujutsu Jokers only', scale = 1, w = 0, shadow = true, ref_table = Jjok.config, ref_value = "jjok_only"},
-                            create_toggle { col = true, label = 'Multi-Slot System', scale = 1, w = 0, shadow = true, ref_table = Jjok.config, ref_value = "slotsystem" }                        }
                     },
                 }
             }
