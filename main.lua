@@ -1758,23 +1758,6 @@ SMODS.Atlas {
     py = 95
 }
 
-SMODS.Joker {
-    key = 'meg',
-    cost = 12,
-    rarity = 2,
-    blueprint_compat = true,
-    loc_txt = { name = 'Megumi Fushiguro',
-        text = { 'Upon selecting a {C:attention}boss blind,',
-            '{C:attention}create{} 1 a Ten Shadows',
-            'shikigami' } },
-    calculate = function(self, card, context)
-        if context.setting_blind and G.GAME.blind.boss == true then
-            local _card = pseudorandom_element(G.P_CENTER_POOLS.meg_shi, pseudoseed('megumi'))
-            SMODS.add_card({ key = _card.key })
-        end
-    end
-}
-
 SMODS.ObjectType {
     key = 'meg_shi'
 }
