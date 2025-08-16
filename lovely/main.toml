@@ -419,7 +419,7 @@ if obj and obj.set_badges and type(obj.set_badges) == 'function' then
           obj:set_badges(card, badges)
       end'''
 payload = '''
-if obj and obj.mod and obj.mod.id == 'jjok' and card.children.center.atlas.key ~= 'Joker' then
+if obj and obj.mod and obj.mod.id == 'jjok' and card.children.center.atlas.key and string.sub(card.children.center.atlas.key, 0, 4) == 'jjok' then
     local author = string.sub(G.ASSET_ATLAS[card.children.center.atlas.key].path, 0, 3)
     badges[#badges + 1] = JJOK.credit(author)
 end
