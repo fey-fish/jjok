@@ -308,3 +308,14 @@ function CardArea:emplace(card, location, stay_flipped)
     end
     return emplace_ref(self, card, location, stay_flipped)
 end
+
+--auto discover
+local su = SMODS.SAVE_UNLOCKS
+function SMODS.SAVE_UNLOCKS()
+    su()
+    for i,v in pairs(G.P_CENTERS) do
+        if v.mod and v.mod.id == 'jjok' then
+            v.discovered = true
+        end
+    end
+end
