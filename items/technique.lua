@@ -32,7 +32,7 @@ SMODS.Consumable {
     end,
     use = function(self,card)
         local _card = G.jokers.highlighted[1]
-        local edition = _card.edition.key or nil
+        local edition = _card.edition and _card.edition.key or nil
 
         SMODS.add_card({rarity = _card.config.center.rarity, edition = edition})
         _card:start_dissolve()
