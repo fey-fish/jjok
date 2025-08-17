@@ -162,7 +162,7 @@ SMODS.Joker {
             }
         }
     end,
-    calculate = function(card, self, context)
+    calculate = function(self, card, context)
         if context.joker_main then
             local rars, count = { 2 }, 1
             local areas = SMODS.get_card_areas('jokers')
@@ -375,4 +375,5 @@ SMODS.Joker {
             SMODS.add_card({ key = _card.key })
         end
     end
+
 }
