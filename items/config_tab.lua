@@ -77,8 +77,8 @@ end
 
 function textures()
     local textureNodes = {
-        { n = G.UIT.R, config = { padding = 0.03 }, nodes = { create_toggle { col = true, label = 'Thatoru', scale = 1, w = 0, shadow = true, ref_table = Jjok.config, ref_value = "thatoru" } } },
-        { n = G.UIT.R, config = { padding = 0.03 }, nodes = { create_toggle { col = true, label = 'Majito', scale = 1, w = 0, shadow = true, ref_table = Jjok.config, ref_value = "majito" } } },
+        {n = G.UIT.R, config = {padding = 0.03, colour = G.C.UI.TEXT_INACTIVE}, nodes = {{ n = G.UIT.R, config = { padding = 0.03 }, nodes = {create_toggle {col = true, label = 'Thatoru', scale = 1, w = 0, shadow = true, ref_table = Jjok.config, ref_value = "thatoru"}}}}},
+        {n = G.UIT.R, config = {padding = 0.03, colour = G.C.UI.TEXT_INACTIVE}, nodes = {{ n = G.UIT.R, config = { padding = 0.03 }, nodes = {create_toggle {col = true, label = 'Majito', scale = 1, w = 0, shadow = true, ref_table = Jjok.config, ref_value = "majito"}}}}},
 
     }
     local t = create_UIBox_generic_options({
