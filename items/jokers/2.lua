@@ -251,6 +251,7 @@ SMODS.Joker {
     key = 'nobara',
     cost = 6,
     rarity = 2,
+    atlas = 'nobara',
     loc_txt = { name = 'Nobara Kugisaki',
         text = { '{C:chips}Resonated{} cards give',
             'an additonal {C:white,X:chips}X#1#{} Chips',
@@ -278,6 +279,13 @@ SMODS.Joker {
             return true
         end
     end
+}
+
+SMODS.Atlas {
+    key = 'nobara',
+    path = 'fey/kugisaki!!.png',
+    px = 71,
+    py = 95
 }
 
 SMODS.Joker {
