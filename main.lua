@@ -1150,7 +1150,7 @@ SMODS.Consumable {
         info_queue[#info_queue + 1] = G.P_CENTERS.j_jjok_flyhead
     end,
     use = function(self, card)
-        SMODS.add_card({ set = 'Joker', key = 'j_jjok_flyhead' })
+        SMODS.add_card({ key = 'j_jjok_flyhead' })
         if pseudorandom('sloth', 1, (100 / G.GAME.probabilities.normal)) == 100 then
             SMODS.add_card({ rarity = 'jjok_special' })
         end
@@ -1198,6 +1198,7 @@ SMODS.Consumable {
     key = 'veil',
     set = 'Tarot',
     cost = 3,
+    atlas = 'veil',
     loc_txt = { name = 'Veil',
         text = { 'Draw a veil to {C:attention}add{} {C:dark_edition}negative',
             'to a random held consumable' } },
@@ -1220,6 +1221,13 @@ SMODS.Consumable {
         local _card = pseudorandom_element(card.ability.extra.editionless, pseudoseed('veil'))
         _card:set_edition('e_negative')
     end
+}
+
+SMODS.Atlas {
+    key = 'veil',
+    path = 'fey/veil.png',
+    px = 71,
+    py = 95
 }
 
 SMODS.Consumable {
@@ -1316,14 +1324,13 @@ SMODS.Joker {
         text = { 'Eight handled sword, divergent sila,',
             'divine general, {C:money}Mahoraga!',
             'Upon playing a hand, {C:attention}reduce blind size by 20%{}',
-            'up to a maximum of {X:chips,C:white}1x{} ante base blind size',
-            '{s:0.8,C:inactive}(Current base blind size = {C:chips,s:0.8}#1#{s:0.8,C:inactive})',
-            '{s:0.8,C:hearts}"MAHORAGA HELP ME!"' } },
+            'up to a maximum of {C:attention}X0.75{} ante base blind size',
+            '{s:0.8,C:inactive}(Current base blind size = {C:chips,s:0.8}#1#{s:0.8,C:inactive})'}},
     loc_vars = function(self, info_queue, card)
-        return { vars = { get_blind_amount(G.GAME.round_resets.ante) } }
+        return { vars = { (get_blind_amount(G.GAME.round_resets.ante) * 0.75) } }
     end,
     calculate = function(self, card, context)
-        if G.GAME.blind.chips > get_blind_amount(G.GAME.round_resets.ante) then
+        if G.GAME.blind.chips > (get_blind_amount(G.GAME.round_resets.ante)*0.75) then
             if context.before then
                 G.GAME.blind.chips = G.GAME.blind.chips * 0.8
                 if G.GAME.blind.chips < get_blind_amount(G.GAME.round_resets.ante) then

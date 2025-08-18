@@ -51,8 +51,8 @@ SMODS.Consumable {
     key = 'piercingblood',
     cost = 5,
     loc_txt = {name = 'Piercing Blood',
-                text = {'{C:attention}Destroy{} a',
-                        'selected {C:red}Joker'}},
+                text = {'{C:red}Destroy{} a',
+                        'selected {C:attention}Joker'}},
     set = 'ct',
     can_use = function(self,card)
         if #G.jokers.highlighted == 1 and G.GAME.cursed_energy >= card.ce_cost and
