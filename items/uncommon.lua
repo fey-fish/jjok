@@ -139,7 +139,7 @@ SMODS.Joker {
     blueprint_compat = true,
     config = { extra = { Xmult = 0.5 } },
     loc_vars = function(self, info_queue, center)
-        local rars, count = { 2 }, 1
+        local rars, count = {}, 0
         local areas = SMODS.get_card_areas('jokers')
         for l, n in ipairs(areas) do
             for i, v in ipairs(n.cards) do
@@ -158,13 +158,13 @@ SMODS.Joker {
         return {
             vars = {
                 center.ability.extra.Xmult,
-                count
+                count + 1
             }
         }
     end,
     calculate = function(card, self, context)
         if context.joker_main then
-            local rars, count = { 2 }, 1
+            local rars, count = {}, 0
             local areas = SMODS.get_card_areas('jokers')
             for l, n in ipairs(areas) do
                 for i, v in ipairs(n.cards) do
@@ -176,11 +176,11 @@ SMODS.Joker {
                     end
                     if unique == true then
                         table.insert(rars, v.config.center.rarity)
-                        count = (count * card.ability.extra.Xmult) + 1
+                        count = count * card.ability.extra.Xmult
                     end
                 end
             end
-            return { Xmult = count }
+            return { Xmult = count + 1 }
         end
     end
 }

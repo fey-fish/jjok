@@ -303,7 +303,7 @@ function CardArea:emplace(card, location, stay_flipped)
         G.domain:emplace(card, location, stay_flipped)
         return
     end
-    if card and card.edition and card.edition.card_limit and not (self == G.pack_cards or self == G.shop_jokers) then
+    if card and card.edition and card.edition.card_limit and not self == G.pack_cards and not self == G.shop_jokers then
         self.config.card_limit = self.config.card_limit + card.edition.card_limit
     end
     return emplace_ref(self, card, location, stay_flipped)
