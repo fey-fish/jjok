@@ -313,6 +313,7 @@ SMODS.Joker {
     config = { extra = { Xmult = 1 } },
     rarity = 'jjok_special',
     cost = 40,
+    atlas = 'naoya',
     blueprint_compat = true,
     calculate = function(self, card, context)
         if context.joker_main then
@@ -321,6 +322,13 @@ SMODS.Joker {
             }
         end
     end
+}
+
+SMODS.Atlas {
+    key = 'naoya',
+    path = 'tac/nom_nom.png',
+    px = 71,
+    py = 95
 }
 
 SMODS.Joker {
