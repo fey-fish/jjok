@@ -445,6 +445,7 @@ SMODS.Joker {
 
 SMODS.Joker {
     key = 'shoko',
+    atlas = 'shoko',
     loc_txt = { name = 'Shoko Ieiri',
         text = { 'Increase domain slots by {C:dark_edition}#1#{}',
             '{s:0.8}"I was worried about you!"' } },
@@ -465,6 +466,13 @@ SMODS.Joker {
     remove_from_deck = function(self, card)
         G.domain.config.card_limit = G.domain.config.card_limit - card.ability.extra.slots
     end
+}
+
+SMODS.Atlas {
+    key = 'shoko',
+    path = 'fey/depression.png',
+    px = 71,
+    py = 95
 }
 
 SMODS.Joker {
