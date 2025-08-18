@@ -33,8 +33,19 @@ SMODS.Consumable {
     use = function(self,card)
         local _card = G.jokers.highlighted[1]
         local edition = _card.edition and _card.edition.key or nil
+        local rarity = _card.config.center.rarity
 
-        SMODS.add_card({rarity = _card.config.center.rarity, edition = edition})
+        if rarity == 1 then
+            rarity = 'Common'
+        elseif rarity == 2 then
+            rarity = 'Uncommon'
+        elseif rarity == 3 then
+            rarity = 'Rare'
+        elseif rarity == 4 then
+            rarity = 'Legendary'
+        end
+
+        SMODS.add_card({rarity = rarity, edition = edition})
         _card:start_dissolve()
         ease_ce(-card.ce_cost)
     end,
