@@ -211,7 +211,7 @@ SMODS.Joker {
     loc_txt = { name = "Naoya Zen'in",
         text = {
             '{C:white,X:mult}XMult{} = {C:white,X:dark_edition}Ante ^ 2{} - ',
-            '{C:inactive}(Time in Ante Blinds x (Round/100))' } },
+            '{C:inactive,s:0.8}(Time in Small Blind + Big Blind x (Round/100))' } },
     loc_vars = function(self, info_queue, center)
         local main_end = {
             {
@@ -304,9 +304,6 @@ SMODS.Joker {
 
         }
         return {
-            vars = {
-                G.GAME.naoya_mult
-            },
             main_end = main_end
         }
     end,
