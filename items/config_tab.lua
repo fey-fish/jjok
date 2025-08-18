@@ -19,13 +19,12 @@ Jjok.config_tab = function()
                         config = { align = "tm", padding = 0.2 },
                         nodes = {
                             {
-                                n = G.UIT.C,
+                                n = G.UIT.R,
                                 config = { align = "tm", padding = 0.03 },
                                 nodes = {
                                     {
                                         n = G.UIT.C,
                                         config = {
-                                            ref_table = card,
                                             align = "cr",
                                             padding = 0.1,
                                             r = 0.08,
@@ -33,18 +32,16 @@ Jjok.config_tab = function()
                                             hover = true,
                                             shadow = true,
                                             colour = G.C.JJOK.LBLUE,
-                                            button = 'jjok_textures',
-                                            func = 'can_sell_card'
+                                            button = 'jjok_textures'
                                         },
                                         nodes = {
-                                            { n = G.UIT.B, config = { w = 0.1, h = 0.6 } },
                                             {
                                                 n = G.UIT.C,
                                                 config = { align = "tm" },
                                                 nodes = {
                                                     {
                                                         n = G.UIT.R,
-                                                        config = { align = "cm", maxw = 1.25 },
+                                                        config = { align = "cm", minw = 2 },
                                                         nodes = {
                                                             { n = G.UIT.T, config = { text = 'Textures', colour = G.C.UI.TEXT_LIGHT, scale = 0.8, shadow = true } }
                                                         }
@@ -56,7 +53,7 @@ Jjok.config_tab = function()
                                 }
                             },
                             {
-                                n = G.UIT.C,
+                                n = G.UIT.R,
                                 config = { align = "tm", padding = 0.03 },
                                 nodes = {
                                     { n = G.UIT.R, config = { padding = 0.03 }, nodes = { create_toggle { col = true, label = 'Jujutsu Jokers only', scale = 1, w = 0, shadow = true, ref_table = Jjok.config, ref_value = "jjok_only" } } },
@@ -74,24 +71,28 @@ end
 function G.FUNCS.jjok_textures()
     G.SETTINGS.paused = true
     G.FUNCS.overlay_menu {
-        definition = textures(),
+        definition = textures()
     }
 end
 
 function textures()
-    return {
-        n = G.UIT.ROOT,
-        config = { align = "cm", r = 0.1, padding = 0.1, colour = G.C.JJOK.LBLUE, minw = 8, maxh = 6 },
-        nodes = {
-            {
-                n = G.UIT.C,
-                config = { align = 'cm', r = 0.03, padding = 0.01, colour = G.C.BLUE, minw = 6, maxh = 5 },
-                nodes = {
-                    { n = G.UIT.R, config = { padding = 0.03 }, nodes = { create_toggle { col = true, label = 'Thatoru', scale = 1, w = 0, shadow = true, ref_table = Jjok.config, ref_value = "thatoru" } } },
-                    { n = G.UIT.R, config = { padding = 0.03 }, nodes = { create_toggle { col = true, label = 'Majito', scale = 1, w = 0, shadow = true, ref_table = Jjok.config, ref_value = "majito" } } },
+    local textureNodes = {
+        { n = G.UIT.R, config = { padding = 0.03 }, nodes = { create_toggle { col = true, label = 'Thatoru', scale = 1, w = 0, shadow = true, ref_table = Jjok.config, ref_value = "thatoru" } } },
+        { n = G.UIT.R, config = { padding = 0.03 }, nodes = { create_toggle { col = true, label = 'Majito', scale = 1, w = 0, shadow = true, ref_table = Jjok.config, ref_value = "majito" } } },
 
-                }
-            }
-        }
+    }
+    local t = create_UIBox_generic_options({
+        back_func = Jjok.config_overlay,
+        contents = {
+            { n = G.UIT.C, config = { align = "cm", padding = 0.15 }, nodes = textureNodes } }
+    })
+    return t
+end
+
+function Jjok.config_overlay()
+    G.SETTINGS.paused = true
+    G.FUNCS.overlay_menu { 
+        back_func = create_UIBox_mods_button,
+        definition = Jjok.config_tab
     }
 end

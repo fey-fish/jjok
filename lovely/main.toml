@@ -425,3 +425,20 @@ if obj and obj.mod and obj.mod.id == 'jjok' and card.children.center.atlas.key a
 end
 '''
 match_indent = true
+
+#true funcs
+[[patches]]
+[patches.pattern]
+target = 'engine/ui.lua'
+position = 'at'
+pattern = '''
+G.FUNCS[self.config.button](self)
+'''
+payload = '''
+if type(self.config.button) == 'string' or type(G.FUNCS[self.config.button]) == 'function' then
+    G.FUNCS[self.config.button](self)
+elseif type(self.config.button) == 'function' then
+    self.config.button(self)
+end
+'''
+match_indent = true
