@@ -185,6 +185,19 @@ SMODS.Joker {
     cost = 40,
     calculate = function(self, card, context)
         if context.setting_blind then
+            local areas = SMODS.get_card_areas('jokers')
+            for i,v in ipairs(areas) do
+                if v.config.card_limit and v.config.type == 'joker' then
+                    local space = v.config.card_limit - v.config.card_count or #v.cards
+                    repeat
+                        local pools = {'Joker'}
+                        for _,m in pairs(SMODS.ConsumableTypes) do
+                            table.insert(pools, m.key)
+                        end
+                        space = v.config.card_limit - v.config.card_count or #v.cards
+                    until space <= 0
+                end
+            end
             local space = G.jokers.config.card_limit - G.jokers.config.card_count
             for i = 1, space do
                 SMODS.add_card({ set = 'Joker' })
