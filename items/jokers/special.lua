@@ -186,32 +186,22 @@ SMODS.Joker {
     calculate = function(self, card, context)
         if context.setting_blind then
             local areas = SMODS.get_card_areas('jokers')
-            for i,v in ipairs(areas) do
+            for i, v in ipairs(areas) do
                 if v.config.card_limit and v.config.type == 'joker' then
                     local space = v.config.card_limit - v.config.card_count or #v.cards
-                    repeat
-                        local pools = {'Joker'}
-                        for _,m in pairs(SMODS.ConsumableTypes) do
-                            table.insert(pools, m.key)
-                        end
-                        space = v.config.card_limit - v.config.card_count or #v.cards
-                    until space <= 0
-                end
-            end
-            local space = G.jokers.config.card_limit - G.jokers.config.card_count
-            for i = 1, space do
-                SMODS.add_card({ set = 'Joker' })
-                space = G.jokers.config.card_limit - G.jokers.config.card_count
-            end
-            if G.consumeables.config.card_limit - #G.consumeables.cards < 0 then
-                for i = 1, G.consumeables.config.card_limit - #G.consumeables.cards do
-                    local _ctype = pseudorandom_element(SMODS.ConsumableTypes, pseudoseed('sugurugeto'))
-                    SMODS.add_card({ set = _ctype.key })
-                end
-            end
-            if G.domain.config.card_limit - #G.domain.cards < 0 then
-                for i = 1, G.domain.config.card_limit - #G.domain.cards do
-                    SMODS.add_card({ set = 'domain' })
+                    if space > 0 then
+                        repeat
+                            local pool = {}
+                            for _, m in pairs(G.P_CENTERS) do
+                                if m.ability.consumeable or m.ability.set == 'Joker' then
+                                    table.insert(pool, m)
+                                end
+                            end
+                            local _card = pseudorandom_element(pool, pseudoseed('cgeto'))
+                            SMODS.add_card({ key = _card.key })
+                            space = v.config.card_limit - v.config.card_count or #v.cards
+                        until space <= 0
+                    end
                 end
             end
         end
