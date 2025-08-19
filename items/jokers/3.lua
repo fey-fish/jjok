@@ -318,11 +318,12 @@ SMODS.Joker {
     cost = 7,
     blueprint_compat = true,
     loc_txt = { name = 'Yuji Itadori',
-        text = { '{C:mult}Mult{} cards give',
-            '{C:white,X:mult}X#1#{} Mult when scored,',
-            '{C:green}#2#/#3#{} chance to',
-            '{C:attention}remove{} Mult enhancement' } },
-    config = { extra = { Xmult = 2.5, odds = 5 } },
+        text = { 
+            '{C:green}#2# in #3#{} chance for',
+            '{C:mult}Mult{} cards to give',
+            '{C:white,X:mult}X#1#{} Mult when scored,'
+        } },
+    config = { extra = { Xmult = 2.5, odds = 2 } },
     loc_vars = function(self, info_queue, center)
         info_queue[#info_queue + 1] = G.P_CENTERS.m_mult
         return {
@@ -333,7 +334,8 @@ SMODS.Joker {
         }
     end,
     calculate = function(self, card, context)
-        if context.individual and context.cardarea == G.play then
+        if context.individual and context.cardarea == G.play and
+        SMODS.pseudorandom_probability(card, 'yuji', G.GAME.probabilities.normal or 1, card.ability.extra.odds) then
             if SMODS.has_enhancement(context.other_card, 'm_mult') then
                 return {
                     Xmult = card.ability.extra.Xmult,
@@ -341,15 +343,6 @@ SMODS.Joker {
                     card = context.other_card
                 }
             end
-        end
-        if context.after then
-            for i, v in ipairs(context.scoring_hand) do
-                if SMODS.has_enhancement(v, 'm_mult') and SMODS.pseudorandom_probability(card, 'yujiitadori', G.GAME.probabilities.normal, card.ability.extra.odds) then
-                    v:set_ability(G.P_CENTERS.c_base, nil, true)
-                    v:juice_up()
-                end
-            end
-            delay(0.5)
         end
     end
 }

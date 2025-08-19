@@ -192,8 +192,8 @@ SMODS.Consumable {
     end,
     use = function(self,card)
         local c = G.hand.highlighted[1]
+        JJOK.flip_enhance(c, 'c_base')
         c:set_edition()
-        c:set_ability('c_base')
         c:set_seal()
         for i,v in ipairs(SMODS.Stickers) do
             local k = v.key
