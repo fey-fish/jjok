@@ -1246,7 +1246,7 @@ SMODS.Consumable {
             'into a card, creating a random',
             '{C:jjok_ctools}Cursed Tool' } },
     can_use = function(card, self)
-        if #G.consumeables.cards < G.consumeables.config.card_limit or card.area == G.consumeables then
+        if (#G.consumeables.cards < G.consumeables.config.card_limit) or card.added_to_deck then
             return true
         end
     end,
@@ -1270,22 +1270,34 @@ SMODS.Consumable {
         info_queue[#info_queue + 1] = G.P_CENTERS.j_jjok_yuji
     end,
     can_use = function(self, card)
-        card.ability.extra.yuji_pre = JJOK.find_joker('j_jjok_yuji')
-        card.ability.extra.suku_pre = JJOK.find_joker('j_jjok_sukuna')
-        if card.ability.extra.yuji_pre then
-            return true
-        elseif card.ability.extra.suku_pre and G.jokers.cards[card.ability.extra.suku_pre].ability.extra.fingers < 20 then
+        local yuji, sukuna = SMODS.find_card('j_jjok_yuji'), SMODS.find_card('j_jjok_sukuna')
+        local fingies = false
+        for i,v in ipairs(sukuna) do
+            if v.ability.extra.fingers < 20 then
+                fingies = true
+            end
+        end
+        if yuji[1] or fingies then
             return true
         end
     end,
     use = function(self, card)
-        if card.ability.extra.yuji_pre then
-            G.jokers.cards[card.ability.extra.yuji_pre]:valid_destroy(true)
-            SMODS.add_card({ set = 'Joker', are = G.jokers, key = 'j_jjok_sukuna' })
-        else
-            G.jokers.cards[card.ability.extra.suku_pre].ability.extra.fingers = G.jokers.cards
-                [card.ability.extra.suku_pre].ability.extra.fingers + 1
-            G.jokers.cards[card.ability.extra.suku_pre]:juice_up()
+        local yuji, sukuna = SMODS.find_card('j_jjok_yuji'), SMODS.find_card('j_jjok_sukuna')
+        local fingietable = {}
+        for i,v in ipairs(sukuna) do
+            if v.ability.extra.fingers < 20 then
+                table.insert(fingietable, v)
+            end
+        end
+        if yuji[1] then
+            local edition = yuji[1].edition and yuji[1].edition.key
+            local area = yuji[1].area
+            yuji[1]:start_dissolve()
+            SMODS.add_card({key = 'j_jjok_sukuna', area = area, edition = edition})
+        elseif sukuna[1] then
+            local unckuna = pseudorandom_element(fingietable, pseudoseed('fingies'))
+            unckuna.ability.extra.fingers = unckuna.ability.extra.fingers + 1
+            unckuna:juice_up()
         end
     end,
     in_pool = function(self, args)
@@ -1301,8 +1313,8 @@ SMODS.Consumable {
     cost = 5,
     loc_txt = { name = 'Puppet',
         text = {
-            'Use to {C:attention}create{} a',
-            'random {C:attention}tag' } },
+            'Use to {C:attention}create',
+            'a random {C:attention}Tag' } },
     can_use = function(self, card)
         return true
     end,
