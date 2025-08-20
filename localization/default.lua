@@ -40,6 +40,11 @@ return {
         },
         labels = {
             jjok_electric_seal = 'Conductive Seal'
+        },
+        v_text = {
+            ch_c_forced_2_slots = {
+                'All Jokers require {C:attention}2{} slots'
+            }
         }
     }
 }

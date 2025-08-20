@@ -382,6 +382,7 @@ SMODS.Joker {
     key = 'meg',
     cost = 12,
     rarity = 2,
+    atlas = 'meg',
     blueprint_compat = true,
     loc_txt = { name = 'Megumi Fushiguro',
         text = { 'Upon selecting a {C:attention}boss blind,',
@@ -393,4 +394,11 @@ SMODS.Joker {
             SMODS.add_card({ key = _card.key })
         end
     end
+}
+
+SMODS.Atlas {
+    key = 'meg',
+    path = 'fey/potentialman.png',
+    px = 71,
+    py = 95
 }

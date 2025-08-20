@@ -101,6 +101,7 @@ SMODS.Joker {
     key = 'junpei',
     rarity = 1,
     cost = 4,
+    atlas = 'junpei',
     blueprint_compat = true,
     loc_txt = { name = 'Junpei Yoshino',
         text = { 'Gain {C:money}$#1#{} on purchasing an',
@@ -120,6 +121,13 @@ SMODS.Joker {
             ease_dollars(card.ability.extra.dollars)
         end
     end
+}
+
+SMODS.Atlas {
+    key = 'junpei',
+    path = 'fey/junpie.png',
+    px = 71,
+    py = 95
 }
 
 --miwa

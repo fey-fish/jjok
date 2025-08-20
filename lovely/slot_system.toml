@@ -28,7 +28,9 @@ end
 '''
 position = "after"
 payload = '''
-if Jjok.config.slotsystem then
+if G.GAME.modifiers.forced_2_slots then
+    card.slots = 2
+elseif Jjok.config.slotsystem then
     local pool = 0
 
     -- Base pool from rarity
