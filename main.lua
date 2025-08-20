@@ -224,13 +224,6 @@ SMODS.Consumable {
         else
             return { vars = { center.ability.extra.create, 'Active' } }
         end
-    end,
-    calculate = function(self, card, context)
-        if context.using_consumeable and context.consumeable.config.center.key == 'c_ankh' and
-            card.ability.extra.used_this_ante == false then
-            card.ability.extra.used_this_ante = true
-            return { message = 'Protected!' }
-        end
     end
 }
 
@@ -639,36 +632,38 @@ function G.UIDEF.use_and_sell_buttons(card)
                 },
             }
         }
-        use =
-        {
-            n = G.UIT.C,
-            config = { align = "cr" },
-            nodes = {
+        if card.config.center.key ~= ('c_jjok_9tails' or 'c_jjok_wickerbasket') then
+            use =
+            {
+                n = G.UIT.C,
+                config = { align = "cr" },
+                nodes = {
 
-                {
-                    n = G.UIT.C,
-                    config = {
-                        ref_table = card,
-                        align = "cr",
-                        maxw = 1.25,
-                        padding = 0.1,
-                        r = 0.08,
-                        minw = 1.25,
-                        minh = (card.area and card.area.config.type == 'joker') and 0 or 1,
-                        hover = true,
-                        shadow = true,
-                        colour = G.C.UI.BACKGROUND_INACTIVE,
-                        one_press = true,
-                        button = 'use_card',
-                        func = 'can_use_consumeable'
-                    },
-                    nodes = {
-                        { n = G.UIT.B, config = { w = 0.1, h = 0.6 } },
-                        { n = G.UIT.T, config = { text = localize('b_use'), colour = G.C.UI.TEXT_LIGHT, scale = 0.55, shadow = true } }
+                    {
+                        n = G.UIT.C,
+                        config = {
+                            ref_table = card,
+                            align = "cr",
+                            maxw = 1.25,
+                            padding = 0.1,
+                            r = 0.08,
+                            minw = 1.25,
+                            minh = (card.area and card.area.config.type == 'joker') and 0 or 1,
+                            hover = true,
+                            shadow = true,
+                            colour = G.C.UI.BACKGROUND_INACTIVE,
+                            one_press = true,
+                            button = 'use_card',
+                            func = 'can_use_consumeable'
+                        },
+                        nodes = {
+                            { n = G.UIT.B, config = { w = 0.1, h = 0.6 } },
+                            { n = G.UIT.T, config = { text = localize('b_use'), colour = G.C.UI.TEXT_LIGHT, scale = 0.55, shadow = true } }
+                        }
                     }
                 }
             }
-        }
+        end
     end
     return retval
 end
@@ -1421,8 +1416,8 @@ SMODS.Joker {
         return { vars = { (G.GAME.probabilities.normal or 0), center.ability.extra.odds } }
     end,
     calculate = function(self, card, context)
-        if context.using_consumeable and 
-        (G.consumeables.config.card_count < G.consumeables.config.card_limit) then
+        if context.using_consumeable and
+            (G.consumeables.config.card_count < G.consumeables.config.card_limit) then
             local con = context.consumeable
             if pseudorandom('gama_toad') < G.GAME.probabilities.normal / card.ability.extra.odds then
                 local card = copy_card(con)

@@ -75,6 +75,8 @@ SMODS.Consumable:take_ownership('ankh', {
                         return true
                     end
                 }))
+                protect.ability.extra.used_this_ante = true
+                return {message = 'Protected!', colour = G.C.SECONDARY_SET.Spectral, message_card = protect}
             else
                 --vanilla
                 local deletable_jokers = {}
