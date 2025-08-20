@@ -335,14 +335,13 @@ SMODS.Joker {
     end,
     calculate = function(self, card, context)
         if context.individual and context.cardarea == G.play and
-        SMODS.pseudorandom_probability(card, 'yuji', G.GAME.probabilities.normal or 1, card.ability.extra.odds) then
-            if SMODS.has_enhancement(context.other_card, 'm_mult') then
-                return {
-                    Xmult = card.ability.extra.Xmult,
-                    colour = G.C.MULT,
-                    card = context.other_card
-                }
-            end
+        SMODS.pseudorandom_probability(card, 'yuji', G.GAME.probabilities.normal or 1, card.ability.extra.odds) and
+        SMODS.has_enhancement(context.other_card, 'm_mult') then
+            return {
+                Xmult = card.ability.extra.Xmult,
+                colour = G.C.MULT,
+                card = context.other_card
+            }
         end
     end
 }

@@ -1200,25 +1200,32 @@ SMODS.Consumable {
     cost = 3,
     atlas = 'veil',
     loc_txt = { name = 'Veil',
-        text = { 'Draw a veil to {C:attention}add{} {C:dark_edition}negative',
-            'to a random held consumable' } },
+        text = { 
+            'Draw a veil to {C:attention}add',
+            '{C:dark_edition}negative to a',
+            'random held consumable' } },
     loc_vars = function(self, info_queue, center)
         info_queue[#info_queue + 1] = G.P_CENTERS.e_negative
     end,
-    config = { extra = { editionless = {} } },
     can_use = function(self, card)
-        card.ability.extra.editionless = {}
+        local editionless = {}
         for i, v in ipairs(G.consumeables.cards) do
-            if v.edition == nil then
-                table.insert(card.ability.extra.editionless, v)
+            if v ~= card and not v.edition then
+                table.insert(editionless, v)
             end
         end
-        if #card.ability.extra.editionless > 0 and #G.consumeables.cards > 1 or (#G.consumeables.cards == 1 and G.consumeables.cards[1] ~= card) then
+        if editionless[1] then
             return true
         end
     end,
     use = function(self, card)
-        local _card = pseudorandom_element(card.ability.extra.editionless, pseudoseed('veil'))
+        local editionless = {}
+        for i, v in ipairs(G.consumeables.cards) do
+            if v ~= card and not v.edition then
+                table.insert(editionless, v)
+            end
+        end
+        local _card = pseudorandom_element(editionless, pseudoseed('veil'))
         _card:set_edition('e_negative')
     end
 }
