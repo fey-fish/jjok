@@ -14,10 +14,10 @@ SMODS.Enhancement:take_ownership('glass', {
 --hakari lucky desc
 SMODS.Enhancement:take_ownership('lucky', {
     loc_vars = function(self, info_queue, center)
-        if G.jokers and SMODS.find_card('j_jjok_hak')[1]then
+        if G.jokers and SMODS.find_card('j_jjok_hak')[1] then
             return { key = 'm_jjok_lucky_hak' }
         else
-            return {key = 'm_lucky', vars = {G.GAME.probabilities.normal, center.ability.mult, 5, center.ability.p_dollars, 15, G.GAME.probabilities.normal}}
+            return { key = 'm_lucky', vars = { G.GAME.probabilities.normal, center.ability.mult, 5, center.ability.p_dollars, 15, G.GAME.probabilities.normal } }
         end
     end
 }, true)
@@ -43,3 +43,75 @@ SMODS.PokerHand:take_ownership('Full House', {
     true)
 
 --ancient fix is in patches
+
+--wicker basket stuff
+SMODS.Consumable:take_ownership('ankh', {
+        use = function(self, card)
+            local wicker = SMODS.find_card({ 'c_jjok_wickerbasket' })
+            local protect
+            for i, v in ipairs(wicker) do
+                if v.ability.extra.used_this_ante == false then
+                    protect = v
+                    break
+                end
+            end
+
+            if protect then
+                --wicker basket prot
+                local chosen_joker = pseudorandom_element(G.jokers.cards, pseudoseed('ankh_choice'))
+
+                G.E_MANAGER:add_event(Event({
+                    trigger = 'before',
+                    delay = 0.4,
+                    func = function()
+                        local card = copy_card(chosen_joker, nil, nil, nil,
+                            chosen_joker.edition and chosen_joker.edition.negative)
+                        card:start_materialize()
+                        card:add_to_deck()
+                        if card.edition and card.edition.negative then
+                            card:set_edition(nil, true)
+                        end
+                        G.jokers:emplace(card)
+                        return true
+                    end
+                }))
+            else
+                --vanilla
+                local deletable_jokers = {}
+                for k, v in pairs(G.jokers.cards) do
+                    if not SMODS.is_eternal(v, self) then deletable_jokers[#deletable_jokers + 1] = v end
+                end
+                local chosen_joker = pseudorandom_element(G.jokers.cards, pseudoseed('ankh_choice'))
+                local _first_dissolve = nil
+                G.E_MANAGER:add_event(Event({
+                    trigger = 'before',
+                    delay = 0.75,
+                    func = function()
+                        for k, v in pairs(deletable_jokers) do
+                            if v ~= chosen_joker then
+                                v:start_dissolve(nil, _first_dissolve)
+                                _first_dissolve = true
+                            end
+                        end
+                        return true
+                    end
+                }))
+                G.E_MANAGER:add_event(Event({
+                    trigger = 'before',
+                    delay = 0.4,
+                    func = function()
+                        local card = copy_card(chosen_joker, nil, nil, nil,
+                            chosen_joker.edition and chosen_joker.edition.negative)
+                        card:start_materialize()
+                        card:add_to_deck()
+                        if card.edition and card.edition.negative then
+                            card:set_edition(nil, true)
+                        end
+                        G.jokers:emplace(card)
+                        return true
+                    end
+                }))
+            end
+        end
+    },
+    true)

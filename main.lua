@@ -202,7 +202,7 @@ SMODS.Consumable {
     end
 }
 
---[[SMODS.Consumable {
+SMODS.Consumable {
     key = 'wickerbasket',
     set = 'domain',
     loc_txt = { name = 'Hollow Wicker Basket',
@@ -226,18 +226,36 @@ SMODS.Consumable {
         end
     end,
     calculate = function(self, card, context)
-        if context.using_consumeable then
-            if context.consumeable.config.center.key == 'c_ankh' then
-                if card.ability.extra.used_this_ante == false then
-
-                end
-            end
-        end
-        if context.boss_defeat then
-            card.ability.extra.used_this_ante = false
+        if context.using_consumeable and context.consumeable.config.center.key == 'c_ankh' and
+        card.ability.extra.used_this_ante == false then
+            card.ability.extra.used_this_ante = true
+            return {message = 'Protected!'}
         end
     end
-}]] --
+}
+
+SMODS.Consumable {
+    key = '9tails',
+    set = 'domain',
+    cost = 10,
+    config = {extra = {}},
+    loc_txt = {
+        name = 'The 9 Tails Chakra',
+        text = {
+            'Generate {C:attention}#1#',
+            '{C:attention}Cursed Energy{} at the',
+            'end of each round'
+        }
+    },
+    loc_vars = function(self,info_queue,center)
+        return {vars = {center.ability.extra.ce or 10}}
+    end,
+    calculate = function(self,card,context)
+        if context.end_of_round and context.main_eval then
+            ease_ce(card.ability.extra.ce or 10)
+        end
+    end
+}
 
 SMODS.Consumable {
     key = 'seop',

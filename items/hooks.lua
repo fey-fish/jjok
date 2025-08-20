@@ -25,7 +25,13 @@ function end_round()
         delay = 0.5,
         func = function()
             if G.domain then
-                local ce_min = #G.domain.cards * -10
+                local count = 0
+                for i,v in ipairs(G.domain.cards) do
+                    if v.config.center.set == 'domain' and v.config.center.key ~= 'c_jjok_9tails' then
+                        count = count + 1
+                    end
+                end
+                local ce_min = count * -10
                 if G.GAME.cursed_energy >= ce_min then
                     ease_ce(ce_min)
                 end
