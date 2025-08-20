@@ -212,13 +212,13 @@ SMODS.Consumable {
             '{s:1.1}Prevent {C:spectral,s:1.1}Ankh{s:1.1} from destroying',
             '{s:1.1}Jokers when active',
             '{s:0.8,C:inactive}(Currently #2#)'
-        }},
+        } },
     cost = 10,
-    config = { extra = { used_this_ante = false} },
+    config = { extra = { used_this_ante = false } },
     keep_on_use = function(self, card)
         return true
     end,
-    loc_vars = function(self,info_queue,center)
+    loc_vars = function(self, info_queue, center)
         if center.ability.extra.used_this_ante == true then
             return { vars = { center.ability.extra.create, 'Inactive' } }
         else
@@ -227,9 +227,9 @@ SMODS.Consumable {
     end,
     calculate = function(self, card, context)
         if context.using_consumeable and context.consumeable.config.center.key == 'c_ankh' and
-        card.ability.extra.used_this_ante == false then
+            card.ability.extra.used_this_ante == false then
             card.ability.extra.used_this_ante = true
-            return {message = 'Protected!'}
+            return { message = 'Protected!' }
         end
     end
 }
@@ -238,7 +238,7 @@ SMODS.Consumable {
     key = '9tails',
     set = 'domain',
     cost = 10,
-    config = {extra = {}},
+    config = { extra = {} },
     loc_txt = {
         name = 'The 9 Tails Chakra',
         text = {
@@ -247,10 +247,10 @@ SMODS.Consumable {
             'end of each round'
         }
     },
-    loc_vars = function(self,info_queue,center)
-        return {vars = {center.ability.extra.ce or 10}}
+    loc_vars = function(self, info_queue, center)
+        return { vars = { center.ability.extra.ce or 10 } }
     end,
-    calculate = function(self,card,context)
+    calculate = function(self, card, context)
         if context.end_of_round and context.main_eval then
             ease_ce(card.ability.extra.ce or 10)
         end
@@ -1218,7 +1218,7 @@ SMODS.Consumable {
     cost = 3,
     atlas = 'veil',
     loc_txt = { name = 'Veil',
-        text = { 
+        text = {
             'Draw a veil to {C:attention}add',
             '{C:dark_edition}negative to a',
             'random held consumable' } },
@@ -1290,7 +1290,7 @@ SMODS.Consumable {
     can_use = function(self, card)
         local yuji, sukuna = SMODS.find_card('j_jjok_yuji'), SMODS.find_card('j_jjok_sukuna')
         local fingies = false
-        for i,v in ipairs(sukuna) do
+        for i, v in ipairs(sukuna) do
             if v.ability.extra.fingers < 20 then
                 fingies = true
             end
@@ -1302,7 +1302,7 @@ SMODS.Consumable {
     use = function(self, card)
         local yuji, sukuna = SMODS.find_card('j_jjok_yuji'), SMODS.find_card('j_jjok_sukuna')
         local fingietable = {}
-        for i,v in ipairs(sukuna) do
+        for i, v in ipairs(sukuna) do
             if v.ability.extra.fingers < 20 then
                 table.insert(fingietable, v)
             end
@@ -1311,7 +1311,7 @@ SMODS.Consumable {
             local edition = yuji[1].edition and yuji[1].edition.key
             local area = yuji[1].area
             yuji[1]:start_dissolve()
-            SMODS.add_card({key = 'j_jjok_sukuna', area = area, edition = edition})
+            SMODS.add_card({ key = 'j_jjok_sukuna', area = area, edition = edition })
         elseif sukuna[1] then
             local unckuna = pseudorandom_element(fingietable, pseudoseed('fingies'))
             unckuna.ability.extra.fingers = unckuna.ability.extra.fingers + 1
@@ -1362,12 +1362,12 @@ SMODS.Joker {
             'divine general, {C:money}Mahoraga!',
             'Upon playing a hand, {C:attention}reduce blind size by 20%{}',
             'up to a maximum of {C:attention}X0.75{} ante base blind size',
-            '{s:0.8,C:inactive}(Current base blind size = {C:chips,s:0.8}#1#{s:0.8,C:inactive})'}},
+            '{s:0.8,C:inactive}(Current base blind size = {C:chips,s:0.8}#1#{s:0.8,C:inactive})' } },
     loc_vars = function(self, info_queue, card)
         return { vars = { (get_blind_amount(G.GAME.round_resets.ante) * 0.75) } }
     end,
     calculate = function(self, card, context)
-        if G.GAME.blind.chips > (get_blind_amount(G.GAME.round_resets.ante)*0.75) then
+        if G.GAME.blind.chips > (get_blind_amount(G.GAME.round_resets.ante) * 0.75) then
             if context.before then
                 G.GAME.blind.chips = G.GAME.blind.chips * 0.8
                 if G.GAME.blind.chips < get_blind_amount(G.GAME.round_resets.ante) then
@@ -1402,6 +1402,33 @@ SMODS.Joker {
             local bcost = context.card.cost
             if pseudorandom('demdogs') < G.GAME.probabilities.normal / card.ability.extra.odds then
                 ease_dollars(bcost)
+            end
+        end
+    end
+}
+
+SMODS.Joker {
+    key = 'toad',
+    rarity = 'jjok_shiki',
+    cost = 10,
+    pools = { meg_shi = true },
+    loc_txt = { name = 'Gama',
+        text = { '{C:green}#1#/#2#{} chance to {C:attention}duplicate',
+            'any used consumable',
+            '{s:0.8,C:inactive}(Must have space)' } },
+    config = { extra = { odds = 3 } },
+    loc_vars = function(self, info_queue, center)
+        return { vars = { (G.GAME.probabilities.normal or 0), center.ability.extra.odds } }
+    end,
+    calculate = function(self, card, context)
+        if context.using_consumeable and 
+        (G.consumeables.config.card_count < G.consumeables.config.card_limit) then
+            local con = context.consumeable
+            if pseudorandom('gama_toad') < G.GAME.probabilities.normal / card.ability.extra.odds then
+                local card = copy_card(con)
+                card:start_materialize()
+                card:add_to_deck()
+                G.consumeables:emplace(card)
             end
         end
     end
