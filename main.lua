@@ -1377,7 +1377,7 @@ SMODS.Joker {
                 SMODS.juice_up_blind()
                 card:juice_up(0.3, 0.5)
                 return {
-                    message = 'Adapted!', colour = G.C.CHIPS
+                    message = 'Adapted!', colour = G.C.FILTER
                 }
             end
         end
