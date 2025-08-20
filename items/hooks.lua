@@ -325,3 +325,11 @@ function SMODS.SAVE_UNLOCKS()
         end
     end
 end
+
+local cse = Card.set_edition
+function Card:set_edition(edition, immediate, silent)
+    cse(self,edition, immediate, silent)
+    if self.edition and self.edition.card_limit and self.slots then
+        self.edition.card_limit = self.slots
+    end
+end
