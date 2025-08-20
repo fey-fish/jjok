@@ -293,7 +293,7 @@ function Card:add_to_deck(from_debuff)
         self.ce_cost = pseudorandom('ce_cost', 0, 75)
     end
     if self.config.center.key == 'c_jjok_9tails' and not self.ability.extra.ce then
-        self.ability.extra.ce = pseudorandom('9tails', 5, 20)
+        self.ce = pseudorandom('9tails', 0, 75)
     end
     return catd(self, from_debuff)
 end
@@ -312,7 +312,7 @@ function CardArea:emplace(card, location, stay_flipped)
         G.domain:emplace(card, location, stay_flipped)
         return
     end
-    if card and card.edition and card.edition.card_limit and not self == G.pack_cards and not self == G.shop_jokers then
+    if card and card.edition and card.edition.card_limit and not (self == G.pack_cards and self == G.shop_jokers) then
         self.config.card_limit = self.config.card_limit + card.edition.card_limit
     end
     return emplace_ref(self, card, location, stay_flipped)
@@ -326,13 +326,5 @@ function SMODS.SAVE_UNLOCKS()
         if v.mod and v.mod.id == 'jjok' then
             v.discovered = true
         end
-    end
-end
-
-local cse = Card.set_edition
-function Card:set_edition(edition, immediate, silent)
-    cse(self,edition, immediate, silent)
-    if self.edition and self.edition.card_limit and self.slots then
-        self.edition.card_limit = self.slots
     end
 end
