@@ -292,6 +292,9 @@ function Card:add_to_deck(from_debuff)
     if self.config.center.set == 'ct' and not self.ce_cost then
         self.ce_cost = pseudorandom('ce_cost', 0, 75)
     end
+    if self.config.center.key == 'c_jjok_9tails' and not self.ability.extra.ce then
+        self.ability.extra.ce = pseudorandom('9tails', 5, 20)
+    end
     return catd(self, from_debuff)
 end
 

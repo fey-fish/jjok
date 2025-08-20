@@ -47,7 +47,7 @@ SMODS.PokerHand:take_ownership('Full House', {
 --wicker basket stuff
 SMODS.Consumable:take_ownership('ankh', {
         use = function(self, card)
-            local wicker = SMODS.find_card({ 'c_jjok_wickerbasket' })
+            local wicker = SMODS.find_card( 'c_jjok_wickerbasket' )
             local protect
             for i, v in ipairs(wicker) do
                 if v.ability.extra.used_this_ante == false then

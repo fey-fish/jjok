@@ -453,7 +453,7 @@ if _type == 'Joker' then
             card:set_eternal(true)
         end
 '''
-position = "before"
+position = "after"
 payload = '''
 if center.key == 'c_jjok_9tails' then
     card.ability.extra.ce = pseudorandom('9tails', 5, 25)
