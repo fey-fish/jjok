@@ -1493,7 +1493,7 @@ SMODS.Joker {
             if card.ability.extra.rounds == 0 then
                 card.ability.extra.rounds = 2
                 if #G.jokers.cards < G.jokers.config.card_limit then
-                    local copied_joker = copy_card(card, nil, nil, nil, card.edition and card.edition.negative)
+                    local copied_joker = copy_card(card)
                     copied_joker:start_materialize()
                     copied_joker:add_to_deck()
                     G.jokers:emplace(copied_joker)

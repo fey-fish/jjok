@@ -17,6 +17,9 @@ function end_round()
             SMODS.add_card({ key = 'c_jjok_awaken' })
         end
     end
+    if SMODS.find_card('j_jjok_sukuna')[1] and G.consumeables.config.card_count < G.consumeables.config.card_limit then
+        SMODS.add_card({key = 'c_jjok_sukfin'})
+    end
     local rars = JJOK.pool_rarities()
     local ce = rars[1] + (rars[2] * 2) + (rars[3] * 3) + (rars[4] * 4) + (rars[5] * 5)
     ease_ce(ce)
