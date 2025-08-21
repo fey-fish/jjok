@@ -53,6 +53,7 @@ SMODS.Atlas {
 
 SMODS.Joker {
     key = 'kash',
+    atlas = 'kashimo',
     loc_txt = {
         name = 'Hajime Kashimo',
         text = {
@@ -76,6 +77,13 @@ SMODS.Joker {
             end
         end
     end
+}
+
+SMODS.Atlas {
+    key = 'kashimo',
+    path = 'tac/KashMoney.png',
+    px = 71,
+    py = 95
 }
 
 SMODS.Joker {
