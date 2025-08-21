@@ -469,10 +469,10 @@ SMODS.Consumable {
         text = { 'Sukunas barrierless domain,',
             'truly a divine feat, relentlessly',
             'slashes at everything in its range',
-            '{s:1.1}Gives {s:1.1,X:dark_edition,C:white}^#1#{s:1.1} Mult',
-            'increase by {X:dark_edition,C:white}#2#{} when {C:attention}defeating{} a blind',
+            '{s:1.1}Gives {s:1.1,X:mult,C:white}X#1#{s:1.1} Mult',
+            'increase by {X:mult,C:white}#2#{} when {C:attention}defeating{} a blind',
             '{s:0.8,C:inactive}(Currently #3#)' } },
-    config = { extra = { emult = 1.2, scale = 0.05, used_this_ante = false } },
+    config = { extra = { xmult = 2, scale = 0.4, used_this_ante = false } },
     loc_vars = function(self, info_queue, center)
         local ac
         if center.ability.extra.used_this_ante == true then
@@ -482,7 +482,7 @@ SMODS.Consumable {
         end
         return {
             vars = {
-                center.ability.extra.emult,
+                center.ability.extra.xmult,
                 center.ability.extra.scale,
                 ac
             }
@@ -503,13 +503,12 @@ SMODS.Consumable {
     calculate = function(self, card, context)
         if context.joker_main and card.ability.extra.activated == true then
             card.ability.extra.activated = false
-            mult = mult ^ card.ability.extra.emult
             return {
-                message = '^' .. card.ability.extra.emult .. ' Mult', colour = G.C.DARK_EDITION
+                xmult = card.ability.extra.xmult
             }
         end
         if context.end_of_round and context.cardarea == G.domain and card == card then
-            card.ability.extra.emult = card.ability.extra.emult + card.ability.extra.scale
+            card.ability.extra.xmult = card.ability.extra.xmult + card.ability.extra.scale
             return {
                 message = {
                     'Binding Vow!', colour = G.C.RED
