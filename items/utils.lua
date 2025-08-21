@@ -138,14 +138,13 @@ end
 function G.FUNCS.jjok_kenny_can(card)
     if card.config.ref_table.ability.extra.name then
         local other
-        for i,v in ipairs(G.jokers.highlighted) do
-            if not v == card then
+        for i, v in ipairs(G.jokers.highlighted) do
+            if v ~= card.config.ref_table then
                 other = v
             end
         end
-        if (#G.jokers.highlighted == 2 and (#G[card.config.ref_table.ability.extra.name].config.card_count + other.slots < G[card.config.ref_table.ability.extra.name].config.card_limit)) and
-                not other.config.center.key == 'j_jjok_kenjaku' or 
-            (#G[card.config.ref_table.ability.extra.name].highlighted == 1 and G.jokers.cards.config.card_count < G.jokers.config.card_limit) then
+        if (#G.jokers.highlighted == 2 and ((G[card.config.ref_table.ability.extra.name].config.card_count + other.slots) < G[card.config.ref_table.ability.extra.name].config.card_limit)) or
+            (#G[card.config.ref_table.ability.extra.name].highlighted == 1 and G.jokers.config.card_count < G.jokers.config.card_limit) then
             card.config.colour = G.C.PURPLE
             card.config.button = 'jjok_kenny_use'
         else
@@ -154,7 +153,6 @@ function G.FUNCS.jjok_kenny_can(card)
         end
     end
 end
-
 
 function G.FUNCS.jjok_kenny_use(card)
     local other
@@ -177,14 +175,14 @@ end
 function G.FUNCS.jjok_oro_can(card)
     if card.config.ref_table.ability.extra.name then
         local other
-        for i,v in ipairs(G.jokers.highlighted) do
-            if not v == card then
+        for i, v in ipairs(G.jokers.highlighted) do
+            if v ~= card.config.ref_table then
                 other = v
             end
         end
-        if (#G.jokers.highlighted == 2 and (#G[card.config.ref_table.ability.extra.name].config.card_count + other.slots < G[card.config.ref_table.ability.extra.name].config.card_limit)) and
-                not other.config.center.key == 'j_jjok_oro' or 
-            (#G.jokers.highlighted == 1 and G.jokers.highlighted[1] == card and G.jokers.cards.config.card_count < G.jokers.config.card_limit) then
+        if (#G.jokers.highlighted == 2 and ((#G[card.config.ref_table.ability.extra.name].cards) <= G[card.config.ref_table.ability.extra.name].config.card_limit)) or
+            (#G.jokers.highlighted == 1 and G.jokers.highlighted[1] == card.config.ref_table and G.jokers.config.card_count < G.jokers.config.card_limit and
+                G[card.config.ref_table.ability.extra.name].config.card_count > 0) then
             card.config.colour = G.C.JJOK.NATURE
             card.config.button = 'jjok_oro_use'
         else
@@ -198,13 +196,13 @@ function G.FUNCS.jjok_oro_use(card)
     local other
     if #G.jokers.highlighted == 2 then
         for i, v in ipairs(G.jokers.highlighted) do
-            if not v  == card then
+            if v ~= card then
                 other = v
             end
         end
         G.jokers:remove_card(other)
         G[card.config.ref_table.ability.extra.name]:emplace(other)
-    elseif #G.jokers.highlighted == 1 and G.jokers.highlighted[1] == card then
+    elseif #G.jokers.highlighted == 1 and G.jokers.highlighted[1] == card.config.ref_table then
         other = G[card.config.ref_table.ability.extra.name].cards[1]
         G[card.config.ref_table.ability.extra.name]:remove_card(other)
         G.jokers:emplace(other)
@@ -318,8 +316,15 @@ function create_UIBox_Rarities()
         end
         if add then
             local loc_key, col = 'k_' .. string.lower(v.key), G.C.RARITY[v.key]
-            rars[#rars + 1] = UIBox_button({ ref_table = v, button = 'your_collection_jokers_of_rar', label = { localize(loc_key) }, minw = 5, colour =
-            col, count = G.DISCOVER_TALLIES.Rarities[v.key] })
+            rars[#rars + 1] = UIBox_button({
+                ref_table = v,
+                button = 'your_collection_jokers_of_rar',
+                label = { localize(loc_key) },
+                minw = 5,
+                colour =
+                    col,
+                count = G.DISCOVER_TALLIES.Rarities[v.key]
+            })
         end
     end
 

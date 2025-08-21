@@ -34,7 +34,7 @@ SMODS.Joker {
         card.ability.extra.name = 'kenjaku' .. tostring(counter)
     end,
     config = { extra = { card_limit = 2, increase = 1, name = nil,
-        button = {ftext = 'BODY', ttext = 'HOP', button = 'jjok_kenny_use', func = 'jjko_kenny_can'} } },
+        button = {ftext = 'BODY', ttext = 'HOP', button = 'jjok_kenny_use', func = 'jjok_kenny_can'} } },
     remove_from_deck = function(self, card)
         G[card.ability.extra.name]:remove()
     end,
@@ -77,7 +77,6 @@ SMODS.Joker {
             '{s:0.8}"I truly am a curse!"' } },
     config = { extra = { hand_size = nil } },
     add_to_deck = function(self, card)
-        ease_ce(10)
         card.ability.extra.hand_size = G.hand.config.card_limit
     end,
     calculate = function(self, card, context)

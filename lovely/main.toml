@@ -246,10 +246,10 @@ if card.ability.consumeable and card.area == G.pack_cards and booster_obj and bo
 position = 'before'
 match_indent = true
 payload = '''
-if card.config.center.key == ('j_jjok_kenny' or 'j_jjok_orochi') then
+if card.config.center.key == 'j_jjok_kenny' or card.config.center.key == 'j_jjok_orochi' then
 local extra = card.ability.extra.button
 use = {n=G.UIT.C, config={align = "cr"}, nodes={
-      {n=G.UIT.C, config={ref_table = card, align = "cr",padding = 0.1, r=0.08, minw = 1.25, hover = true, shadow = true, colour = G.C.UI.BACKGROUND_INACTIVE, one_press = true, button = extra.button, func = extra.func}, nodes={
+      {n=G.UIT.C, config={ref_table = card, align = "cr",padding = 0.1, r=0.08, minw = 1.25, hover = true, shadow = true, colour = G.C.UI.BACKGROUND_INACTIVE, one_press = true, button = extra.button, func = extra.func }, nodes={
         {n=G.UIT.B, config = {w=0.1,h=0.6}},
         {n=G.UIT.C, config={align = "tm"}, nodes={
           {n=G.UIT.R, config={align = "cm", maxw = 1.25}, nodes={ {n=G.UIT.T, config=

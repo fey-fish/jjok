@@ -266,6 +266,7 @@ SMODS.Joker {
 
 SMODS.Joker {
     key = 'ijichi',
+    atlas = 'iji',
     loc_txt = { name = 'Ijichi',
         text = {
             'Retrigger all',
@@ -283,6 +284,13 @@ SMODS.Joker {
             end
         end
     end
+}
+
+SMODS.Atlas {
+    key = 'iji',
+    path = 'fey/ijichi.png',
+    px = 71,
+    py = 95
 }
 
 --charles
