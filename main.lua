@@ -1427,6 +1427,69 @@ SMODS.Joker {
         end
     end
 }
+
+SMODS.Joker {
+    key = 'orochi',
+    rarity = 'jjok_shiki',
+    cost = 10,
+    pools = { meg_shi = true },
+    loc_txt = { name = 'Orochi',
+        text = { 'Stores {C:attention}#1# Joker',
+            '{s:0.8,C:inactive}(Joker does not score)' } },
+    config = { extra = { slots = 1, name = nil,
+        button = { ftext = 'STORE', ttext = 'JOKER', button = 'jjok_oro_use', func = 'jjko_oro_can' } } },
+    loc_vars = function(self, info_queue, center)
+        local main_end = {}
+        if G[center.ability.extra.name] then
+            local ca = G[card.ability.extra.name]
+            if #ca.cards > 0 then
+                for i,v in ipairs(ca.cards) do
+                    local copy = copy_card(v, nil, 0.75)
+                    ca:emplace(copy)
+                end
+                main_end = {
+                    { n = G.UIT.O, config = { object = ca } }
+                }
+            end
+        end
+        return { vars = { center.ability.extra.slots }, main_end = main_end }
+    end,
+    add_to_deck = function(self, card)
+        local count = SMODS.find_card('j_jjok_orochi')
+        if not G['orochi' .. #count] then
+            card.ability.extra.name = 'orochi' .. #count
+        else
+            count = 0
+            repeat
+                local valid = true
+                for i, v in pairs(G) do
+                    if G['orochi' .. count] then
+                        valid = false
+                        count = count + 1
+                    end
+                end
+            until valid == true
+            card.ability.name = 'orochi' .. count
+        end
+        local ca = CardArea(100000, 100000, G.CARD_W * 1.2, G.CARD_H, {
+            card_limit = card.ability.extra.slots,
+            type = "joker",
+            highlight_limit = 1,
+            view_deck = true
+        })
+        JJOK.create_cardarea(ca, 'orochi', count)
+    end,
+    remove_from_deck = function(self, card)
+        if G[card.ability.name.cards].cards[1] then
+            for i, v in ipairs(G[card.ability.extra.name].cards) do
+                if G.jokers.config.card_count + v.slots <= G.jokers.config.card_limit then
+                    G.jokers:emplace(v)
+                end
+            end
+        end
+        G[card.ability.extra.name]:remove()
+    end
+}
 --fuck it, end of the shikigamis
 
 SMODS.Joker {

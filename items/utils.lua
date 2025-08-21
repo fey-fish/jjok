@@ -137,9 +137,15 @@ end
 
 function G.FUNCS.jjok_kenny_can(card)
     if card.config.ref_table.ability.extra.name then
-        if (#G.jokers.highlighted == 2 and (#G[card.config.ref_table.ability.extra.name].cards < G[card.config.ref_table.ability.extra.name].config.card_limit) and
-                not (G.jokers.highlighted[1].config.center.key == 'j_jjok_kenjaku' and G.jokers.highlighted[2].config.center.key == 'j_jjok_kenjaku')) or
-            (#G[card.config.ref_table.ability.extra.name].highlighted == 1 and #G.jokers.cards < G.jokers.config.card_limit) then
+        local other
+        for i,v in ipairs(G.jokers.highlighted) do
+            if not v == card then
+                other = v
+            end
+        end
+        if (#G.jokers.highlighted == 2 and (#G[card.config.ref_table.ability.extra.name].config.card_count + other.slots < G[card.config.ref_table.ability.extra.name].config.card_limit)) and
+                not other.config.center.key == 'j_jjok_kenjaku' or 
+            (#G[card.config.ref_table.ability.extra.name].highlighted == 1 and G.jokers.cards.config.card_count < G.jokers.config.card_limit) then
             card.config.colour = G.C.PURPLE
             card.config.button = 'jjok_kenny_use'
         else
@@ -148,6 +154,7 @@ function G.FUNCS.jjok_kenny_can(card)
         end
     end
 end
+
 
 function G.FUNCS.jjok_kenny_use(card)
     local other
@@ -161,6 +168,44 @@ function G.FUNCS.jjok_kenny_use(card)
         G[card.config.ref_table.ability.extra.name]:emplace(other)
     elseif #G[card.config.ref_table.ability.extra.name].highlighted == 1 then
         other = G[card.config.ref_table.ability.extra.name].highlighted[1]
+        G[card.config.ref_table.ability.extra.name]:remove_card(other)
+        G.jokers:emplace(other)
+    end
+    G.jokers:unhighlight_all()
+end
+
+function G.FUNCS.jjok_oro_can(card)
+    if card.config.ref_table.ability.extra.name then
+        local other
+        for i,v in ipairs(G.jokers.highlighted) do
+            if not v == card then
+                other = v
+            end
+        end
+        if (#G.jokers.highlighted == 2 and (#G[card.config.ref_table.ability.extra.name].config.card_count + other.slots < G[card.config.ref_table.ability.extra.name].config.card_limit)) and
+                not other.config.center.key == 'j_jjok_oro' or 
+            (#G.jokers.highlighted == 1 and G.jokers.highlighted[1] == card and G.jokers.cards.config.card_count < G.jokers.config.card_limit) then
+            card.config.colour = G.C.JJOK.NATURE
+            card.config.button = 'jjok_oro_use'
+        else
+            card.config.colour = G.C.UI.BACKGROUND_INACTIVE
+            card.config.button = nil
+        end
+    end
+end
+
+function G.FUNCS.jjok_oro_use(card)
+    local other
+    if #G.jokers.highlighted == 2 then
+        for i, v in ipairs(G.jokers.highlighted) do
+            if not v  == card then
+                other = v
+            end
+        end
+        G.jokers:remove_card(other)
+        G[card.config.ref_table.ability.extra.name]:emplace(other)
+    elseif #G.jokers.highlighted == 1 and G.jokers.highlighted[1] == card then
+        other = G[card.config.ref_table.ability.extra.name].cards[1]
         G[card.config.ref_table.ability.extra.name]:remove_card(other)
         G.jokers:emplace(other)
     end

@@ -33,7 +33,8 @@ SMODS.Joker {
         JJOK.create_cardarea(ca, 'kenjaku', counter)
         card.ability.extra.name = 'kenjaku' .. tostring(counter)
     end,
-    config = { extra = { card_limit = 2, increase = 1, name = nil } },
+    config = { extra = { card_limit = 2, increase = 1, name = nil,
+        button = {ftext = 'BODY', ttext = 'HOP', button = 'jjok_kenny_use', func = 'jjko_kenny_can'} } },
     remove_from_deck = function(self, card)
         G[card.ability.extra.name]:remove()
     end,
