@@ -331,7 +331,7 @@ SMODS.Joker {
             'an enhancment, {C:attention}destroy{} the enhancement',
             'and increase payout by {C:money}$#2#',
             "{C:inactive}(Reset if a scored card isn't enhanced)" } },
-    config = { extra = { cur = 0, inc = 1 } },
+    config = { extra = { cur = 0, inc = 2 } },
     rarity = 2,
     loc_vars = function(self, info_queue, center)
         return {
