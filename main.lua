@@ -1477,7 +1477,7 @@ SMODS.Joker {
             '{s:0.8,C:inactive}(Must have space)',
             '{s:0.8,C:inactive}(Cannot be sold)' }
     },
-    config = { extra = { rounds = 2 } },
+    config = { extra = { rounds = 3 } },
     loc_vars = function(self, info_queue, center)
         return {
             vars = {
@@ -1491,7 +1491,7 @@ SMODS.Joker {
         if context.end_of_round and context.main_eval then
             card.ability.extra.rounds = card.ability.extra.rounds - 1
             if card.ability.extra.rounds == 0 then
-                card.ability.extra.rounds = 2
+                card.ability.extra.rounds = 3
                 if #G.jokers.cards < G.jokers.config.card_limit then
                     local copied_joker = copy_card(card)
                     copied_joker:start_materialize()
