@@ -1,36 +1,21 @@
-local lapi = loadAPIs
-function loadAPIs()
-    lapi()
-    -- Use to create JJOK Curses easily, rarity, pools and compatibility is already set (can be changed if needed)  
-    ---@class Curse
-    JJOK.Curse = SMODS.Center:extend {
-        rarity = 'jjok_cs',
-        blueprint_compat = false,
-        perishable_compat = false,
-        eternal_compat = false,
-        cost = 0,
-        config = {},
-        pools = {['curses'] = true},
-        set = 'Joker',
-        atlas = 'Joker',
-        class_prefix = 'j',
-        in_pool = function(self,card)
+JJOK = JJOK or {}
+
+-- Use to create JJOK Curses easily, rarity, pools and compatibility is already set (can be changed if needed)  
+---@class Curse
+JJOK.Curse = function(args)
+    if args then
+        args.rarity = 'jjok_cs'
+        if not args.blueprint_compat then args.blueprint_compat = false end
+        args.perishable_compat = true
+        args.eternal_compat = false
+        args.cost = 0
+        args.pools = {['curses'] = true}
+        args.set = 'Joker'
+        args.in_pool = function(self,card)
             return false
-        end,
-        required_params = {
-            'key',
-        },
-        inject = function(self)
-            -- call the parent function to ensure all pools are set
-            SMODS.Center.inject(self)
-            if self.taken_ownership and self.rarity_original and self.rarity_original ~= self.rarity then
-                SMODS.remove_pool(G.P_JOKER_RARITY_POOLS[self.rarity_original] or {}, self.key)
-                SMODS.insert_pool(G.P_JOKER_RARITY_POOLS[self.rarity], self, false)
-            else
-                SMODS.insert_pool(G.P_JOKER_RARITY_POOLS[self.rarity], self)
-            end
         end
-    }
+        SMODS.Joker(args)
+    end
 end
 
 JJOK.Curse {
@@ -122,7 +107,7 @@ JJOK.Curse {
     end,
     calculate = function(self, card, context)
         if context.boss_defeat then
-            pseudorandom_element(G.jokers.cards, pseudoseed('kuro'))
+            pseudorandom_element(G.jokers.cards, pseudoseed('kuro')):valid_destroy()
         end
     end
 }

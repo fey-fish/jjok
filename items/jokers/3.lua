@@ -349,6 +349,7 @@ SMODS.Joker {
 SMODS.Joker {
     key = 'juzo',
     rarity = 3,
+    atlas = 'juzo',
     cost = 8,
     discovered = true,
     loc_txt = { name = 'Juzo Kumiya',
@@ -374,11 +375,18 @@ SMODS.Joker {
         if context.joker_main then
             if G.GAME.consumeable_usage_total and G.GAME.consumeable_usage_total.ctools then
                 return {
-                    xchips = (G.GAME.consumeable_usage_total.ctools or 0 * card.ability.extra.Xchips_mod) + 1
+                    xchips = ((G.GAME.consumeable_usage_total.ctools or 0) * card.ability.extra.Xchips_mod) + 1
                 }
             end
         end
     end
+}
+
+SMODS.Atlas {
+    key = 'juzo',
+    path = 'fey/jizz.png',
+    px = 71,
+    py = 95
 }
 
 SMODS.Joker {

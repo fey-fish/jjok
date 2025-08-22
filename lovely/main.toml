@@ -463,3 +463,16 @@ if center.key == 'c_jjok_9tails' then
 end
 '''
 match_indent = true
+
+#luna saved colour
+[[patches]]
+[patches.pattern]
+target = 'functions/state_events.lua'
+pattern = '''
+{n=G.UIT.O, config={object = DynaText({string = {' '..localize(type(SMODS.saved) == 'string' and SMODS.saved or 'ph_mr_bones')..' '}, colours = {G.C.FILTER}, shadow = true, pop_in = 0, scale = 0.5*scale, silent = true})}}
+'''
+position = "at"
+payload = '''
+{n=G.UIT.O, config={object = DynaText({string = {' '..localize(type(SMODS.saved) == 'string' and SMODS.saved or 'ph_mr_bones')..' '}, colours = {SMODS.saved == 'ph_luna' and G.C.BLUE or G.C.FILTER}, shadow = true, pop_in = 0, scale = 0.5*scale, silent = true})}}
+'''
+match_indent = true

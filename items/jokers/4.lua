@@ -287,3 +287,31 @@ SMODS.Atlas {
     px = 71,
     py = 95
 }
+
+SMODS.Joker {
+    key = 'luna',
+    cost = 20,
+    rarity = 4,
+    loc_txt = {name = '{C:blue}Luna Snow',
+                text = {
+                    'Prevents death if',
+                    '{C:attention}boss{} blind is failed,',
+                    '{C:red}lose{} all {C:money}money',
+                    '{s:0.8,C:inactive}(Cannot skip blinds)'
+                }},
+    calculate = function(self,card,context)
+        if context.end_of_round and context.game_over and context.main_eval and G.GAME.blind.boss then
+            G.E_MANAGER:add_event(Event({
+                func = function()
+                    ease_dollars(-G.GAME.dollars)
+                    return true
+                end
+            }))
+            return {
+                message = 'Frozen!', 
+                colour = G.C.BLUE,
+                saved = 'ph_luna'
+            }
+        end
+    end
+}

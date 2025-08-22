@@ -36,7 +36,9 @@ return {
             b_roll = 'Roll!',
 
             jjok_tac = 'Art by Tacashumi',
-            jjok_fey = 'Art by fey :p'
+            jjok_fey = 'Art by fey :p',
+
+            ph_luna = 'I am ready to put on a show!'
         },
         labels = {
             jjok_electric_seal = 'Conductive Seal'

@@ -331,3 +331,20 @@ function SMODS.SAVE_UNLOCKS()
         end
     end
 end
+
+local cc = create_card
+function create_card(_type, area, legendary, _rarity, skip_materialize, soulable, forced_key, key_append)
+    local _card = cc(_type, area, legendary, _rarity, skip_materialize, soulable, forced_key, key_append)
+    if _card.config.center.create_card and type(_card.config.center.create_card) == 'function' then
+        _card.config.center.create_card(_card)
+    end
+    return _card
+end
+
+--luna
+local htp = G.FUNCS.hover_tag_proxy
+G.FUNCS.hover_tag_proxy = function(e)
+    if SMODS.find_card('j_jjok_luna')[1] then e.config.button = nil; e.config.colour = G.C.UI.BACKGROUND_INACTIVE else
+        e.config.colour = G.C.RED; e.config.button = G.FUNCS.skip_blind end
+    return htp(e)
+end

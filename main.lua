@@ -1155,9 +1155,9 @@ SMODS.Consumable {
     loc_txt = {name = 'Gluttony',
                 text = {
                     'All {V:1}#1#{} cards',
-                    'in deck gain {C:mult}#2#{} Mult'
+                    'in deck gain {C:mult}+#2#{} Mult'
                 }},
-    config = {extra = {suit = G.GAME.current_round.ancient_card.suit or 'Diamonds', mult = 1}},
+    config = {extra = {suit = 'Diamonds', mult = 1}},
     loc_vars = function(self,info_queue,center)
         return {vars = {
             center.ability.extra.suit,
@@ -1169,6 +1169,10 @@ SMODS.Consumable {
         if G.playing_cards and #G.playing_cards > 0 then
             return true
         end
+    end,
+    create_card = function(card)
+        local suits = JJOK.poll_suits()
+        card.ability.extra.suit = pseudorandom_element(suits, pseudoseed('glut')) or 'Diamonds'
     end,
     use = function(self,card)
         for i,v in ipairs(G.playing_cards) do
