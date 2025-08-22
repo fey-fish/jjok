@@ -293,6 +293,7 @@ SMODS.Joker {
 
 SMODS.Joker {
     key = 'higu',
+    atlas = 'higu',
     loc_txt = { name = 'Hiromi Higuruma',
         text = { 'Create a {C:attention}Death{} {C:tarot}tarot',
             'on {C:attention}selecting{} a Blind',
@@ -311,6 +312,14 @@ SMODS.Joker {
         end
     end
 }
+
+SMODS.Atlas {
+    key = 'higu',
+    path = 'fey/thegoat.png',
+    px = 71,
+    py = 95
+}
+
 
 SMODS.Joker {
     key = 'yuji',
