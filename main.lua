@@ -1100,7 +1100,7 @@ SMODS.Consumable {
     set = 'Tarot',
     cost = 5,
     atlas = 'pride',
-    config = { extra = { dollars_gain = 2 } },
+    config = { extra = { dollars_gain = 3 } },
     loc_txt = { name = 'Pride',
         text = {
             'Gain {C:money}$#1#{} on use',
@@ -1110,7 +1110,7 @@ SMODS.Consumable {
         if not G.GAME.consumeable_usage or not G.GAME.consumeable_usage.c_jjok_pride then
             dollars = 0
         elseif G.GAME.consumeable_usage.c_jjok_pride ~= nil then
-            dollars = G.GAME.consumeable_usage.c_jjok_pride.count * center.ability.extra.dollars_gain
+            dollars = (G.GAME.consumeable_usage.c_jjok_pride.count + 1) * center.ability.extra.dollars_gain
         end
         return {
             vars = {
@@ -1128,8 +1128,8 @@ SMODS.Consumable {
         end
     end,
     use = function(self, card)
-        if G.GAME.consumeable_usage ~= nil and G.GAME.consumeable_usage.c_jjok_pride ~= nil then
-            ease_dollars((G.GAME.consumeable_usage.c_jjok_pride.count - 1) * card.ability.extra.dollars_gain)
+        if G.GAME.consumeable_usage and G.GAME.consumeable_usage.c_jjok_pride then
+            ease_dollars((G.GAME.consumeable_usage.c_jjok_pride.count) * card.ability.extra.dollars_gain)
         end
     end
 }
