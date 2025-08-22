@@ -976,9 +976,14 @@ SMODS.Consumable {
         end
     end,
     use = function(self, card, context)
-        local pos, temp, valid, counter = {}, nil, true, 0
         for i = 1, card.ability.extra.req do
-            pseudorandom_element(G.jokers.cards, pseudoseed('invspear')):valid_destroy()
+            G.E_MANAGER:add_event(Event({
+                trigger = 'immediate',
+                func = function()
+                    pseudorandom_element(G.jokers.cards, pseudoseed('invspear')):valid_destroy()
+                    return true
+                end
+            }))
         end
         G.jokers.config.card_limit = G.jokers.config.card_limit + card.ability.extra.slots
     end
@@ -1141,6 +1146,40 @@ SMODS.Atlas {
     path = 'tac/Tarot_Pridealt.png',
     px = 71,
     py = 95
+}
+
+SMODS.Consumable {
+    key = 'glut',
+    set = 'Tarot',
+    cost = 3,
+    loc_txt = {name = 'Gluttony',
+                text = {
+                    'All {V:1}#1#{} cards',
+                    'in deck gain {C:mult}#2#{} Mult'
+                }},
+    config = {extra = {suit = G.GAME.current_round.ancient_card.suit or 'Diamonds', mult = 1}},
+    loc_vars = function(self,info_queue,center)
+        return {vars = {
+            center.ability.extra.suit,
+            center.ability.extra.mult,
+            colours = {G.C.SUITS[center.ability.extra.suit]}
+        }}
+    end,
+    can_use = function(self,card)
+        if G.playing_cards and #G.playing_cards > 0 then
+            return true
+        end
+    end,
+    use = function(self,card)
+        for i,v in ipairs(G.playing_cards) do
+            if v:is_suit(card.ability.extra.suit) then
+                card.ability.perma_mult = card.ability.perma_mult + card.ability.extra.mult
+                if v.area and v.area == G.hand then
+                    v:juice_up()
+                end
+            end
+        end
+    end
 }
 
 SMODS.Consumable {
@@ -1552,140 +1591,6 @@ SMODS.Atlas {
     path = 'fey/flyheads.png',
     px = 71,
     py = 95
-}
-
-SMODS.Joker {
-    key = 'swarm',
-    rarity = 'jjok_cs',
-    in_pool = function(self, card)
-        return false
-    end,
-    cost = 0,
-    pools = { ['curses'] = true },
-    loc_txt = {
-        name = 'Swarm of Flyheads',
-        text = { 'Duplicate in {C:attention}#1#{} rounds',
-            '{s:0.8,C:inactive}(Must have space)',
-            '{s:0.8,C:inactive}(Cannot be sold)' }
-    },
-    config = { extra = { rounds = 3 } },
-    loc_vars = function(self, info_queue, center)
-        return {
-            vars = {
-                center.ability.extra.rounds,
-            }
-        }
-    end,
-    blueprint_compat = false,
-    eternal_compat = false,
-    calculate = function(self, card, context)
-        if context.end_of_round and context.main_eval then
-            card.ability.extra.rounds = card.ability.extra.rounds - 1
-            if card.ability.extra.rounds == 0 then
-                card.ability.extra.rounds = 3
-                if #G.jokers.cards < G.jokers.config.card_limit then
-                    local copied_joker = copy_card(card)
-                    copied_joker:start_materialize()
-                    copied_joker:add_to_deck()
-                    G.jokers:emplace(copied_joker)
-                end
-            else
-                return {
-                    message = tostring(card.ability.extra.rounds),
-                    message_card = card
-                }
-            end
-        end
-    end
-}
-
-SMODS.Joker {
-    key = 'smallpox',
-    rarity = 'jjok_cs',
-    in_pool = function(self, card)
-        return false
-    end,
-    cost = 0,
-    pools = { ['curses'] = true },
-    loc_txt = {
-        name = 'Smallpox Deity',
-        text = { 'Destroy within {C:attention}#1#',
-            'rounds, else {C:mult}lose',
-            'this run',
-            '{s:0.8,C:inactive}(Cannot be sold)' }
-    },
-    config = { extra = { rounds = 6 } },
-    loc_vars = function(self, info_queue, center)
-        return {
-            vars = {
-                center.ability.extra.rounds
-            }
-        }
-    end,
-    blueprint_compat = false,
-    eternal_compat = false,
-    calculate = function(self, card, context)
-        if context.end_of_round and context.main_eval then
-            card.ability.extra.rounds = card.ability.extra.rounds - 1
-            if card.ability.extra.rounds == 0 then
-                G.STATE = G.STATES.GAME_OVER
-                G.STATE_COMPLETE = false
-            else
-                return {
-                    message = tostring(card.ability.extra.rounds),
-                    message_card = card
-                }
-            end
-        end
-    end
-}
-
-SMODS.Joker {
-    key = 'kuro',
-    rarity = 'jjok_cs',
-    in_pool = function(self, card)
-        return false
-    end,
-    cost = 0,
-    pools = { ['curses'] = true },
-    loc_txt = {
-        name = 'Kurourushi',
-        text = { 'Destroys {C:attention}#1#{} Joker',
-            'at the end of',
-            'each {C:attention}ante',
-            '{s:0.8,C:inactive}(Cannot be sold)' }
-    },
-    config = { extra = { cards = 1 } },
-    loc_vars = function(self, info_queue, center)
-        return {
-            vars = {
-                center.ability.extra.cards
-            }
-        }
-    end,
-    blueprint_compat = false,
-    eternal_compat = false,
-    calculate = function(self, card, context)
-        if context.boss_defeat then
-            pseudorandom_element(G.jokers.cards, pseudoseed('kuro'))
-        end
-    end
-}
-
-SMODS.Joker {
-    key = 'onna',
-    cost = 1,
-    pools = { ['curses'] = true },
-    in_pool = function(self, card)
-        return false
-    end,
-    rarity = 'jjok_cs',
-    loc_txt = { name = 'Kuchisake Onna',
-        text = {
-            'Cards can no',
-            'longer be bought',
-            '{s:0.8,C:inactive}(Cannot be sold)'
-        } }
 }
 
 SMODS.Joker {
