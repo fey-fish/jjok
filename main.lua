@@ -1094,6 +1094,7 @@ SMODS.Consumable {
     key = 'pride',
     set = 'Tarot',
     cost = 5,
+    atlas = 'pride',
     config = { extra = { dollars_gain = 2 } },
     loc_txt = { name = 'Pride',
         text = {
@@ -1101,7 +1102,7 @@ SMODS.Consumable {
             '{s:0.8,C:inactive}(Increase by {C:money,s:0.8}$#2#{s:0.8,C:inactive} after use)' } },
     loc_vars = function(self, info_queue, center)
         local dollars = nil
-        if G.GAME.consumeable_usage == nil or G.GAME.consumeable_usage.c_jjok_pride == nil then
+        if not G.GAME.consumeable_usage or not G.GAME.consumeable_usage.c_jjok_pride then
             dollars = 0
         elseif G.GAME.consumeable_usage.c_jjok_pride ~= nil then
             dollars = G.GAME.consumeable_usage.c_jjok_pride.count * center.ability.extra.dollars_gain
@@ -1114,11 +1115,32 @@ SMODS.Consumable {
     can_use = function(self, card)
         return true
     end,
+    set_sprites = function(self,card,front)
+        if SMODS.pseudorandom_probability(card, 'tarotpride', 1, 100, 'pridealt') then
+            card.children.center.atlas = G.ASSET_ATLAS['jjok_pridealt']
+        else
+            card.children.center.atlas = G.ASSET_ATLAS['jjok_pride']
+        end
+    end,
     use = function(self, card)
         if G.GAME.consumeable_usage ~= nil and G.GAME.consumeable_usage.c_jjok_pride ~= nil then
             ease_dollars((G.GAME.consumeable_usage.c_jjok_pride.count - 1) * card.ability.extra.dollars_gain)
         end
     end
+}
+
+SMODS.Atlas {
+    key = 'pride',
+    path = 'tac/Tarot_Pride.png',
+    px = 71,
+    py = 95
+}
+
+SMODS.Atlas {
+    key = 'pridealt',
+    path = 'tac/Tarot_Pridealt.png',
+    px = 71,
+    py = 95
 }
 
 SMODS.Consumable {
