@@ -362,7 +362,7 @@ SMODS.Joker {
     loc_vars = function(self, info_queue, center)
         local _xchips = 1
         if G.GAME.consumeable_usage_total then
-            _xchips = 1 + (G.GAME.consumeable_usage_total.ctools or 0 * center.ability.extra.Xchips_mod)
+            _xchips = 1 + ((G.GAME.consumeable_usage_total.ctools or 0) * center.ability.extra.Xchips_mod)
         end
         return {
             vars = {
