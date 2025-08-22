@@ -117,7 +117,9 @@ end
 JJOK.poll_suits = function()
     local suits = {}
     for i, v in ipairs(G.playing_cards) do
-        table.insert(suits, v.base.suit)
+        if v.ability and v.ability.effect ~= 'Stone Card' then
+            table.insert(suits, v.base.suit)
+        end
     end
     return suits
 end

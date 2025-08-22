@@ -976,9 +976,14 @@ SMODS.Consumable {
         end
     end,
     use = function(self, card, context)
-        local pos, temp, valid, counter = {}, nil, true, 0
         for i = 1, card.ability.extra.req do
-            pseudorandom_element(G.jokers.cards, pseudoseed('invspear')):valid_destroy()
+            G.E_MANAGER:add_event(Event({
+                trigger = 'immediate',
+                func = function()
+                    pseudorandom_element(G.jokers.cards, pseudoseed('invspear')):valid_destroy()
+                    return true
+                end
+            }))
         end
         G.jokers.config.card_limit = G.jokers.config.card_limit + card.ability.extra.slots
     end
@@ -1117,6 +1122,40 @@ SMODS.Consumable {
     use = function(self, card)
         if G.GAME.consumeable_usage ~= nil and G.GAME.consumeable_usage.c_jjok_pride ~= nil then
             ease_dollars((G.GAME.consumeable_usage.c_jjok_pride.count - 1) * card.ability.extra.dollars_gain)
+        end
+    end
+}
+
+SMODS.Consumable {
+    key = 'glut',
+    set = 'Tarot',
+    cost = 3,
+    loc_txt = {name = 'Gluttony',
+                text = {
+                    'All {V:1}#1#{} cards',
+                    'in deck gain {C:mult}#2#{} Mult'
+                }},
+    config = {extra = {suit = G.GAME.current_round.ancient_card.suit or 'Diamonds', mult = 1}},
+    loc_vars = function(self,info_queue,center)
+        return {vars = {
+            center.ability.extra.suit,
+            center.ability.extra.mult,
+            colours = {G.C.SUITS[center.ability.extra.suit]}
+        }}
+    end,
+    can_use = function(self,card)
+        if G.playing_cards and #G.playing_cards > 0 then
+            return true
+        end
+    end,
+    use = function(self,card)
+        for i,v in ipairs(G.playing_cards) do
+            if v:is_suit(card.ability.extra.suit) then
+                card.ability.perma_mult = card.ability.perma_mult + card.ability.extra.mult
+                if v.area and v.area == G.hand then
+                    v:juice_up()
+                end
+            end
         end
     end
 }
