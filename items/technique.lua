@@ -45,7 +45,7 @@ SMODS.Consumable {
             rarity = 'Legendary'
         end
 
-        SMODS.add_card({rarity = rarity, edition = edition})
+        SMODS.add_card({ set = 'Joker', rarity = rarity, edition = edition })
         _card:start_dissolve()
         ease_ce(-card.ce_cost)
     end,

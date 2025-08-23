@@ -1108,8 +1108,8 @@ SMODS.Consumable {
     loc_vars = function(self, info_queue, center)
         local dollars = nil
         if not G.GAME.consumeable_usage or not G.GAME.consumeable_usage.c_jjok_pride then
-            dollars = 0
-        elseif G.GAME.consumeable_usage.c_jjok_pride ~= nil then
+            dollars = 3
+        elseif G.GAME.consumeable_usage.c_jjok_pride then
             dollars = (G.GAME.consumeable_usage.c_jjok_pride.count + 1) * center.ability.extra.dollars_gain
         end
         return {
@@ -1170,14 +1170,14 @@ SMODS.Consumable {
             return true
         end
     end,
-    create_card = function(card)
+    create = function(card)
         local suits = JJOK.poll_suits()
         card.ability.extra.suit = pseudorandom_element(suits, pseudoseed('glut')) or 'Diamonds'
     end,
     use = function(self,card)
         for i,v in ipairs(G.playing_cards) do
             if v:is_suit(card.ability.extra.suit) then
-                card.ability.perma_mult = card.ability.perma_mult + card.ability.extra.mult
+                v.ability.perma_mult = v.ability.perma_mult + card.ability.extra.mult
                 if v.area and v.area == G.hand then
                     v:juice_up()
                 end
@@ -1227,7 +1227,7 @@ SMODS.Consumable {
     use = function(self, card)
         SMODS.add_card({ key = 'j_jjok_flyhead' })
         if pseudorandom('sloth', 1, (100 / G.GAME.probabilities.normal)) == 100 then
-            SMODS.add_card({ rarity = 'jjok_special' })
+            SMODS.add_card({ set = 'Joker', rarity = 'jjok_special' })
         end
     end
 }

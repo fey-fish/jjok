@@ -69,6 +69,7 @@ SMODS.Consumable {
     key = "milky",
     set = "Planet",
     cost = 3,
+    atlas = 'mw',
     config = { hand_type = 'jjok_f6', softlock = true },
     loc_txt = {name = 'The Milky Way',
                 text = {
@@ -87,6 +88,13 @@ SMODS.Consumable {
             }
         }
     end
+}
+
+SMODS.Atlas {
+    key = 'mw',
+    path = 'tac/Planet_Milkyway.png',
+    px = 71,
+    py = 95
 }
 
 SMODS.PokerHandPart {

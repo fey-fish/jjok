@@ -32,16 +32,27 @@ SMODS.Joker {
         local counter = #find
         JJOK.create_cardarea(ca, 'kenjaku', counter)
         card.ability.extra.name = 'kenjaku' .. tostring(counter)
+        
+        --hooking for calc
+        card.original_func = SMODS.get_card_areas
+        function SMODS.get_card_areas(_type, _context)
+            local t = card.original_func(_type, _context)
+            if _type == 'jokers' then
+                table.insert(t, G[card.ability.extra.name])
+            end
+            return t
+        end
     end,
+    original_func = nil,
     config = { extra = { card_limit = 2, increase = 1, name = nil,
         button = {ftext = 'BODY', ttext = 'HOP', button = 'jjok_kenny_use', func = 'jjok_kenny_can'} } },
-    remove_from_deck = function(self, card)
+    remove_from_deck = function(self, card, from_debuff)
+        SMODS.get_card_areas = card.original_func
         G[card.ability.extra.name]:remove()
     end,
     calculate = function(self, card, context)
         if context.boss_defeat then
-            G[card.ability.extra.name].config.card_limit = G[card.ability.extra.name].config.card_limit +
-                card.ability.extra.increase
+            G[card.ability.extra.name].config.card_limit = G[card.ability.extra.name].config.card_limit + card.ability.extra.increase
         end
     end,
     update = function(self, card, dt)
@@ -127,7 +138,7 @@ SMODS.Joker {
             }
         }
     end,
-    config = { extra = { xchips = 1.5 } },
+    config = { extra = { xchips = 2.5 } },
     cost = 40,
     discovered = true,
     blueprint_compat = true,

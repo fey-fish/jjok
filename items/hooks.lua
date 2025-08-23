@@ -298,7 +298,18 @@ function Card:add_to_deck(from_debuff)
     if self.config.center.key == 'c_jjok_9tails' and not self.ability.extra.ce then
         self.ce = pseudorandom('9tails', 0, 75)
     end
+    if self.inc_select ~= 0 then
+        G.hand.config.highlighted_limit = G.hand.config.highlighted_limit + self.inc_select
+    end
     return catd(self, from_debuff)
+end
+
+local crfd = Card.remove_from_deck
+function Card:remove_from_deck(from_debuff)
+    if self.inc_select ~= 0 then
+        G.hand.config.highlighted_limit = G.hand.config.highlighted_limit - self.inc_select
+    end
+    return crfd(self, from_debuff)
 end
 
 local carc = CardArea.remove_card
@@ -335,16 +346,8 @@ end
 local cc = create_card
 function create_card(_type, area, legendary, _rarity, skip_materialize, soulable, forced_key, key_append)
     local _card = cc(_type, area, legendary, _rarity, skip_materialize, soulable, forced_key, key_append)
-    if _card.config.center.create_card and type(_card.config.center.create_card) == 'function' then
-        _card.config.center.create_card(_card)
+    if _card.config.center.create and type(_card.config.center.create) == 'function' then
+        _card.config.center.create(_card)
     end
     return _card
-end
-
---luna
-local htp = G.FUNCS.hover_tag_proxy
-G.FUNCS.hover_tag_proxy = function(e)
-    if SMODS.find_card('j_jjok_luna')[1] then e.config.button = nil; e.config.colour = G.C.UI.BACKGROUND_INACTIVE else
-        e.config.colour = G.C.RED; e.config.button = G.FUNCS.skip_blind end
-    return htp(e)
 end

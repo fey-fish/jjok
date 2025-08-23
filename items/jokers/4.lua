@@ -294,23 +294,20 @@ SMODS.Joker {
     rarity = 4,
     loc_txt = {name = '{C:blue}Luna Snow',
                 text = {
-                    'Prevents death if',
-                    '{C:attention}boss{} blind is failed,',
-                    '{C:red}lose{} all {C:money}money',
-                    '{s:0.8,C:inactive}(Cannot skip blinds)'
+                    'Gain {C:blue}#1#{} hand',
+                    'if {C:attention}final{} hand is played',
+                    'during {C:attention}Boss{} blind'
                 }},
+    config = {extra = {hands = 1}},
+    loc_vars = function(self,info_queue,center)
+        return {vars = {center.ability.extra.hands}}
+    end,
     calculate = function(self,card,context)
-        if context.end_of_round and context.game_over and context.main_eval and G.GAME.blind.boss then
-            G.E_MANAGER:add_event(Event({
-                func = function()
-                    ease_dollars(-G.GAME.dollars)
-                    return true
-                end
-            }))
+        if context.before and G.GAME.current_round.hands_left == 0 and G.GAME.blind.boss then
+            ease_hands_played(card.ability.extra.hands)
             return {
                 message = 'Frozen!', 
                 colour = G.C.BLUE,
-                saved = 'ph_luna'
             }
         end
     end
