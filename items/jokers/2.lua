@@ -15,12 +15,12 @@ SMODS.Joker {
     end,
     calculate = function(self, card, context)
         if context.setting_blind then
-            SMODS.add_card({ set = 'Joker', area = G.jokers, key = 'j_splash', edition = 'e_negative' })
+            SMODS.add_card({ key = 'j_splash', edition = 'e_negative' })
         end
         if context.selling_self and not context.blueprint then
             local tally = 0
             for i, v in ipairs(G.jokers.cards) do
-                if v.config.center.key == 'j_splash' and v.edition and v.edition.negative == true then
+                if v.config.center.key == 'j_splash' and v.edition and v.edition.negative then
                     tally = tally + 1
                 end
             end
@@ -172,21 +172,23 @@ SMODS.Joker {
             }
         }
     end,
-    calculate = function(card, self, context)
+    calculate = function(self,card, context)
         if context.joker_main then
             local rars, count = {}, 0
             local areas = SMODS.get_card_areas('jokers')
             for l, n in ipairs(areas) do
                 for i, v in ipairs(n.cards) do
-                    local unique = true
-                    for k, m in ipairs(rars) do
-                        if v.config.center.rarity == m then
-                            unique = false
+                    if v.config.center.set == 'Joker' then
+                        local unique = true
+                        for k, m in ipairs(rars) do
+                            if v.config.center.rarity == m then
+                                unique = false
+                            end
                         end
-                    end
-                    if unique == true then
-                        table.insert(rars, v.config.center.rarity)
-                        count = count + card.ability.extra.Xmult
+                        if unique == true then
+                            table.insert(rars, v.config.center.rarity)
+                            count = count + card.ability.extra.Xmult
+                        end
                     end
                 end
             end

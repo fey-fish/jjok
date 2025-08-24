@@ -470,7 +470,7 @@ SMODS.Consumable {
             'truly a divine feat, relentlessly',
             'slashes at everything in its range',
             '{s:1.1}Gives {s:1.1,X:mult,C:white}X#1#{s:1.1} Mult',
-            'increase by {X:mult,C:white}#2#{} when {C:attention}defeating{} a blind',
+            'increase by {X:mult,C:white}X#2#{} when {C:attention}defeating{} a blind',
             '{s:0.8,C:inactive}(Currently #3#)' } },
     config = { extra = { xmult = 2, scale = 0.4, used_this_ante = false } },
     loc_vars = function(self, info_queue, center)
@@ -529,6 +529,7 @@ SMODS.Atlas {
 
 SMODS.Back {
     key = 'gojodeck',
+    atlas = 'deckgojo',
     discovered = true,
     apply = function(self, back)
         G.E_MANAGER:add_event(Event({
@@ -543,6 +544,13 @@ SMODS.Back {
             end
         }))
     end
+}
+
+SMODS.Atlas {
+    key = 'deckgojo',
+    path = 'tac/Deck_Gojo.png',
+    px = 71,
+    py = 95
 }
 
 SMODS.Back {
@@ -867,7 +875,7 @@ SMODS.Consumable {
     use = function(card, self)
         local kill = pseudorandom('awaken', 1, Count)
         G.jokers.cards[Legendary[kill]]:start_dissolve()
-        SMODS.add_card({ rarity = 'jjok_special' })
+        SMODS.add_card({ set = 'Joker', rarity = 'jjok_special' })
     end
 }
 
@@ -1091,7 +1099,7 @@ SMODS.Consumable {
     end,
     use = function(card, self)
         G.jokers.cards[M]:start_dissolve()
-        SMODS.add_card({ set = 'Joker', area = G.jokers, key = 'j_jjok_amaki' })
+        SMODS.add_card({ set = 'Joker', area = card.area, key = 'j_jjok_amaki' })
     end
 }
 

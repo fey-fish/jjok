@@ -293,7 +293,11 @@ end
 local catd = Card.add_to_deck
 function Card:add_to_deck(from_debuff)
     if self.config.center.set == 'ct' and not self.ce_cost then
-        self.ce_cost = pseudorandom('ce_cost', 0, 75)
+        if self.config.center.key == 'c_jjok_piercingblood' then
+            self.ce_cost = pseudorandom('c_cost', 0, 10)
+        else
+            self.ce_cost = pseudorandom('ce_cost', 0, 75)
+        end
     end
     if self.config.center.key == 'c_jjok_9tails' and not self.ability.extra.ce then
         self.ce = pseudorandom('9tails', 0, 75)
@@ -306,7 +310,7 @@ end
 
 local crfd = Card.remove_from_deck
 function Card:remove_from_deck(from_debuff)
-    if self.inc_select ~= 0 then
+    if self.added_to_deck and self.inc_select ~= 0 then
         G.hand.config.highlighted_limit = G.hand.config.highlighted_limit - self.inc_select
     end
     return crfd(self, from_debuff)
