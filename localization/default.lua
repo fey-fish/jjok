@@ -20,7 +20,8 @@ return {
         Other = {
             jjok_slots = {text = {{'Requires {C:attention}#1#{} Slots'}}},
             jjok_ce_cost = {text = {{'Costs {C:dark_edition}#1#{} Cursed Energy'}}},
-            jjok_inc_select = {text = {{'{C:attention}+#1#{} card selection limit'}}}
+            jjok_inc_select = {text = {{'{C:attention}+#1#{} card selection limit'}}},
+            jjok_heavenly_restriction = {text = {{'Heavenly Restriction', "Doesn't generate {C:attention}Cursed Energy"}}}
         }
     },
     misc = {

@@ -137,6 +137,7 @@ SMODS.Atlas {
 
 SMODS.Joker {
     key = 'amaki',
+    heavenly = true,
     atlas = 'awakenedmaki',
     blueprint_compat = true,
     loc_txt = {

@@ -18,32 +18,23 @@ function end_round()
         end
     end
     if SMODS.find_card('j_jjok_sukuna')[1] and G.consumeables.config.card_count < G.consumeables.config.card_limit then
-        SMODS.add_card({key = 'c_jjok_sukfin'})
+        SMODS.add_card({ key = 'c_jjok_sukfin' })
     end
-    local rars = JJOK.pool_rarities()
+    local rars = JJOK.pool_rarities(true)
     local ce = rars[1] + (rars[2] * 2) + (rars[3] * 3) + (rars[4] * 4) + (rars[5] * 5)
     ease_ce(ce)
-    G.E_MANAGER:add_event(Event({
-        trigger = 'immediate',
-        delay = 0.5,
-        func = function()
-            if G.domain then
-                local count = 0
-                for i,v in ipairs(G.domain.cards) do
-                    if v.config.center.set == 'domain' and v.config.center.key ~= 'c_jjok_9tails' then
-                        count = count + 1
-                    end
-                end
-                local ce_min = count * -10
-                if G.GAME.cursed_energy >= ce_min then
-                    ease_ce(ce_min)
-                end
-                return true
+    if G.domain then
+        local count = 0
+        for i, v in ipairs(G.domain.cards) do
+            if v.config.center.set == 'domain' and v.config.center.key ~= 'c_jjok_9tails' then
+                count = count + 1
             end
         end
-    }))
+        local ce_min = count * -10
+        ease_ce(ce_min)
+    end
     if G.GAME.cursed_energy and G.GAME.cursed_energy_limit then
-        if G.GAME.cursed_energy >= G.GAME.cursed_energy_limit then
+        if G.GAME.cursed_energy >= G.GAME.cursed_energy_limit and G.jokers.config.card_count < G.jokers.config.card_limit then
             ease_ce(-G.GAME.cursed_energy)
             local joker = G.P_CENTER_POOLS.curses[pseudorandom('cursedenergy', 1, #G.P_CENTER_POOLS.curses)]
             SMODS.add_card({ key = joker.key, no_edition = true })
@@ -340,7 +331,7 @@ end
 local su = SMODS.SAVE_UNLOCKS
 function SMODS.SAVE_UNLOCKS()
     su()
-    for i,v in pairs(G.P_CENTERS) do
+    for i, v in pairs(G.P_CENTERS) do
         if v.mod and v.mod.id == 'jjok' then
             v.discovered = true
         end

@@ -61,7 +61,7 @@ position = "after"
 payload = '''
 local specials = {}
 for i,v in ipairs(G.P_CENTER_POOLS.Joker) do
-    if v.rarity == 'jjok_special' then
+    if (v.rarity == 'jjok_special' or v.rarity == 4) and v.mod and v.mod.id == 'jjok' and v.atlas ~= 'Joker' then
         table.insert(specials, v)
     end
 end
@@ -453,7 +453,7 @@ end
 '''
 match_indent = true
 
-#9tails random generation
+#9tails random generation/heavenly restriction
 [[patches]]
 [patches.pattern]
 target = 'functions/common_events.lua'
@@ -467,6 +467,11 @@ position = "after"
 payload = '''
 if center.key == 'c_jjok_9tails' then
     card.ability.extra.ce = pseudorandom('9tails', 5, 25)
+end
+if _type == 'Joker' then
+    if SMODS.pseudorandom_probability(card, 'heavenlyrestriction', 1, 10, 'heavenly') or center.heavenly then
+        card.ability.heavenly = true
+    end
 end
 '''
 match_indent = true

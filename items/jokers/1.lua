@@ -2,6 +2,7 @@
 SMODS.Joker {
     key = 'maki',
     atlas = 'maki',
+    heavenly = true,
     loc_txt = {
         name = 'Maki Zenin',
         text = {

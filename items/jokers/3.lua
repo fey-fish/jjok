@@ -65,15 +65,24 @@ SMODS.Atlas {
 SMODS.Joker {
     key = 'toji',
     rarity = 3,
+    atlas = 'retoji',
+    heavenly = true,
     blueprint_compat = true,
     cost = 10,
     loc_txt = { name = 'Toji Fushiguro',
-        text = { 'Creates {C:attention}1 negative flyhead{} on selecting a blind',
-            'for every non-negative flyhead, {C:attention}destroy{} the joker',
-            'to the {C:attention}right{} on {C:attention}selection of a blind{} in exchange for',
-            '{C:money}1/5th sell value{} as {C:white,X:mult}XMult',
-            '{C:inactive,s:0.8}(Currently {C:white,X:mult,s:0.8}X#1#{C:inactive,s:0.8} Mult)',
-            '{s:0.8}"The ghost of the Zenin clan"' } },
+        text = { 
+            {"When {C:attention}Blind{} is selected,",
+            "{C:attention}destroy{} Joker to the {C:attention}right",
+            "and permanently add {C:attention}1/10th",
+            "its sell value to this {C:white,X:mult}XMult",
+            "{C:inactive}(Currently {C:white,X:mult}X#1#{C:inactive} Mult)"},
+            {
+                'When {C:attention}Blind{} is selected,',
+                'create {C:attention}1 {C:dark_edition}negative',
+                'Fly-Head for every',
+                '{C:attention}non-negative{} Fly-Head'
+            }
+         } },
     config = { extra = { Xmult = 1 } },
     loc_vars = function(self, info_queue, center)
         info_queue[#info_queue + 1] = G.P_CENTERS.j_jjok_flyhead
@@ -84,28 +93,36 @@ SMODS.Joker {
             return { Xmult = card.ability.extra.Xmult }
         end
         if context.setting_blind and not context.blueprint then
-            Create = 0
-            for i = 1, #G.jokers.cards do
-                if G.jokers.cards[i] == card then
-                    if #G.jokers.cards >= i + 1 then
-                        if not SMODS.is_eternal(G.jokers.cards[i + 1]) then
-                            card.ability.extra.Xmult = card.ability.extra.Xmult + (G.jokers.cards[i + 1].sell_cost / 5)
-                            G.jokers.cards[i + 1]:valid_destroy()
-                            play_sound('slice1', 0.96 + math.random() * 0.08)
-                        end
-                    end
-                end
-                if G.jokers.cards[i].config.center.key == 'j_jjok_flyhead' and (G.jokers.cards[i].edition == nil or G.jokers.cards[i].edition.negative == false) then
-                    Create = Create + 1
+            for i,v in ipairs(G.jokers.cards) do
+                if v == card and G.jokers.cards[i + 1] and not G.jokers.cards[i + 1].ability.eternal then
+                    local next = G.jokers.cards[i + 1]
+                    card.ability.extra.Xmult = card.ability.extra.Xmult + (next.sell_cost / 10)
+                    card:juice_up(0.8, 0.8)
+                    next:start_dissolve({HEX("57ecab")}, nil, 1.6)
+                    play_sound('slice1', 0.96+math.random()*0.08)
+                    card_eval_status_text(card, 'extra', nil, nil, nil, {message = 'X'..card.ability.extra.Xmult..' Mult',
+                        colour = G.C.FILTER, no_juice = true})
                 end
             end
-            if Create ~= 0 then
-                for i = 1, Create do
-                    local createfh = SMODS.add_card({ set = 'Joker', key = 'j_jjok_flyhead', edition = 'e_negative' })
+        end
+        if context.setting_blind then
+            local areas = SMODS.get_card_areas('jokers')
+            for _,a in ipairs(areas) do
+                for i,v in ipairs(a.cards) do
+                    if v.config.center.key == 'j_jjok_flyhead' and (not v.edition or not v.edition.negative) then
+                        SMODS.add_card({key = 'j_jjok_flyhead', edition = 'e_negative'})
+                    end
                 end
             end
         end
     end
+}
+
+SMODS.Atlas {
+    key = 'retoji',
+    path = 'fey/retoji.png',
+    px = 71,
+    py = 95
 }
 
 SMODS.Joker {

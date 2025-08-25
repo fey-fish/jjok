@@ -919,7 +919,7 @@ SMODS.Booster {
                 skip_materialize = true
             })
     end,
-    weight = 0.45
+    weight = 0.6
 }
 
 SMODS.Consumable {
@@ -1128,7 +1128,7 @@ SMODS.Consumable {
     can_use = function(self, card)
         return true
     end,
-    set_sprites = function(self,card,front)
+    create = function(card)
         if SMODS.pseudorandom_probability(card, 'tarotpride', 1, 100, 'pridealt') then
             card.children.center.atlas = G.ASSET_ATLAS['jjok_pridealt']
         else
@@ -1323,18 +1323,18 @@ SMODS.Atlas {
 SMODS.Consumable {
     key = 'imbue',
     set = 'Tarot',
-    pos = { x = 0, y = 0 },
+    cost = 3,
     loc_txt = { name = 'Cursed Imbue',
-        text = { 'Use to imbue cursed energy',
-            'into a card, creating a random',
-            '{C:jjok_ctools}Cursed Tool' } },
+        text = { 'Create a random',
+            '{C:jjok_ctools}Cursed{} card'} },
     can_use = function(card, self)
         if (#G.consumeables.cards < G.consumeables.config.card_limit) or card.added_to_deck then
             return true
         end
     end,
     use = function(card, self)
-        SMODS.add_card({ set = 'ctools' })
+        local set = pseudorandom_element({'ctools', 'ct'}, pseudoseed('cimbue'))
+        SMODS.add_card({ set = set })
     end
 }
 

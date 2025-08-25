@@ -18,22 +18,44 @@ JJOK.find_joker = function(_key)
     return ret
 end
 
-JJOK.pool_rarities = function()
+JJOK.pool_rarities = function(heavenly)
     local ret = { 0, 0, 0, 0, 0 }
-    for i, v in ipairs(G.jokers.cards) do
-        if v.ability.set == 'Joker' then
-            if v.config.center.rarity == 1 then
-                ret[1] = ret[1] + 1
-            elseif v.config.center.rarity == 2 then
-                ret[2] = ret[2] + 1
-            elseif v.config.center.rarity == 3 then
-                ret[3] = ret[3] + 1
-            elseif v.config.center.rarity == 4 then
-                ret[4] = ret[4] + 1
-            elseif v.config.center.rarity == 'jjok_special' then
-                ret[5] = ret[5] + 1
+    local areas = SMODS.get_card_areas('jokers')
+    for _, a in ipairs(areas) do
+        for i, v in ipairs(a.cards) do
+            if v.ability.set == 'Joker' then
+                if v.config.center.rarity == 1 then
+                    ret[1] = ret[1] + 1
+                elseif v.config.center.rarity == 2 then
+                    ret[2] = ret[2] + 1
+                elseif v.config.center.rarity == 3 then
+                    ret[3] = ret[3] + 1
+                elseif v.config.center.rarity == 4 then
+                    ret[4] = ret[4] + 1
+                elseif v.config.center.rarity == 'jjok_special' then
+                    ret[5] = ret[5] + 1
+                end
             end
         end
+    end
+    if heavenly then
+        for _, a in ipairs(areas) do
+        for i, v in ipairs(a.cards) do
+            if v.ability.set == 'Joker' and v.ability.heavenly then
+                if v.config.center.rarity == 1 then
+                    ret[1] = ret[1] - 1
+                elseif v.config.center.rarity == 2 then
+                    ret[2] = ret[2] - 1
+                elseif v.config.center.rarity == 3 then
+                    ret[3] = ret[3] - 1
+                elseif v.config.center.rarity == 4 then
+                    ret[4] = ret[4] - 1
+                elseif v.config.center.rarity == 'jjok_special' then
+                    ret[5] = ret[5] - 1
+                end
+            end
+        end
+    end
     end
     return ret
 end
@@ -213,24 +235,7 @@ function G.FUNCS.jjok_oro_use(card)
 end
 
 function ease_ce(mod)
-    G.E_MANAGER:add_event(Event({
-        trigger = 'immediate',
-        func = function()
-            mod = (mod or 0) + G.GAME.cursed_energy
-
-            G.E_MANAGER:add_event(Event({
-                trigger = 'ease',
-                blockable = false,
-                ref_table = G.GAME,
-                ref_value = 'cursed_energy',
-                ease_to = mod,
-                delay = 0,
-                func = (function(t) return math.floor(t) end)
-            }))
-            play_sound('timpani')
-            return true
-        end
-    }))
+    G.GAME.cursed_energy = G.GAME.cursed_energy + mod
 end
 
 function G.FUNCS.ce_bar_update(self)
