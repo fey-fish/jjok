@@ -1328,7 +1328,7 @@ SMODS.Consumable {
         text = { 'Create a random',
             '{C:jjok_ctools}Cursed{} card'} },
     can_use = function(card, self)
-        if (#G.consumeables.cards < G.consumeables.config.card_limit) or card.added_to_deck then
+        if (#G.consumeables.cards < G.consumeables.config.card_limit) or card.area == G.consumeables then
             return true
         end
     end,

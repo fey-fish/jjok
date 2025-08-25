@@ -32,10 +32,17 @@ SMODS.Joker {
         local counter = #find
         JJOK.create_cardarea(ca, 'kenjaku', counter)
         card.ability.extra.name = 'kenjaku' .. tostring(counter)
+        table.insert(G.GAME.loading_card_areas, card.ability.extra.name)
     end,
     config = { extra = { card_limit = 2, increase = 1, name = nil,
         button = {ftext = 'BODY', ttext = 'HOP', button = 'jjok_kenny_use', func = 'jjok_kenny_can'} } },
     remove_from_deck = function(self, card, from_debuff)
+        for i,v in ipairs(G.GAME.loading_card_areas) do
+            if v == card.ability.extra.name then
+                table.remove(G.GAME.loading_card_areas, i)
+                break
+            end
+        end
         G[card.ability.extra.name]:remove()
     end,
     calculate = function(self, card, context)
@@ -44,17 +51,17 @@ SMODS.Joker {
         end
     end,
     update = function(self, card, dt)
-        if G[card.ability.extra.name] then
-            --change position to match parent
-            G[card.ability.extra.name].T.x = card.T.x - 0.2
-            G[card.ability.extra.name].T.y = card.T.y + card.T.h
-        end
-        if G.jokers then
-            if G.jokers.highlighted[1] == card then
+        if G.jokers.highlighted[1] then
+            if G.jokers.highlighted[1].config.center.key == 'j_jjok_kenny' then
                 G.jokers.config.highlighted_limit = 2
             else
                 G.jokers.config.highlighted_limit = 1
             end
+        end
+        if G[card.ability.extra.name] then
+            --change position to match parent
+            G[card.ability.extra.name].T.x = card.T.x - 0.2
+            G[card.ability.extra.name].T.y = card.T.y + card.T.h
         end
     end
 }
