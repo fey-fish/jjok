@@ -519,7 +519,7 @@ SMODS.Joker {
 SMODS.Joker {
     key = 'ino',
     rarity = 3,
-    atlas = 'ino',w
+    atlas = 'ino',
     cost = 10,
     loc_txt = { name = 'Takuma Ino',
         text = { '{C:attention}Cycles{} through {C:attention}3{} effects,',
