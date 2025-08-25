@@ -755,7 +755,7 @@ SMODS.Voucher {
 --enhancements
 SMODS.Enhancement {
     key = 'resonated',
-    config = { x_chips = 1.75 },
+    config = { x_chips = 1.5 },
     loc_txt = { name = 'Resonated',
         text = { '{C:white,X:chips}X#1#{} Chips when scored' } },
     loc_vars = function(self, info_queue, center)
@@ -919,7 +919,7 @@ SMODS.Booster {
                 skip_materialize = true
             })
     end,
-    weight = 0.6
+    weight = 1.4
 }
 
 SMODS.Consumable {
@@ -1327,12 +1327,12 @@ SMODS.Consumable {
     loc_txt = { name = 'Cursed Imbue',
         text = { 'Create a random',
             '{C:jjok_ctools}Cursed{} card'} },
-    can_use = function(card, self)
-        if (#G.consumeables.cards < G.consumeables.config.card_limit) or card.area == G.consumeables then
+    can_use = function(self,card)
+        if card.area == G.consumeables or (#G.consumeables.cards < G.consumeables.config.card_limit) then
             return true
         end
     end,
-    use = function(card, self)
+    use = function(self,card)
         local set = pseudorandom_element({'ctools', 'ct'}, pseudoseed('cimbue'))
         SMODS.add_card({ set = set })
     end

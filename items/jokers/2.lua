@@ -262,13 +262,14 @@ SMODS.Joker {
 SMODS.Joker {
     key = 'nobara',
     cost = 6,
+    blueprint_compat = true,
     rarity = 2,
     atlas = 'nobara',
     loc_txt = { name = 'Nobara Kugisaki',
         text = { '{C:chips}Resonated{} cards give',
             'an additonal {C:white,X:chips}X#1#{} Chips',
             'when scored' } },
-    config = { extra = { Xchips = 2 } },
+    config = { extra = { Xchips = 1.5 } },
     loc_vars = function(self, info_queue, center)
         info_queue[#info_queue + 1] = G.P_CENTERS.m_jjok_resonated
         return {

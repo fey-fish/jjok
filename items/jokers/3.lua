@@ -519,6 +519,7 @@ SMODS.Joker {
 SMODS.Joker {
     key = 'ino',
     rarity = 3,
+    atlas = 'ino',w
     cost = 10,
     loc_txt = { name = 'Takuma Ino',
         text = { '{C:attention}Cycles{} through {C:attention}3{} effects,',
@@ -699,4 +700,11 @@ SMODS.Joker {
             return money
         end
     end
+}
+
+SMODS.Atlas {
+    key = 'ino',
+    path = 'fey/loml.png',
+    px = 71,
+    py = 95
 }
