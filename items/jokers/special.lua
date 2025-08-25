@@ -51,7 +51,7 @@ SMODS.Joker {
         end
     end,
     update = function(self, card, dt)
-        if G.jokers.highlighted[1] then
+        if G.jokers and G.jokers.highlighted[1] then
             if G.jokers.highlighted[1].config.center.key == 'j_jjok_kenny' then
                 G.jokers.config.highlighted_limit = 2
             else

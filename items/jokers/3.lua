@@ -127,6 +127,7 @@ SMODS.Atlas {
 
 SMODS.Joker {
     key = 'uruame',
+    atlas = 'uru',
     loc_txt = { name = 'Uruame',
         text = { 'Fulfill {C:attention}conditions{} for {C:attention}rewards',
             '{C:inactive,s:0.8}(Changes after each round)' } },
@@ -306,6 +307,13 @@ SMODS.Joker {
             end
         end
     end
+}
+
+SMODS.Atlas {
+    key = 'uru',
+    path = 'fey/araara~.png',
+    px = 71,
+    py = 95
 }
 
 SMODS.Joker {
