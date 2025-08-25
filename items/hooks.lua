@@ -283,6 +283,7 @@ end
 
 local catd = Card.add_to_deck
 function Card:add_to_deck(from_debuff)
+    local t = catd(self,from_debuff)
     if self.config.center.set == 'ct' and not self.ce_cost then
         if self.config.center.key == 'c_jjok_piercingblood' then
             self.ce_cost = pseudorandom('c_cost', 0, 10)
@@ -296,13 +297,29 @@ function Card:add_to_deck(from_debuff)
     if self.inc_select ~= 0 then
         G.hand.config.highlighted_limit = G.hand.config.highlighted_limit + self.inc_select
     end
-    return catd(self, from_debuff)
+    if self.config.center.key == 'j_jjok_kenny' then
+        local str = self.ability.extra.name
+        for _,line in ipairs(G.GAME.original_card_areas) do
+            if string.find(line, '--target') then
+                table.insert(G.GAME.original_card_areas, _ + 1, 'table.insert(t, G['..str..'])')
+            end
+        end
+    end
+    return t
 end
 
 local crfd = Card.remove_from_deck
 function Card:remove_from_deck(from_debuff)
     if self.added_to_deck and self.inc_select ~= 0 then
         G.hand.config.highlighted_limit = G.hand.config.highlighted_limit - self.inc_select
+    end
+    if self.config.center.key == 'j_jjok_kenny' then
+        local str = self.ability.extra.name
+        for _, line in ipairs(G.GAME.original_card_areas) do
+            if string.find(line, str) then
+                table.remove(G.GAME.original_card_areas, _)
+            end
+        end
     end
     return crfd(self, from_debuff)
 end
@@ -346,3 +363,41 @@ function create_card(_type, area, legendary, _rarity, skip_materialize, soulable
     end
     return _card
 end
+
+G.GAME = G.GAME or {}
+-- store my func as a string
+G.GAME.original_card_areas = [[
+function jjok_areas_mods(_type, _context)
+    local t = t or {}
+    
+    if _type == 'jokers' then
+        --target
+        return t
+    end
+
+    return {}
+end
+]]
+
+--change string into table for ease of editing
+local lines = {}
+for line in (G.GAME.original_card_areas.."\n"):gmatch("(.-)\n") do
+    table.insert(lines, line)
+end
+G.GAME.original_card_areas = lines
+
+local gca = SMODS.get_card_areas
+function SMODS.get_card_areas(_type, _context)
+    local t = gca(_type, _context)
+
+    -- store my func as a string locally to load
+    local func_str = table.concat(G.GAME.original_card_areas, "\n")
+    local new_t = load(func_str)()(_type, _context)
+
+    for _, v in ipairs(new_t) do
+        table.insert(t, v)
+    end
+
+    return t
+end
+
