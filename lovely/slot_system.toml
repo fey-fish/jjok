@@ -3,20 +3,6 @@ version = "0.1.0"
 dump_lua = true
 priority = 0
 
-#modular system UI
-[[patches]]
-[patches.pattern]
-target = 'card.lua'
-pattern = '''
-self.unique_val = 1-self.ID/1603301
-self.edition = nil
-'''
-position = "after"
-payload = '''
-self.slots = self.slots or center.slots or 1
-'''
-match_indent = true
-
 #random slots (polled by rarity, edition and stickers)
 [[patches]]
 [patches.pattern]
@@ -29,7 +15,7 @@ end
 position = "after"
 payload = '''
 if G.GAME.modifiers.forced_2_slots then
-    card.slots = 2
+    card.ability.slots = 2
 elseif Jjok.config.slotsystem then
     local pool = 0
 
@@ -62,7 +48,7 @@ elseif Jjok.config.slotsystem then
     local slots = pool + pseudorandom('jjok_slots', -0.25, 0.25)
 
     -- round/clamp
-    card.slots = math.max(1, math.floor(slots + 0.5))
+    card.ability.slots = math.max(1, math.floor(slots + 0.5))
 end
 '''
 match_indent = true
@@ -76,8 +62,21 @@ if self.edition.card_limit then
 '''
 position = "after"
 payload = '''
-if self.slots then
-    self.edition.card_limit = self.slots
+if self.ability.slots then
+    self.edition.card_limit = self.ability.slots
 end
+'''
+match_indent = true
+
+#negatives increase with slots
+[[patches]]
+[patches.pattern]
+target = 'card.lua'
+pattern = '''
+perma_h_dollars = self.ability and self.ability.perma_h_dollars or 0,
+'''
+position = "after"
+payload = '''
+slots = self.ability and self.ability.slots or center.slots or 1
 '''
 match_indent = true

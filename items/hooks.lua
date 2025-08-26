@@ -154,8 +154,8 @@ function Card:can_use_consumeable(any_state, skip_check)
     elseif self.config.center.key == 'c_ankh' then
         local max = 1
         for i, v in ipairs(G.jokers.cards) do
-            if v.slots > max then
-                max = v.slots
+            if v.ability.slots > max then
+                max = v.ability.slots
             end
         end
         local space = G.jokers.config.card_limit - G.jokers.config.card_count
@@ -221,7 +221,7 @@ function G.FUNCS.check_for_buy_space(card)
             if card.edition.negative then negative = true end
         end
         local space = G.jokers.config.card_limit - G.jokers.config.card_count
-        if (space >= card.slots) or negative then
+        if (space >= card.ability.slots) or negative then
             return true
         else
             alert_no_space(card, card.ability.consumeable and G.consumeables or G.jokers)
@@ -241,7 +241,7 @@ G.FUNCS.can_select_card = function(e)
             if card.edition.negative then negative = true end
         end
         local space = G.jokers.config.card_limit - G.jokers.config.card_count
-        if (space >= card.slots) or negative then
+        if (space >= card.ability.slots) or negative then
             e.config.colour = G.C.GREEN
             e.config.button = 'use_card'
         else
@@ -285,26 +285,26 @@ end
 local catd = Card.add_to_deck
 function Card:add_to_deck(from_debuff)
     local t = catd(self, from_debuff)
-    if self.config.center.set == 'ct' and not self.ce_cost then
+    if self.config.center.set == 'ct' and not self.ability.ce_cost then
         if self.config.center.key == 'c_jjok_piercingblood' then
-            self.ce_cost = pseudorandom('c_cost', 0, 10)
+            self.ability.ce_cost = pseudorandom('c_cost', 0, 10)
         else
-            self.ce_cost = pseudorandom('ce_cost', 0, 75)
+            self.ability.ce_cost = pseudorandom('ce_cost', 0, 75)
         end
     end
     if self.config.center.key == 'c_jjok_9tails' and not self.ability.extra.ce then
-        self.ce = pseudorandom('9tails', 0, 75)
+        self.ability.extra.ce = pseudorandom('9tails', 0, 75)
     end
-    if self.inc_select ~= 0 then
-        G.hand.config.highlighted_limit = G.hand.config.highlighted_limit + self.inc_select
+    if self.ability.inc_select ~= 0 and self.ability.inc_select then
+        G.hand.config.highlighted_limit = G.hand.config.highlighted_limit + self.ability.inc_select
     end
     return t
 end
 
 local crfd = Card.remove_from_deck
 function Card:remove_from_deck(from_debuff)
-    if self.added_to_deck and self.inc_select ~= 0 then
-        G.hand.config.highlighted_limit = G.hand.config.highlighted_limit - self.inc_select
+    if self.added_to_deck and self.ability.inc_select ~= 0 and self.ability.inc_select then
+        G.hand.config.highlighted_limit = G.hand.config.highlighted_limit - self.ability.inc_select
     end
     return crfd(self, from_debuff)
 end

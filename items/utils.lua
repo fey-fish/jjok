@@ -167,9 +167,8 @@ function G.FUNCS.jjok_kenny_can(card)
                 other = v
             end
         end
-        print(other.slots)
         local kenjaku = G[card.config.ref_table.ability.extra.name]
-        if (#G.jokers.highlighted == 2 and (kenjaku.config.card_count + other.slots < kenjaku.config.card_limit)) or
+        if (#G.jokers.highlighted == 2 and (kenjaku.config.card_count + other.ability.slots < kenjaku.config.card_limit)) or
             (#kenjaku.highlighted == 1 and G.jokers.config.card_count <= G.jokers.config.card_limit) then
             card.config.colour = G.C.PURPLE
             card.config.button = 'jjok_kenny_use'

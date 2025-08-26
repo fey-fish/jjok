@@ -324,7 +324,7 @@ position = "at"
 payload = '''
 local count = 0
 for i,v in ipairs(self.cards) do
-    count = count + v.slots
+    count = count + v.ability.slots
 end
 self.config.temp_limit = math.max(#self.cards, self.config.card_limit)
 self.config.card_count = count

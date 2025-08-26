@@ -26,7 +26,7 @@ SMODS.Consumable {
                         'to another of the same {C:attention}Rarity'}},
     set = 'ct',
     can_use = function(self,card)
-        if #G.jokers.highlighted == 1 and G.GAME.cursed_energy >= card.ce_cost then
+        if #G.jokers.highlighted == 1 and G.GAME.cursed_energy >= card.ability.ce_cost then
             return true
         end
     end,
@@ -47,7 +47,7 @@ SMODS.Consumable {
 
         SMODS.add_card({ set = 'Joker', rarity = rarity, edition = edition })
         _card:start_dissolve()
-        ease_ce(-card.ce_cost)
+        ease_ce(-card.ability.ce_cost)
     end,
     in_pool = function(self,args)
         if #G.jokers.cards > 0 then
@@ -66,14 +66,14 @@ SMODS.Consumable {
                         'selected {C:attention}Joker'}},
     set = 'ct',
     can_use = function(self,card)
-        if #G.jokers.highlighted == 1 and G.GAME.cursed_energy >= card.ce_cost and
+        if #G.jokers.highlighted == 1 and G.GAME.cursed_energy >= card.ability.ce_cost and
          not G.jokers.highlighted[1].ability.eternal then
             return true
         end
     end,
     use = function(self,card)
         G.jokers.highlighted[1]:start_dissolve()
-        ease_ce(-card.ce_cost)
+        ease_ce(-card.ability.ce_cost)
     end,
     in_pool = function(self,args)
         if #G.jokers.cards > 0 then
@@ -109,7 +109,7 @@ SMODS.Consumable {
             card.ability.extra.rare = true
         end
         if rars[1] >= 4 or rars[2] >= 3 or rars[3] >= 2 then
-            if G.GAME.cursed_energy >= card.ce_cost then
+            if G.GAME.cursed_energy >= card.ability.ce_cost then
                 return true
             end
         end
@@ -133,7 +133,7 @@ SMODS.Consumable {
             end
             SMODS.add_card({ set = 'Joker', rarity = 'Legendary' })
         end
-        ease_ce(-card.ce_cost)
+        ease_ce(-card.ability.ce_cost)
     end
 }
 
@@ -166,7 +166,7 @@ SMODS.Consumable {
         }
     end,
     can_use = function(self, card)
-        if #G.domain.cards > 0 and G.GAME.cursed_energy >= card.ce_cost then
+        if #G.domain.cards > 0 and G.GAME.cursed_energy >= card.ability.ce_cost then
             return true
         end
     end,
@@ -174,7 +174,7 @@ SMODS.Consumable {
         for i, v in ipairs(G.domain.cards) do
             v.ability.extra.used_this_ante = false
         end
-        ease_ce(-card.ce_cost)
+        ease_ce(-card.ability.ce_cost)
     end
 }
 
@@ -186,7 +186,7 @@ SMODS.Consumable {
                 text = {'Fully {C:attention}strip{} a selected',
                         'Playing Card to base'}},
     can_use = function(self,card)
-        if #G.hand.highlighted == 1 and G.GAME.cursed_energy >= card.ce_cost then
+        if #G.hand.highlighted == 1 and G.GAME.cursed_energy >= card.ability.ce_cost then
             return true
         end
     end,
@@ -199,6 +199,6 @@ SMODS.Consumable {
             local k = v.key
             c.ability.key = nil
         end
-        ease_ce(-card.ce_cost)
+        ease_ce(-card.ability.ce_cost)
     end
 }

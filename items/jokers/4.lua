@@ -137,7 +137,6 @@ SMODS.Atlas {
 
 SMODS.Joker {
     key = 'amaki',
-    heavenly = true,
     atlas = 'awakenedmaki',
     blueprint_compat = true,
     loc_txt = {
@@ -150,7 +149,7 @@ SMODS.Joker {
             '{s:0.8}Zenin was now fully realised!"'
         }
     },
-    config = { extra = {
+    config = {heavenly = true, extra = {
         Xmult = 1,
         Xmult_gain = 0.25
     } },

@@ -66,7 +66,6 @@ SMODS.Joker {
     key = 'toji',
     rarity = 3,
     atlas = 'retoji',
-    heavenly = true,
     blueprint_compat = true,
     cost = 10,
     loc_txt = { name = 'Toji Fushiguro',
@@ -83,7 +82,7 @@ SMODS.Joker {
                 '{C:attention}non-negative{} Fly-Head'
             }
          } },
-    config = { extra = { Xmult = 1 } },
+    config = {heavenly = true, extra = { Xmult = 1 } },
     loc_vars = function(self, info_queue, center)
         info_queue[#info_queue + 1] = G.P_CENTERS.j_jjok_flyhead
         return { vars = { center.ability.extra.Xmult } }

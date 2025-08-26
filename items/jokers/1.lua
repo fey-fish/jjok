@@ -2,7 +2,6 @@
 SMODS.Joker {
     key = 'maki',
     atlas = 'maki',
-    heavenly = true,
     loc_txt = {
         name = 'Maki Zenin',
         text = {
@@ -12,7 +11,7 @@ SMODS.Joker {
     blueprint_compat = true,
     cost = 3,
     rarity = 1,
-    config = { extra = { Xmult = 1.5, } },
+    config = {heavenly = true, extra = { Xmult = 1.5, } },
     loc_vars = function(self, info_queue, center)
         local main_end = {}
         if pseudorandom('maki_me', 1, 10) > 9 then
