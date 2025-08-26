@@ -487,6 +487,7 @@ SMODS.Joker {
                 local _next = card.area.cards[selfpos + 1]
                 card.sell_cost = card.sell_cost + _next.sell_cost
                 _next:start_dissolve()
+                card:set_cost()
                 return {
                     message = 'Value Up!'
                 }
