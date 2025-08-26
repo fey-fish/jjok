@@ -455,41 +455,42 @@ SMODS.Joker {
     key = 'jogoat',
     rarity = 3,
     cost = 10,
-    blueprint_compat = true,
+    blueprint_compat = false,
     loc_txt = {
         name = 'Jogo',
         text = {
-            '{C:attention}Immolate{} a consumable on leaving the',
-            'shop in exchange for its {C:money}sell value{}',
-            'and {C:money}1/5th{} its {C:money}sell value{} as {C:white,X:mult}XMult',
-            '{C:inactive}(Currently: {C:white,X:mult}X#2#{C:inactive} Mult)'
+            {'On {C:attention}selecting{} a blind,',
+            '{C:attention}immolate{} the Joker to the',
+            "right, this card gains it's",
+            "{C:money}Sell Value"},
+            {'{C:attention}Doubles {C:tarot}Temperance',
+            '{C:money}money{} cap'}
         } },
-    config = { extra = {
-        Xmult = 1,
-    } },
     loc_vars = function(self, info_queue, center)
-        return {
-            vars = {
-                center.ability.extra.num,
-                center.ability.extra.Xmult
-            }
-        }
+        info_queue[#info_queue+1] = G.P_CENTERS.c_temperance
+    end,
+    add_to_deck = function(self,card)
+        G.P_CENTERS.c_temperance.ability.extra = G.P_CENTERS.c_temperance.ability.extra * 2
+    end,
+    remove_from_deck = function(self,card)
+        G.P_CENTERS.c_temperance.ability.extra = G.P_CENTERS.c_temperance.ability.extra / 2
     end,
     calculate = function(self, card, context)
-        if context.ending_shop and #G.consumeables.cards > 0 and not context.blueprint then
-            local _card = pseudorandom('jogoat', 1, #G.consumeables.cards)
-            local sv = (G.consumeables.cards[_card].sell_cost / 5)
-            card.ability.extra.Xmult = card.ability.extra.Xmult + sv
-            card.sell_cost = card.sell_cost + sv * 5
-            G.consumeables.cards[_card]:valid_destroy()
-            return {
-                message = localize { type = 'variable', key = 'a_xmult', vars = { sv } }
-            }
-        end
-        if context.joker_main or (context.joker_main and context.blueprint) then
-            return {
-                Xmult = card.ability.extra.Xmult
-            }
+        if context.setting_blind and not context.blueprint then
+            local selfpos
+            for i,v in ipairs(card.area.cards) do
+                if v == card then
+                    selfpos = i
+                end
+            end
+            if card.area.cards[selfpos + 1] and not card.area.cards[selfpos + 1].ability.eternal then
+                local _next = card.area.cards[selfpos + 1]
+                card.sell_cost = card.sell_cost + _next.sell_cost
+                _next:start_dissolve()
+                return {
+                    message = 'Value Up!'
+                }
+            end
         end
     end
 }
