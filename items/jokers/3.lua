@@ -426,6 +426,7 @@ SMODS.Atlas {
 SMODS.Joker {
     key = 'hanami',
     cost = 8,
+    atlas = 'ham',
     rarity = 3,
     blueprint_compat = false,
     loc_txt = { name = 'Hanami',
@@ -442,6 +443,13 @@ SMODS.Joker {
             G.play.cards[1]:set_seal('jjok_green', nil, true)
         end
     end
+}
+
+SMODS.Atlas {
+    key = 'ham',
+    path = 'fey/hanami.png',
+    px = 71,
+    py = 95
 }
 
 SMODS.Joker {
