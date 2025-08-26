@@ -90,6 +90,7 @@ JJOK.Curse {
 
 JJOK.Curse {
     key = 'kuro',
+    atlas = 'kuro',
     loc_txt = {
         name = 'Kurourushi',
         text = { 'Destroys {C:attention}#1#{} Joker',
@@ -110,6 +111,13 @@ JJOK.Curse {
             pseudorandom_element(G.jokers.cards, pseudoseed('kuro')):valid_destroy()
         end
     end
+}
+
+SMODS.Atlas {
+    key = 'kuro',
+    path = 'fey/kuro.png',
+    px = 71,
+    py = 95
 }
 
 JJOK.Curse {

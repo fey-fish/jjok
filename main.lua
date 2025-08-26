@@ -966,25 +966,22 @@ SMODS.Consumable {
     loc_txt = { name = 'Inverted Spear of Heaven',
         text = {
             '{C:attention}Destroy{} up to #2# random',
-            'Jokers and gain {C:dark_edition}#1# Joker slot',
-            '{s:0.8,C:inactive}(Must hold atleast #2# Jokers)' } },
+            'Jokers and gain {C:dark_edition}#1# Joker slot' } },
     cost = 6,
     loc_vars = function(self, info_queue, center)
         return {
             vars = {
                 center.ability.extra.slots,
-                center.ability.extra.req
+                center.ability.extra.max
             }
         }
     end,
-    config = { extra = { slots = 1, req = 3 } },
+    config = { extra = { slots = 1, max = 3 } },
     can_use = function(self, card)
-        if #G.jokers.cards >= card.ability.extra.req then
-            return true
-        end
+        return true
     end,
-    use = function(self, card, context)
-        for i = 1, card.ability.extra.req do
+    use = function(self, card)
+        for i = 1, card.ability.extra.max do
             G.E_MANAGER:add_event(Event({
                 trigger = 'immediate',
                 func = function()

@@ -69,20 +69,20 @@ SMODS.Joker {
     blueprint_compat = true,
     cost = 10,
     loc_txt = { name = 'Toji Fushiguro',
-        text = { 
-            {"When {C:attention}Blind{} is selected,",
-            "{C:attention}destroy{} Joker to the {C:attention}right",
-            "and permanently add {C:attention}1/10th",
-            "its sell value to this {C:white,X:mult}XMult",
-            "{C:inactive}(Currently {C:white,X:mult}X#1#{C:inactive} Mult)"},
+        text = {
+            { "When {C:attention}Blind{} is selected,",
+                "{C:attention}destroy{} Joker to the {C:attention}right",
+                "and permanently add {C:attention}1/10th",
+                "its sell value to this {C:white,X:mult}XMult",
+                "{C:inactive}(Currently {C:white,X:mult}X#1#{C:inactive} Mult)" },
             {
                 'When {C:attention}Blind{} is selected,',
                 'create {C:attention}1 {C:dark_edition}negative',
                 'Fly-Head for every',
                 '{C:attention}non-negative{} Fly-Head'
             }
-         } },
-    config = {heavenly = true, extra = { Xmult = 1 } },
+        } },
+    config = { heavenly = true, extra = { Xmult = 1 } },
     loc_vars = function(self, info_queue, center)
         info_queue[#info_queue + 1] = G.P_CENTERS.j_jjok_flyhead
         return { vars = { center.ability.extra.Xmult } }
@@ -92,24 +92,28 @@ SMODS.Joker {
             return { Xmult = card.ability.extra.Xmult }
         end
         if context.setting_blind and not context.blueprint then
-            for i,v in ipairs(G.jokers.cards) do
+            for i, v in ipairs(G.jokers.cards) do
                 if v == card and G.jokers.cards[i + 1] and not G.jokers.cards[i + 1].ability.eternal then
                     local next = G.jokers.cards[i + 1]
                     card.ability.extra.Xmult = card.ability.extra.Xmult + (next.sell_cost / 10)
                     card:juice_up(0.8, 0.8)
-                    next:start_dissolve({HEX("57ecab")}, nil, 1.6)
-                    play_sound('slice1', 0.96+math.random()*0.08)
-                    card_eval_status_text(card, 'extra', nil, nil, nil, {message = 'X'..card.ability.extra.Xmult..' Mult',
-                        colour = G.C.FILTER, no_juice = true})
+                    next:start_dissolve({ HEX("57ecab") }, nil, 1.6)
+                    play_sound('slice1', 0.96 + math.random() * 0.08)
+                    card_eval_status_text(card, 'extra', nil, nil, nil,
+                        {
+                            message = 'X' .. card.ability.extra.Xmult .. ' Mult',
+                            colour = G.C.FILTER,
+                            no_juice = true
+                        })
                 end
             end
         end
         if context.setting_blind then
             local areas = SMODS.get_card_areas('jokers')
-            for _,a in ipairs(areas) do
-                for i,v in ipairs(a.cards) do
+            for _, a in ipairs(areas) do
+                for i, v in ipairs(a.cards) do
                     if v.config.center.key == 'j_jjok_flyhead' and (not v.edition or not v.edition.negative) then
-                        SMODS.add_card({key = 'j_jjok_flyhead', edition = 'e_negative'})
+                        SMODS.add_card({ key = 'j_jjok_flyhead', edition = 'e_negative' })
                     end
                 end
             end
@@ -348,10 +352,11 @@ SMODS.Atlas {
 SMODS.Joker {
     key = 'yuji',
     rarity = 3,
+    atlas = 'yuji',
     cost = 7,
     blueprint_compat = true,
     loc_txt = { name = 'Yuji Itadori',
-        text = { 
+        text = {
             '{C:green}#2# in #3#{} chance for',
             '{C:mult}Mult{} cards to give',
             '{C:white,X:mult}X#1#{} Mult when scored,'
@@ -368,8 +373,8 @@ SMODS.Joker {
     end,
     calculate = function(self, card, context)
         if context.individual and context.cardarea == G.play and
-        SMODS.pseudorandom_probability(card, 'yuji', G.GAME.probabilities.normal or 1, card.ability.extra.odds) and
-        SMODS.has_enhancement(context.other_card, 'm_mult') then
+            SMODS.pseudorandom_probability(card, 'yuji', G.GAME.probabilities.normal or 1, card.ability.extra.odds) and
+            SMODS.has_enhancement(context.other_card, 'm_mult') then
             return {
                 Xmult = card.ability.extra.Xmult,
                 colour = G.C.MULT,
@@ -377,6 +382,13 @@ SMODS.Joker {
             }
         end
     end
+}
+
+SMODS.Atlas {
+    key = 'yuji',
+    path = 'fey/yuji.png',
+    px = 71,
+    py = 95
 }
 
 SMODS.Joker {
@@ -455,45 +467,53 @@ SMODS.Joker {
     key = 'jogoat',
     rarity = 3,
     cost = 10,
+    atlas = 'jogo',
     blueprint_compat = false,
     loc_txt = {
         name = 'Jogo',
         text = {
-            {'On {C:attention}selecting{} a blind,',
-            '{C:attention}immolate{} the Joker to the',
-            "right, this card gains it's",
-            "{C:money}Sell Value"},
-            {'{C:attention}Doubles {C:tarot}Temperance',
-            '{C:money}money{} cap'}
+            { 'On {C:attention}selecting{} a blind,',
+                '{C:attention}immolate{} the Joker to the',
+                "right, this card gains it's",
+                "{C:money}Sell Value" },
+            { '{C:attention}Double {C:tarot}Temperance',
+                '{C:money}money{} cap' }
         } },
     loc_vars = function(self, info_queue, center)
-        info_queue[#info_queue+1] = G.P_CENTERS.c_temperance
+        info_queue[#info_queue + 1] = G.P_CENTERS.c_temperance
     end,
-    add_to_deck = function(self,card)
-        G.P_CENTERS.c_temperance.ability.extra = G.P_CENTERS.c_temperance.ability.extra * 2
+    add_to_deck = function(self, card)
+        G.P_CENTERS.c_temperance.config.extra = G.P_CENTERS.c_temperance.config.extra * 2
     end,
-    remove_from_deck = function(self,card)
-        G.P_CENTERS.c_temperance.ability.extra = G.P_CENTERS.c_temperance.ability.extra / 2
+    remove_from_deck = function(self, card)
+        G.P_CENTERS.c_temperance.config.extra = G.P_CENTERS.c_temperance.config.extra / 2
     end,
     calculate = function(self, card, context)
         if context.setting_blind and not context.blueprint then
             local selfpos
-            for i,v in ipairs(card.area.cards) do
+            for i, v in ipairs(card.area.cards) do
                 if v == card then
                     selfpos = i
                 end
             end
             if card.area.cards[selfpos + 1] and not card.area.cards[selfpos + 1].ability.eternal then
                 local _next = card.area.cards[selfpos + 1]
-                card.sell_cost = card.sell_cost + _next.sell_cost
-                _next:start_dissolve()
+                card.ability.extra_value = card.ability.extra_value + _next.sell_cost
                 card:set_cost()
+                _next:start_dissolve()
                 return {
                     message = 'Value Up!'
                 }
             end
         end
     end
+}
+
+SMODS.Atlas {
+    key = 'jogo',
+    path = 'fey/jogoat.png',
+    px = 71,
+    py = 95
 }
 
 SMODS.Joker {
@@ -564,8 +584,22 @@ SMODS.Joker {
                 n = G.UIT.R,
                 config = { align = 'cm' },
                 nodes = {
-                    { n = G.UIT.T, config = { text = '+' .. (card.ability.extra.cycles * card.ability.extra.scaling.chips), scale = 0.32, colour = G.C.CHIPS } },
-                    { n = G.UIT.T, config = { text = ' Chips', scale = 0.32, colour = G.C.UI.TEXT_DARK } },
+                    { n = G.UIT.T, config = { text = tostring((math.floor(card.ability.extra.st * card.ability.extra.scaling.spectral))), scale = 0.32, colour = G.C.FILTER } },
+                    { n = G.UIT.T, config = { text = ' Spectral', scale = 0.32, colour = G.C.SECONDARY_SET.Spectral } },
+                }
+            },
+            {
+                n = G.UIT.R,
+                config = { align = 'cm' },
+                nodes = {
+                    { n = G.UIT.T, config = { text = 'at the end' , scale = 0.32, colour = G.C.UI.TEXT_DARK } }
+                }
+            },
+            {
+                n = G.UIT.R,
+                config = { align = 'cm' },
+                nodes = {
+                    { n = G.UIT.T, config = { text = 'of the round' , scale = 0.32, colour = G.C.UI.TEXT_DARK } }
                 }
             }
         }
@@ -677,7 +711,7 @@ SMODS.Joker {
         return { main_end = main_end }
     end,
     config = { extra = { cycles = 1, emp = false, st = 1, scaling = {
-        Xmult = 0.5, chips = 50, dollars = 5
+        Xmult = 0.5, spectral = 0.25, dollars = 5
     } } },
     calculate = function(self, card, context)
         if context.setting_blind then
@@ -696,10 +730,12 @@ SMODS.Joker {
                 return {
                     Xmult = (card.ability.extra.cycles * card.ability.extra.scaling.Xmult) + 1
                 }
-            elseif card.ability.extra.st == 2 then
-                return {
-                    chips = card.ability.extra.cycles * card.ability.extra.scaling.chips
-                }
+            elseif card.ability.extra.st == 2 and math.floor(card.ability.extra.st * card.ability.extra.scaling.spectral) > 0 then
+                for i = 1, math.floor(card.ability.extra.st * card.ability.extra.scaling.spectral) do
+                    if G.consumeables.config.card_count < G.consuemables.config.card_limit then
+                        SMODS.add_card({ set = 'Spectral' })
+                    end
+                end
             end
         end
     end,
