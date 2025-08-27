@@ -584,7 +584,7 @@ SMODS.Joker {
                 n = G.UIT.R,
                 config = { align = 'cm' },
                 nodes = {
-                    { n = G.UIT.T, config = { text = tostring((math.floor(card.ability.extra.st * card.ability.extra.scaling.spectral))), scale = 0.32, colour = G.C.FILTER } },
+                    { n = G.UIT.T, config = { text = tostring(math.floor((card.ability.extra.st * card.ability.extra.scaling.spectral) + 0.5)), scale = 0.32, colour = G.C.FILTER } },
                     { n = G.UIT.T, config = { text = ' Spectral', scale = 0.32, colour = G.C.SECONDARY_SET.Spectral } },
                 }
             },
@@ -731,7 +731,7 @@ SMODS.Joker {
                     Xmult = (card.ability.extra.cycles * card.ability.extra.scaling.Xmult) + 1
                 }
             elseif card.ability.extra.st == 2 and math.floor(card.ability.extra.st * card.ability.extra.scaling.spectral) > 0 then
-                for i = 1, math.floor(card.ability.extra.st * card.ability.extra.scaling.spectral) do
+                for i = 1, math.floor((card.ability.extra.st * card.ability.extra.scaling.spectral) + 0.5) do
                     if G.consumeables.config.card_count < G.consuemables.config.card_limit then
                         SMODS.add_card({ set = 'Spectral' })
                     end

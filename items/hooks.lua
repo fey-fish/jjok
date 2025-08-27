@@ -217,9 +217,7 @@ local cfbs = G.FUNCS.check_for_buy_space
 function G.FUNCS.check_for_buy_space(card)
     if card.config.center.set == 'Joker' then
         local negative = false
-        if card.edition then
-            if card.edition.negative then negative = true end
-        end
+        if card.edition and card.edition.card_limit then negative = true end
         local space = G.jokers.config.card_limit - G.jokers.config.card_count
         if (space >= card.ability.slots) or negative then
             return true
@@ -309,24 +307,26 @@ function Card:remove_from_deck(from_debuff)
     return crfd(self, from_debuff)
 end
 
-local carc = CardArea.remove_card
-function CardArea:remove_card(card, discarded_only)
-    if card and card.edition and card.edition.card_limit then
-        self.config.card_limit = self.config.card_limit - card.edition.card_limit
-    end
-    return carc(self, card, discarded_only)
-end
-
 local emplace_ref = CardArea.emplace
 function CardArea:emplace(card, location, stay_flipped)
     if self == G.consumeables and card.ability.set == 'domain' then
         G.domain:emplace(card, location, stay_flipped)
         return
     end
-    if card and card.edition and card.edition.card_limit and not (self == G.pack_cards and self == G.shop_jokers) then
+    if card and card.edition and card.edition.card_limit then
+        card.edition.card_limit = card.ability.slots
         self.config.card_limit = self.config.card_limit + card.edition.card_limit
     end
     return emplace_ref(self, card, location, stay_flipped)
+end
+
+local carc = CardArea.remove_card
+function CardArea:remove_card(card, discarded_only)
+    if card and card.edition and card.edition.card_limit then
+        card.edition.card_limit = card.ability.slots
+        self.config.card_limit = self.config.card_limit - card.edition.card_limit
+    end
+    return carc(self, card, discarded_only)
 end
 
 --auto discover
@@ -360,4 +360,28 @@ function SMODS.get_card_areas(_type, _context)
         end
     end
     return t
+end
+
+function CardArea:count_extra_slots_used(cards)
+    local slots = 0
+    if (self.config.type == 'joker' or self.config.type == 'hand') and not self.config.fixed_limit then
+        for _, card in ipairs(cards) do
+            slots = slots + card.ability.extra_slots_used + card.ability.slots
+        end
+    end
+    return slots
+end
+
+local cse = Card.set_edition
+function Card:set_edition(edition, immediate, silent)
+    if self.edition and self.edition.card_limit and self.added_to_deck then
+        self.area.config.card_limit = self.area.config.card_limit - self.edition.card_limit
+    end
+    cse(self, edition, immediate, silent)
+    if self and self.edition and self.edition.card_limit then
+        self.edition.card_limit = self.ability.slots
+    end
+    if self.edition and self.edition.card_limit and self.added_to_deck then
+        self.area.config.card_limit = self.area.config.card_limit + self.edition.card_limit - 1
+    end
 end

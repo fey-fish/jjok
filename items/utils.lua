@@ -40,22 +40,22 @@ JJOK.pool_rarities = function(heavenly)
     end
     if heavenly then
         for _, a in ipairs(areas) do
-        for i, v in ipairs(a.cards) do
-            if v.ability.set == 'Joker' and v.ability.heavenly then
-                if v.config.center.rarity == 1 then
-                    ret[1] = ret[1] - 1
-                elseif v.config.center.rarity == 2 then
-                    ret[2] = ret[2] - 1
-                elseif v.config.center.rarity == 3 then
-                    ret[3] = ret[3] - 1
-                elseif v.config.center.rarity == 4 then
-                    ret[4] = ret[4] - 1
-                elseif v.config.center.rarity == 'jjok_special' then
-                    ret[5] = ret[5] - 1
+            for i, v in ipairs(a.cards) do
+                if v.ability.set == 'Joker' and v.ability.heavenly then
+                    if v.config.center.rarity == 1 then
+                        ret[1] = ret[1] - 1
+                    elseif v.config.center.rarity == 2 then
+                        ret[2] = ret[2] - 1
+                    elseif v.config.center.rarity == 3 then
+                        ret[3] = ret[3] - 1
+                    elseif v.config.center.rarity == 4 then
+                        ret[4] = ret[4] - 1
+                    elseif v.config.center.rarity == 'jjok_special' then
+                        ret[5] = ret[5] - 1
+                    end
                 end
             end
         end
-    end
     end
     return ret
 end
@@ -71,9 +71,11 @@ JJOK.find_rar = function(rar)
 end
 
 JJOK.find_enhance = function(enhancement)
-    for i, v in ipairs(G.playing_cards) do
-        if v.ability.name == enhancement then
-            return true
+    if G.playing_cards and G.playing_cards[1] then
+        for i, v in ipairs(G.playing_cards) do
+            if v.ability.name == enhancement then
+                return true
+            end
         end
     end
 end
@@ -206,8 +208,7 @@ function G.FUNCS.jjok_oro_can(card)
             end
         end
         if (#G.jokers.highlighted == 2 and ((#G[card.config.ref_table.ability.extra.name].cards) <= G[card.config.ref_table.ability.extra.name].config.card_limit)) or
-            (#G.jokers.highlighted == 1 and G.jokers.highlighted[1] == card.config.ref_table and G.jokers.config.card_count < G.jokers.config.card_limit and
-                G[card.config.ref_table.ability.extra.name].config.card_count > 0) then
+            (G.jokers.config.card_count < G.jokers.config.card_limit and G[card.config.ref_table.ability.extra.name].config.card_count > 0) then
             card.config.colour = G.C.JJOK.NATURE
             card.config.button = 'jjok_oro_use'
         else

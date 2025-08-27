@@ -1,3 +1,5 @@
+#fuck you im using my own system i prefer it
+
 [manifest]
 version = "0.1.0"
 dump_lua = true
@@ -53,22 +55,6 @@ end
 '''
 match_indent = true
 
-#negatives increase with slots
-[[patches]]
-[patches.pattern]
-target = '=[SMODS _ "src/overrides.lua"]'
-pattern = '''
-if self.edition.card_limit then
-'''
-position = "after"
-payload = '''
-if self.ability.slots then
-    self.edition.card_limit = self.ability.slots
-end
-'''
-match_indent = true
-
-#negatives increase with slots
 [[patches]]
 [patches.pattern]
 target = 'card.lua'
@@ -77,6 +63,26 @@ perma_h_dollars = self.ability and self.ability.perma_h_dollars or 0,
 '''
 position = "after"
 payload = '''
-slots = self.ability and self.ability.slots or center.slots or 1
+slots = self.ability and self.ability.slots or center.slots or 1,
+'''
+match_indent = true
+
+#dumb fucking info queue
+[[patches]]
+[patches.pattern]
+target = 'functions/common_events.lua'
+pattern = '''
+if card and card.ability and (card.ability.extra_slots_used or 0) ~= 0 then
+        info_queue[#info_queue + 1] = {set = 'Other', key = 'generic_extra_slots', vars = {card.ability.extra_slots_used + 1}}
+    end
+    if card and card.ability and (card.ability.card_limit or 0) ~= 0 then
+        if not (card.edition and card.edition.card_limit == card.ability.card_limit) then
+            local amount = card.ability.card_limit - (card.edition and card.edition.card_limit or 0)
+            info_queue[#info_queue + 1] = {set = 'Other', key = amount == 1 and 'generic_card_limit' or 'generic_card_limit_plural', vars = {localize({type='variable', key= amount > 0 and 'a_chips' or 'a_chips_minus', vars ={math.abs(amount)}})}}
+        end
+    end
+'''
+position = "at"
+payload = '''
 '''
 match_indent = true

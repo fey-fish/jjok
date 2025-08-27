@@ -61,7 +61,7 @@ position = "after"
 payload = '''
 local specials = {}
 for i,v in ipairs(G.P_CENTER_POOLS.Joker) do
-    if (v.rarity == 'jjok_special' or v.rarity == 4) and v.mod and v.mod.id == 'jjok' and v.atlas ~= 'Joker' then
+    if v.mod and v.mod.id == 'jjok' and v.atlas ~= 'Joker' and v.set == 'Joker' then
         table.insert(specials, v)
     end
 end
@@ -285,7 +285,8 @@ contents.cursed,
 [patches.pattern]
 target = 'functions/UI_definitions.lua'
 pattern = '''
-contents.hand =
+--[[
+    contents.hand =
 '''
 position = 'before'
 match_indent = true
@@ -312,24 +313,6 @@ contents.cursed =
       }}
     }}
 '''
-
-[[patches]]
-[patches.pattern]
-target = 'cardarea.lua'
-pattern = '''
-self.config.temp_limit = math.max(#self.cards, self.config.card_limit)
-    self.config.card_count = #self.cards
-'''
-position = "at"
-payload = '''
-local count = 0
-for i,v in ipairs(self.cards) do
-    count = count + v.ability.slots
-end
-self.config.temp_limit = math.max(#self.cards, self.config.card_limit)
-self.config.card_count = count
-'''
-match_indent = true
 
 #collection rarities
 [[patches]]

@@ -1157,20 +1157,22 @@ SMODS.Consumable {
     key = 'glut',
     set = 'Tarot',
     cost = 3,
-    loc_txt = {name = 'Gluttony',
-                text = {
-                    'All {V:1}#1#{} cards',
-                    'in deck gain {C:mult}+#2#{} Mult'
-                }},
-    config = {extra = {suit = 'Diamonds', mult = 1}},
-    loc_vars = function(self,info_queue,center)
-        return {vars = {
-            center.ability.extra.suit,
-            center.ability.extra.mult,
-            colours = {G.C.SUITS[center.ability.extra.suit]}
-        }}
+    loc_txt = { name = 'Gluttony',
+        text = {
+            'All {V:1}#1#{} cards',
+            'in deck gain {C:mult}+#2#{} Mult'
+        } },
+    config = { extra = { suit = 'Diamonds', mult = 1 } },
+    loc_vars = function(self, info_queue, center)
+        return {
+            vars = {
+                center.ability.extra.suit,
+                center.ability.extra.mult,
+                colours = { G.C.SUITS[center.ability.extra.suit] }
+            }
+        }
     end,
-    can_use = function(self,card)
+    can_use = function(self, card)
         if G.playing_cards and #G.playing_cards > 0 then
             return true
         end
@@ -1179,8 +1181,8 @@ SMODS.Consumable {
         local suits = JJOK.poll_suits()
         card.ability.extra.suit = pseudorandom_element(suits, pseudoseed('glut')) or 'Diamonds'
     end,
-    use = function(self,card)
-        for i,v in ipairs(G.playing_cards) do
+    use = function(self, card)
+        for i, v in ipairs(G.playing_cards) do
             if v:is_suit(card.ability.extra.suit) then
                 v.ability.perma_mult = v.ability.perma_mult + card.ability.extra.mult
                 if v.area and v.area == G.hand then
@@ -1323,14 +1325,14 @@ SMODS.Consumable {
     cost = 3,
     loc_txt = { name = 'Cursed Imbue',
         text = { 'Create a random',
-            '{C:jjok_ctools}Cursed{} card'} },
-    can_use = function(self,card)
+            '{C:jjok_ctools}Cursed{} card' } },
+    can_use = function(self, card)
         if card.area == G.consumeables or (#G.consumeables.cards < G.consumeables.config.card_limit) then
             return true
         end
     end,
-    use = function(self,card)
-        local set = pseudorandom_element({'ctools', 'ct'}, pseudoseed('cimbue'))
+    use = function(self, card)
+        local set = pseudorandom_element({ 'ctools', 'ct' }, pseudoseed('cimbue'))
         SMODS.add_card({ set = set })
     end
 }
@@ -1519,12 +1521,12 @@ SMODS.Joker {
                     highlight_limit = 1,
                     view_deck = true
                 })
-                for i,v in ipairs(ca.cards) do
+                for i, v in ipairs(ca.cards) do
                     local _card = copy_card(v)
                     mainca:emplace(_card)
                 end
                 main_end = {
-                    {n = G.UIT.R, config = {padding = 0.1}, nodes = {{ n = G.UIT.O, config = { object = mainca } }}}
+                    { n = G.UIT.R, config = { padding = 0.1 }, nodes = { { n = G.UIT.O, config = { object = mainca } } } }
                 }
             end
         end
@@ -1541,11 +1543,13 @@ SMODS.Joker {
         card.ability.extra.name = 'orochi' .. tostring(counter)
         G[card.ability.extra.name].states.visible = false
     end,
-    remove_from_deck = function(self, card)
-        if G[card.ability.name.cards].cards[1] then
+    remove_from_deck = function(self, card, from_debuff)
+        if G[card.ability.extra.name] and G[card.ability.extra.name].cards[1] then
             for i, v in ipairs(G[card.ability.extra.name].cards) do
-                if G.jokers.config.card_count + v.slots <= G.jokers.config.card_limit then
+                if G.jokers.config.card_count + v.abilityslots <= G.jokers.config.card_limit then
                     G.jokers:emplace(v)
+                else
+                    v:start_dissolve()
                 end
             end
         end

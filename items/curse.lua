@@ -39,7 +39,7 @@ JJOK.Curse {
             card.ability.extra.rounds = card.ability.extra.rounds - 1
             if card.ability.extra.rounds == 0 then
                 card.ability.extra.rounds = 3
-                if #G.jokers.cards < G.jokers.config.card_limit then
+                if G.jokers.config.card_count < G.jokers.config.card_limit then
                     local copied_joker = copy_card(card)
                     copied_joker:start_materialize()
                     copied_joker:add_to_deck()
