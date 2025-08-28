@@ -35,9 +35,9 @@ SMODS.Joker {
         table.insert(G.GAME.loading_card_areas, card.ability.extra.name)
     end,
     config = { extra = { card_limit = 2, increase = 1, name = nil,
-        button = {ftext = 'BODY', ttext = 'HOP', button = 'jjok_kenny_use', func = 'jjok_kenny_can'} } },
+        button = { ftext = 'BODY', ttext = 'HOP', button = 'jjok_kenny_use', func = 'jjok_kenny_can' } } },
     remove_from_deck = function(self, card, from_debuff)
-        for i,v in ipairs(G.GAME.loading_card_areas) do
+        for i, v in ipairs(G.GAME.loading_card_areas) do
             if v == card.ability.extra.name then
                 table.remove(G.GAME.loading_card_areas, i)
                 break
@@ -47,7 +47,8 @@ SMODS.Joker {
     end,
     calculate = function(self, card, context)
         if context.boss_defeat then
-            G[card.ability.extra.name].config.card_limit = G[card.ability.extra.name].config.card_limit + card.ability.extra.increase
+            G[card.ability.extra.name].config.card_limit = G[card.ability.extra.name].config.card_limit +
+                card.ability.extra.increase
         end
     end,
     update = function(self, card, dt)
@@ -181,8 +182,8 @@ SMODS.Atlas {
 SMODS.Joker {
     key = 'cgeto',
     loc_txt = { name = '{C:spades}Suguru Geto',
-        text = { 'On selecting a blind, fill all card',
-            'slots with random cards',
+        text = { 'On selecting a blind, fill card',
+            'areas with random cards',
             '{s:0.8}"The worst curse user in history"' } },
     rarity = 'jjok_special',
     cost = 40,
@@ -191,19 +192,15 @@ SMODS.Joker {
             local areas = SMODS.get_card_areas('jokers')
             for i, v in ipairs(areas) do
                 if v.config.card_limit and v.config.type == 'joker' then
-                    local space = v.config.card_limit - v.config.card_count or #v.cards
-                    if space > 0 then
-                        repeat
-                            local pool = {}
-                            for _, m in pairs(G.P_CENTERS) do
-                                if m.ability.consumeable or m.ability.set == 'Joker' then
-                                    table.insert(pool, m)
-                                end
+                    for k = 1, v.config.card_limit - v.config.card_count do
+                        local pool = {}
+                        for _, m in pairs(G.P_CENTERS) do
+                            if m.consumeable or m.set == 'Joker' then
+                                table.insert(pool, m)
                             end
-                            local _card = pseudorandom_element(pool, pseudoseed('cgeto'))
-                            SMODS.add_card({ key = _card.key })
-                            space = v.config.card_limit - v.config.card_count or #v.cards
-                        until space <= 0
+                        end
+                        local _card = pseudorandom_element(pool, pseudoseed('cgeto'))
+                        SMODS.add_card({ key = _card.key })
                     end
                 end
             end
@@ -385,16 +382,16 @@ SMODS.Joker {
     config = { extra = { retriggers = 2 } },
     discovered = true,
     calculate = function(self, card, context)
-        if context.retrigger_joker_check and not context.retrigger_joker and not context.other_card == card then
+        if context.retrigger_joker_check and context.other_card ~= card then
             local ind = 1
-            for i, v in ipairs(G.jokers.cards) do
+            for i, v in ipairs(card.area.cards) do
                 if v == card then
                     ind = i
                 end
             end
-            local right_joker = G.jokers.cards[ind + 1]
-            local left_joker = G.jokers.cards[ind - 1]
-            if (context.other_card == right_joker or context.other_card == left_joker) then
+            local right_joker = card.area.cards[ind + 1]
+            local left_joker = card.area.cards[ind - 1]
+            if context.other_card == right_joker or context.other_card == left_joker then
                 return {
                     message = 'Copied!',
                     repetitions = card.ability.extra.retriggers,

@@ -60,6 +60,9 @@ function love.update(dt)
     if G.TIMERS.naoya then
         G.GAME.naoya_mult = (G.GAME.round_resets.ante ^ 2) - (G.GAME.round / 100 * G.TIMERS.n_round)
     end
+    if G.deck then
+        G.deck.config.card_count = #G.deck.cards
+    end
     return ret
 end
 
@@ -375,13 +378,12 @@ end
 local cse = Card.set_edition
 function Card:set_edition(edition, immediate, silent)
     if self.edition and self.edition.card_limit and self.added_to_deck then
+        self.edition.card_limit = self.ability.slots
         self.area.config.card_limit = self.area.config.card_limit - self.edition.card_limit
     end
     cse(self, edition, immediate, silent)
-    if self and self.edition and self.edition.card_limit then
-        self.edition.card_limit = self.ability.slots
-    end
     if self.edition and self.edition.card_limit and self.added_to_deck then
-        self.area.config.card_limit = self.area.config.card_limit + self.edition.card_limit - 1
+        self.edition.card_limit = self.ability.slots
+        self.area.config.card_limit = self.area.config.card_limit + self.edition.card_limit
     end
 end

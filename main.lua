@@ -555,6 +555,7 @@ SMODS.Atlas {
 
 SMODS.Back {
     key = 'zenindeck',
+    atlas = 'zenindeck',
     discovered = true,
     apply = function(self, back)
         G.E_MANAGER:add_event(Event({
@@ -573,6 +574,13 @@ SMODS.Back {
             end
         }))
     end
+}
+
+SMODS.Atlas {
+    key = 'zenindeck',
+    path = 'tac/Deck_Zingas.png',
+    px = 71,
+    py = 95
 }
 
 local set_screen_positions_func = set_screen_positions
@@ -1223,6 +1231,7 @@ SMODS.Consumable {
 SMODS.Consumable {
     key = 'sloth',
     set = 'Tarot',
+    atlas = 'sloth',
     loc_txt = { name = 'Sloth',
         text = { '{C:attention}Create{} a flyhead' } },
     can_use = function(self, card)
@@ -1237,6 +1246,13 @@ SMODS.Consumable {
             SMODS.add_card({ set = 'Joker', rarity = 'jjok_special' })
         end
     end
+}
+
+SMODS.Atlas {
+    key = 'sloth',
+    path = 'tac/Tarot_Sloth.png',
+    px = 71,
+    py = 95
 }
 
 SMODS.Consumable {
@@ -1259,6 +1275,7 @@ SMODS.Consumable {
 
 SMODS.Consumable {
     key = 'greed',
+    atlas = 'greed',
     set = 'Tarot',
     cost = 3,
     loc_txt = { name = 'Greed',
@@ -1274,6 +1291,13 @@ SMODS.Consumable {
         add_tag(Tag('tag_negative'))
         play_sound('holo1', 1.2 + math.random() * 0.1, 0.4)
     end
+}
+
+SMODS.Atlas {
+    key = 'greed',
+    path = 'tac/Tarot_Greed.png',
+    px = 71,
+    py = 95
 }
 
 SMODS.Consumable {

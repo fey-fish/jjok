@@ -48,7 +48,7 @@ function SMODS.Tutorial(args, other, button)
 end
 
 ---Example Joker
-SMODS.Joker {
+--[[SMODS.Joker {
     key = 'tutorialjoker',
     loc_txt = { name = 'Tutorial Joker',
         text = {
@@ -88,4 +88,4 @@ function G.FUNCS.tutorial_joker_function(card)
         button.func = nil
         button.colour = G.C.UI.BACKGROUND_INACTIVE
     end
-end
+end]]

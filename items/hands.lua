@@ -20,8 +20,9 @@ SMODS.PokerHand {
 }
 
 SMODS.Consumable {
-    key = "sun",
+    key = "sol",
     set = "Planet",
+    atlas = 'sol',
     cost = 3,
     config = { hand_type = 'jjok_6oak', softlock = true },
     loc_txt = {name = 'The Sun',
@@ -41,6 +42,13 @@ SMODS.Consumable {
             }
         }
     end
+}
+
+SMODS.Atlas {
+    key = 'sol',
+    path = 'tac/Planet_Sol.png',
+    px = 71,
+    py = 95
 }
 
 SMODS.PokerHand {

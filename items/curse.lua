@@ -122,10 +122,18 @@ SMODS.Atlas {
 
 JJOK.Curse {
     key = 'onna',
+    atlas = 'koo',
     loc_txt = { name = 'Kuchisake Onna',
         text = {
             'Cards can no',
             'longer be bought',
             '{s:0.8,C:inactive}(Cannot be sold)'
         } }
+}
+
+SMODS.Atlas {
+    key = 'koo',
+    path = 'fey/koochy.png',
+    px = 71,
+    py = 95
 }

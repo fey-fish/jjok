@@ -65,8 +65,8 @@ for i,v in ipairs(G.P_CENTER_POOLS.Joker) do
         table.insert(specials, v)
     end
 end
-Splash_card = pseudorandom_element(specials)
-	SC = Card(G.ROOM.T.w/2 - SC_scale*G.CARD_W/2, 10. + G.ROOM.T.h/2 - SC_scale*G.CARD_H/2, SC_scale*G.CARD_W, SC_scale*G.CARD_H, G.P_CARDS.empty, Splash_card,{bypass_discovery_center = true, bypass_discovery_ui = true})
+Splash_card = pseudorandom_element(specials) or G.P_CENTERS.j_jjok_tgojo
+	SC = Card(G.ROOM.T.w/2 - SC_scale*G.CARD_W/2, 10. + G.ROOM.T.h/2 - SC_scale*G.CARD_H/2, SC_scale*G.CARD_W, SC_scale*G.CARD_H, G.P_CARDS.empty, Splash_card ~= G.P_CENTERS.c_base and Splash_card ~= nil and Splash_card or G.P_CENTERS.j_jjok_tgojo,{bypass_discovery_center = true, bypass_discovery_ui = true})
 '''
 match_indent = true
 
@@ -78,7 +78,7 @@ pattern = "local replace_card = Card(self.title_top.T.x, self.title_top.T.y, 1.2
 position = 'at'
 match_indent = true
 payload = '''
-local replace_card = Card(self.title_top.T.x, self.title_top.T.y, 1.2*G.CARD_W*SC_scale, 1.2*G.CARD_H*SC_scale, Splash_card, G.P_CENTERS.c_base)
+local replace_card = Card(self.title_top.T.x, self.title_top.T.y, 1.2*G.CARD_W*SC_scale, 1.2*G.CARD_H*SC_scale, Splash_card ~= G.P_CENTERS.c_base and Splash_card ~= nil and Splash_card or G.P_CENTERS.j_jjok_tgojo, G.P_CENTERS.c_base)
 '''
 
 #takako
