@@ -1,0 +1,14 @@
+{
+	"id": "qmark",
+	"name": "Question Mark",
+	"display_name": "Question Mark?",
+	"author": ["fey-fish :p"],
+	"description": "Mod themed around meta progression",
+	"prefix": "question",
+	"main_file": "main.lua",
+	"priority": -100000,
+	"badge_colour": "dd42f5",
+	"badge_text_colour": "FFFFFF",
+	"version": "1.4.1",
+	"dependencies": []
+}
