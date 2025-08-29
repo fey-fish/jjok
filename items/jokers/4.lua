@@ -312,3 +312,25 @@ SMODS.Joker {
         end
     end
 }
+
+SMODS.Joker {
+    key = 'kira',
+    loc_txt = {name = 'Kirara',
+                text = {
+                    'If a {C:attention}random{} card',
+                    'is to be selected,',
+                    'select only the {C:attention}first',
+                    'card of that area instead'
+                }},
+    rarity = 4,
+    cost = 20
+}
+
+local pse = pseudorandom_element
+function pseudorandom_element(_t, seed, args)
+    if SMODS.find_card('j_jjok_kira') and _t.cards and _t.cards[1] then
+        return _t.cards[1]
+    else
+        return pse(_t, seed, args)
+    end
+end
