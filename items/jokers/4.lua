@@ -2,42 +2,36 @@ SMODS.Joker {
     key = 'dagon',
     atlas = 'dagon',
     loc_txt = { name = 'Dagon',
-        text = {  'All card areas are filled',
-            'with {C:attention}Splash{} plus {C:dark_edition}1 Negative',
-            '{C:attention}Splash{} for every {C:attention}Non-Negative',
-            'Joker on {C:attention}selecting{} a blind',
-            '{C:inactive,s:0.8}(Must have space)' } },
+        text = { 'All card areas are filled',
+            'with {C:attention}Splash{} and',
+            '{C:attention}#1#{C:dark_edition} negative{C:attention} Splash' } },
     cost = 20,
     rarity = 4,
     blueprint_compat = true,
+    config = { extra = { cards = 1 } },
     loc_vars = function(self, info_queue, center)
         info_queue[#info_queue + 1] = G.P_CENTERS.e_negative
         info_queue[#info_queue + 1] = G.P_CENTERS.j_splash
+        return {
+            vars = {
+                center.ability.extra.cards
+            }
+        }
     end,
-    config = { extra = { joker_slots = 0 } },
     calculate = function(self, card, context)
         if context.setting_blind and not context.blueprint then
-            card.ability.extra.jokerslots = 0
-            for i, v in ipairs(G.jokers.cards) do
-                if v.edition == nil or v.edition.key ~= 'e_negative' then
-                    card.ability.extra.jokerslots = card.ability.extra.jokerslots + 1
+            local areas = SMODS.get_card_areas('jokers')
+            for _, v in ipairs(areas) do
+                if v.config.type == 'joker' then
+                    local space = v.config.card_limit - v.config.card_count
+                    for i = 1, space do
+                        SMODS.add_card({ area = v, key = 'j_splash' })
+                    end
                 end
-            end
-            local emptyJ = G.jokers.config.card_limit - G.jokers.config.card_count
-            local emptyC = G.consumeables.config.card_limit - #G.consumeables.cards
-            local emptyD = G.domain.config.card_limit - #G.domain.cards
-            for i = 1, emptyJ do
-                SMODS.add_card({ area = G.jokers, key = 'j_splash' })
-            end
-            for i = 1, emptyC do
-                SMODS.add_card({ area = G.consumeables, key = 'j_splash' })
-            end
-            for i = 1, emptyD do
-                SMODS.add_card({ area = G.domain, key = 'j_splash' })
             end
         end
         if context.setting_blind then
-            for i = 1, card.ability.extra.jokerslots do
+            for i = 1, card.ability.extra.cards do
                 SMODS.add_card({ key = 'j_splash', edition = 'e_negative' })
             end
         end
@@ -59,13 +53,15 @@ SMODS.Joker {
         text = {
             'Each scored {C:attention}4{} and{C:attention} Ace',
             'gives {C:white,X:chips}X#1#{} Chips'
-        }},
-    loc_vars = function (self,info_queue,center)
-        return {vars = {
-            center.ability.extra.xchips
-        }}
+        } },
+    loc_vars = function(self, info_queue, center)
+        return {
+            vars = {
+                center.ability.extra.xchips
+            }
+        }
     end,
-    config = {extra = {xchips = 2.5}},
+    config = { extra = { xchips = 2.5 } },
     rarity = 4,
     cost = 20,
     calculate = function(self, card, context)
@@ -149,7 +145,7 @@ SMODS.Joker {
             '{s:0.8}Zenin was now fully realised!"'
         }
     },
-    config = {heavenly = true, extra = {
+    config = { heavenly = true, extra = {
         Xmult = 1,
         Xmult_gain = 0.25
     } },
@@ -292,21 +288,21 @@ SMODS.Joker {
     key = 'luna',
     cost = 20,
     rarity = 4,
-    loc_txt = {name = '{C:blue}Luna Snow',
-                text = {
-                    'Gain {C:blue}#1#{} hand',
-                    'if {C:attention}final{} hand is played',
-                    'during {C:attention}Boss{} blind'
-                }},
-    config = {extra = {hands = 1}},
-    loc_vars = function(self,info_queue,center)
-        return {vars = {center.ability.extra.hands}}
+    loc_txt = { name = '{C:blue}Luna Snow',
+        text = {
+            'Gain {C:blue}#1#{} hand',
+            'if {C:attention}final{} hand is played',
+            'during {C:attention}Boss{} blind'
+        } },
+    config = { extra = { hands = 1 } },
+    loc_vars = function(self, info_queue, center)
+        return { vars = { center.ability.extra.hands } }
     end,
-    calculate = function(self,card,context)
+    calculate = function(self, card, context)
         if context.before and G.GAME.current_round.hands_left == 0 and G.GAME.blind.boss then
             ease_hands_played(card.ability.extra.hands)
             return {
-                message = 'Frozen!', 
+                message = 'Frozen!',
                 colour = G.C.BLUE,
             }
         end

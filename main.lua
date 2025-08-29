@@ -254,21 +254,26 @@ SMODS.Consumable {
     key = 'seop',
     set = 'domain',
     cost = 10,
-    config = { extra = { editionless_jokers = {}, used_this_ante = false } },
+    config = { extra = { editionless_jokers = {}, used_this_ante = false, ce = 100 } },
     loc_txt = { name = '{C:purple}Self Embodiment of Perfection',
         text = { 'Mahitos domain, effectively allowing him to',
             'kill anything with a soul, without even',
             'touching them',
             '{s:1.1}Changes {C:attention,s:1.1}1{s:1.1} random Joker to {C:dark_edition,s:1.1}negative{},',
-            '{s:1.1}lose all {s:1.1,C:money}money',
+            '{s:1.1}lose all {s:1.1,C:money}money{s:1.1} and gain',
+            '{s:1.1,C:attention}#2#{s:1.1,C:jjok_ctools} Cursed Energy',
             '{s:0.8,C:inactive}(Currently #1#)' } },
     loc_vars = function(self, info_queue, center)
         info_queue[#info_queue + 1] = G.P_CENTERS.j_jjok_mahito
+        local str
         if center.ability.extra.used_this_ante == true then
-            return { vars = { 'Inactive' } }
+            str = 'Inactive'
         else
-            return { vars = { 'Active' } }
+            str = 'Active!'
         end
+        return {vars = {
+            str, center.ability.extra.ce
+        }}
     end,
     can_use = function(self, card)
         card.ability.extra.editionless_jokers = {}
@@ -289,6 +294,7 @@ SMODS.Consumable {
             [pseudorandom('seop', 1, #card.ability.extra.editionless_jokers)]
         seopcard:set_edition('e_negative')
         ease_dollars(-G.GAME.dollars)
+        ease_ce(card.ability.extra.ce)
         card.ability.extra.used_this_ante = true
     end
 }
