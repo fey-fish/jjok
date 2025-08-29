@@ -405,3 +405,35 @@ SMODS.Atlas {
     px = 71,
     py = 95
 }
+
+SMODS.Joker {
+    key = 'ryu',
+    loc_txt = {name = 'Ryu',
+                text = {
+                    '{C:white,X:mult}X#1#{} Mult for',
+                    'every #2# Cursed Energy',
+                    'possesed',
+                    '{C:inactive}(Currently {C:white,X:mult}X#3#{C:inactive} Mult)'
+                }},
+    config = {extra = {scale = 1, ce = 20}},
+    loc_vars = function (self,info_queue,center)
+        return {
+            vars = {center.ability.extra.scale, center.ability.extra.ce,
+                    (math.floor(G.GAME.cursed_energy/center.ability.extra.ce) * center.ability.extra.scale) or 1}
+        }
+    end,
+    rarity = 2,
+    cost = 5,
+    blueprint_compat = true,
+    calculate = function(self,card,context)
+        if context.joker_main then
+            local Xmult = 1
+            if (math.floor(G.GAME.cursed_energy/card.ability.extra.ce) * card.ability.extra.scale) > 1 then
+                Xmult = (math.floor(G.GAME.cursed_energy/card.ability.extra.ce) * card.ability.extra.scale)
+            end
+            return {
+                Xmult = Xmult
+            }
+        end
+    end
+}
