@@ -194,7 +194,7 @@ SMODS.Consumable {
     end,
     use = function(self, card)
         for i = 1, card.ability.extra.create do
-            SMODS.add_card({ set = 'domain', edition = 'e_negative', stickers = { 'perishable' } })
+            SMODS.add_card({ set = 'domain', edition = 'e_negative'})
             local pos = #G.domain.cards
             G.domain.cards[pos].ability.perish_tally = 1
             G.domain.cards[pos].ability.perishable = true
