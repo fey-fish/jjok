@@ -411,15 +411,16 @@ SMODS.Joker {
     loc_txt = {name = 'Ryu',
                 text = {
                     '{C:white,X:mult}X#1#{} Mult for',
-                    'every #2# Cursed Energy',
+                    'every {C:attention}#2#{C:jjok_ctools} Cursed Energy',
                     'possesed',
                     '{C:inactive}(Currently {C:white,X:mult}X#3#{C:inactive} Mult)'
                 }},
-    config = {extra = {scale = 1, ce = 20}},
+    config = {extra = {scale = 1, ce = 15}},
     loc_vars = function (self,info_queue,center)
         return {
             vars = {center.ability.extra.scale, center.ability.extra.ce,
-                    (math.floor(G.GAME.cursed_energy/center.ability.extra.ce) * center.ability.extra.scale) or 1}
+                    G.GAME.cursed_energy and ((math.floor(G.GAME.cursed_energy/center.ability.extra.ce) + 1) * center.ability.extra.scale) > 1 and
+                    ((math.floor(G.GAME.cursed_energy/center.ability.extra.ce) + 1) * center.ability.extra.scale) or 1}
         }
     end,
     rarity = 2,
@@ -428,12 +429,42 @@ SMODS.Joker {
     calculate = function(self,card,context)
         if context.joker_main then
             local Xmult = 1
-            if (math.floor(G.GAME.cursed_energy/card.ability.extra.ce) * card.ability.extra.scale) > 1 then
-                Xmult = (math.floor(G.GAME.cursed_energy/card.ability.extra.ce) * card.ability.extra.scale)
+            if ((math.floor(G.GAME.cursed_energy/card.ability.extra.ce) + 1) * card.ability.extra.scale) > 1 then
+                Xmult = ((math.floor(G.GAME.cursed_energy/card.ability.extra.ce) + 1) * card.ability.extra.scale)
             end
             return {
                 Xmult = Xmult
             }
         end
     end
+}
+
+SMODS.Joker {
+    key = 'kira',
+    atlas = 'kirara',
+    loc_txt = {name = 'Kirara',
+                text = {
+                    'If a {C:attention}random{} Joker',
+                    'is to be selected,',
+                    'select only the {C:attention}first',
+                    'Joker instead'
+                }},
+    rarity = 2,
+    cost = 10
+}
+
+local pse = pseudorandom_element
+function pseudorandom_element(_t, seed, args)
+    if SMODS.find_card('j_jjok_kira') and G.jokers and _t == G.jokers.cards then
+        return _t[1]
+    else
+        return pse(_t, seed, args)
+    end
+end
+
+SMODS.Atlas {
+    key = 'kirara',
+    path = 'fey/KIRA!!.png',
+    px = 71,
+    py = 95
 }

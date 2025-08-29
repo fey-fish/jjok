@@ -316,20 +316,7 @@ function CardArea:emplace(card, location, stay_flipped)
         G.domain:emplace(card, location, stay_flipped)
         return
     end
-    if card and card.edition and card.edition.card_limit then
-        card.edition.card_limit = card.ability.slots
-        self.config.card_limit = self.config.card_limit + card.edition.card_limit
-    end
     return emplace_ref(self, card, location, stay_flipped)
-end
-
-local carc = CardArea.remove_card
-function CardArea:remove_card(card, discarded_only)
-    if card and card.edition and card.edition.card_limit then
-        card.edition.card_limit = card.ability.slots
-        self.config.card_limit = self.config.card_limit - card.edition.card_limit
-    end
-    return carc(self, card, discarded_only)
 end
 
 --auto discover
@@ -372,6 +359,9 @@ function CardArea:count_extra_slots_used(cards)
             slots = slots + card.ability.extra_slots_used + card.ability.slots
         end
     end
+    if self == G.deck then
+        slots = #G.deck.cards
+    end
     return slots
 end
 
@@ -379,11 +369,9 @@ local cse = Card.set_edition
 function Card:set_edition(edition, immediate, silent)
     if self.edition and self.edition.card_limit and self.added_to_deck then
         self.edition.card_limit = self.ability.slots
-        self.area.config.card_limit = self.area.config.card_limit - self.edition.card_limit
     end
     cse(self, edition, immediate, silent)
     if self.edition and self.edition.card_limit and self.added_to_deck then
         self.edition.card_limit = self.ability.slots
-        self.area.config.card_limit = self.area.config.card_limit + self.edition.card_limit
     end
 end

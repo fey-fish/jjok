@@ -1287,7 +1287,8 @@ SMODS.Consumable {
         end
     end,
     use = function(self, card, area, copier)
-        G.jokers.cards[pseudorandom('greed', 1, #G.jokers.cards)].ability.rental = true
+        local _card = pseudorandom_element(G.jokers.cards, pseudoseed('greed'))
+        _card.ability.rental = true
         add_tag(Tag('tag_negative'))
         play_sound('holo1', 1.2 + math.random() * 0.1, 0.4)
     end
