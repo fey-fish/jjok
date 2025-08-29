@@ -3,10 +3,14 @@ SMODS.Joker {
     atlas = 'kenjaku',
     loc_txt = { name = '{C:tarot}Kenjaku',
         text = {
-            'In Getos dead body, Kenjaku',
+            {'In Getos dead body, Kenjaku',
             'can use his {C:attention}body hop technique',
-            'to store {C:attention}#1#{} Jokers within his card area',
-            '{C:inactive,s:0.8}(Increase by {C:dark_edition,s:0.8}#2#{C:inactive,s:0.8} on defeating the Ante)'
+            'to store {C:attention}#1#{} Jokers within his card area'},
+            {
+                'Increase slots by {C:attention}1',
+                'after defeating {C:attention}4{} bosses',
+                '{C:inactive}({C:attention}#2#{C:inactive} left)'
+            }
         } },
     loc_vars = function(self, info_queue, center)
         if G[center.ability.extra.name] then
@@ -15,7 +19,7 @@ SMODS.Joker {
         return {
             vars = {
                 center.ability.extra.card_limit,
-                center.ability.extra.increase
+                center.ability.extra.count
             }
         }
     end,
@@ -34,7 +38,7 @@ SMODS.Joker {
         card.ability.extra.name = 'kenjaku' .. tostring(counter)
         table.insert(G.GAME.loading_card_areas, card.ability.extra.name)
     end,
-    config = { extra = { card_limit = 2, increase = 1, name = nil,
+    config = { extra = { card_limit = 2, count = 4, name = nil,
         button = { ftext = 'BODY', ttext = 'HOP', button = 'jjok_kenny_use', func = 'jjok_kenny_can' } } },
     remove_from_deck = function(self, card, from_debuff)
         for i, v in ipairs(G.GAME.loading_card_areas) do
@@ -47,8 +51,12 @@ SMODS.Joker {
     end,
     calculate = function(self, card, context)
         if context.boss_defeat then
-            G[card.ability.extra.name].config.card_limit = G[card.ability.extra.name].config.card_limit +
+            card.ability.extra.count = card.ability.count - 1
+            if card.ability.extra.count == 0 then
+                G[card.ability.extra.name].config.card_limit = G[card.ability.extra.name].config.card_limit +
                 card.ability.extra.increase
+                card.ability.extra.count = 4
+            end
         end
     end,
     update = function(self, card, dt)
@@ -181,6 +189,7 @@ SMODS.Atlas {
 
 SMODS.Joker {
     key = 'cgeto',
+    atlas = 'cgeto',
     loc_txt = { name = '{C:spades}Suguru Geto',
         text = { 'On selecting a blind, fill card',
             'areas with random cards',
@@ -207,6 +216,13 @@ SMODS.Joker {
         end
     end
 
+}
+
+SMODS.Atlas {
+    key = 'cgeto',
+    path = 'fey/gaytoes.png',
+    px = 71,
+    py = 95
 }
 
 SMODS.Joker {

@@ -197,6 +197,7 @@ SMODS.Consumable {
             SMODS.add_card({ set = 'domain', edition = 'e_negative', stickers = { 'perishable' } })
             local pos = #G.domain.cards
             G.domain.cards[pos].ability.perish_tally = 1
+            G.domain.cards[pos].ability.perishable = true
         end
         card.ability.extra.used_this_ante = true
     end
