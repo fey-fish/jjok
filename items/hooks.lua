@@ -331,8 +331,8 @@ function SMODS.SAVE_UNLOCKS()
 end
 
 local cc = create_card
-function create_card(_type, area, legendary, _rarity, skip_materialize, soulable, forced_key, key_append)
-    local _card = cc(_type, area, legendary, _rarity, skip_materialize, soulable, forced_key, key_append)
+function create_card(_type, area, legendary, _rarity, skip_materialize, soulable, forced_key, key_append, bypass)
+    local _card = cc(_type, area, legendary, _rarity, skip_materialize, soulable, forced_key, key_append, bypass)
     if _card.config.center.create and type(_card.config.center.create) == 'function' then
         _card.config.center.create(_card)
     end
@@ -373,5 +373,24 @@ function Card:set_edition(edition, immediate, silent)
     cse(self, edition, immediate, silent)
     if self.edition and self.edition.card_limit and self.added_to_deck then
         self.edition.card_limit = self.ability.slots
+    end
+end
+
+function SMODS.add_card(t)
+    local card = SMODS.create_card(t)
+    if t.set == "Base" or t.set == "Enhanced" then
+        G.playing_card = (G.playing_card and G.playing_card + 1) or 1
+        card.playing_card = G.playing_card
+        table.insert(G.playing_cards, card)
+    end
+    if t.slots then
+        card.ability.slots = t.slots
+    end
+    local area = t.area or G.jokers
+    if (area.config.card_count < area.config.card_limit) or t.bypass then
+        card:add_to_deck()
+        area:emplace(card)
+        return card
+    else card:remove()
     end
 end

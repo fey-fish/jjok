@@ -20,15 +20,21 @@ SMODS.Joker {
     end,
     calculate = function(self, card, context)
         if context.setting_blind and not context.blueprint then
-            local areas = SMODS.get_card_areas('jokers')
-            for _, v in ipairs(areas) do
-                if v.config.type == 'joker' then
-                    local space = v.config.card_limit - v.config.card_count
-                    for i = 1, space do
-                        SMODS.add_card({ area = v, key = 'j_splash' })
+            G.E_MANAGER:add_event(Event({
+                trigger = 'before',
+                func = function()
+                    local areas = SMODS.get_card_areas('jokers')
+                    for _, v in ipairs(areas) do
+                        if v.config.type == 'joker' then
+                            local space = v.config.card_limit - v.config.card_count
+                            for i = 1, space do
+                                SMODS.add_card({ area = v, key = 'j_splash' })
+                            end
+                        end
                     end
+                    return true
                 end
-            end
+            }))
         end
         if context.setting_blind then
             for i = 1, card.ability.extra.cards do

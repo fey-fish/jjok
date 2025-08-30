@@ -138,6 +138,7 @@ SMODS.Joker {
 
 SMODS.Joker {
     key = 'ygeto',
+    atlas = 'ygeto',
     cost = 6,
     loc_txt = { name = 'Young Geto',
         text = { '{C:white,X:mult}X#1#{} Mult for each',
@@ -195,6 +196,13 @@ SMODS.Joker {
             return { Xmult = count + 1 }
         end
     end
+}
+
+SMODS.Atlas {
+    key = 'ygeto',
+    path = 'fey/smallgaytoe.png',
+    px = 71,
+    py = 95
 }
 
 SMODS.Joker {

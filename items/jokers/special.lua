@@ -193,6 +193,7 @@ SMODS.Joker {
     loc_txt = { name = '{C:spades}Suguru Geto',
         text = { 'On selecting a blind, fill card',
             'areas with random cards',
+            '{C:inactive,s:0.8}(Every card will only fill {C:attention,s:0.8}1{C:inactive,s:0.8} slot)',
             '{s:0.8}"The worst curse user in history"' } },
     rarity = 'jjok_special',
     cost = 40,
@@ -200,16 +201,16 @@ SMODS.Joker {
         if context.setting_blind and not context.blueprint then
             local pool = {}
             for _, m in pairs(G.P_CENTERS) do
-                if m.consumeable or m.set == 'Joker' then
+                if (m.consumeable or m.set == 'Joker') and m.rarity ~= 'jjok_special' then
                     table.insert(pool, m)
                 end
             end
             local areas = SMODS.get_card_areas('jokers')
             for i, v in ipairs(areas) do
                 if v.config.type == 'joker' then
-                    for k = 1, v.config.card_limit - v.config.card_count do
+                    for k = 1, (v.config.card_limit - v.config.card_count) do
                         local _card = pseudorandom_element(pool, pseudoseed('cgeto'))
-                        SMODS.add_card({ key = _card.key })
+                        SMODS.add_card({ key = _card.key, slots = 1 })
                     end
                 end
             end

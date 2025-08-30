@@ -47,7 +47,7 @@ SMODS.PokerHand:take_ownership('Full House', {
 --wicker basket stuff
 SMODS.Consumable:take_ownership('ankh', {
         use = function(self, card)
-            local wicker = SMODS.find_card( 'c_jjok_wickerbasket' )
+            local wicker = SMODS.find_card('c_jjok_wickerbasket')
             local protect
             for i, v in ipairs(wicker) do
                 if v.ability.extra.used_this_ante == false then
@@ -76,7 +76,7 @@ SMODS.Consumable:take_ownership('ankh', {
                     end
                 }))
                 protect.ability.extra.used_this_ante = true
-                return {message = 'Protected!', colour = G.C.SECONDARY_SET.Spectral, message_card = protect}
+                return { message = 'Protected!', colour = G.C.SECONDARY_SET.Spectral, message_card = protect }
             else
                 --vanilla
                 local deletable_jokers = {}
@@ -117,3 +117,25 @@ SMODS.Consumable:take_ownership('ankh', {
         end
     },
     true)
+
+SMODS.Joker:take_ownership('riff_raff', {
+    calculate = function(self, card, context)
+        if context.setting_blind then
+            local jokers_to_create = G.jokers.config.card_limit - (G.jokers.config.card_count + G.GAME.joker_buffer)
+            if jokers_to_create > 0 then
+                G.GAME.joker_buffer = G.GAME.joker_buffer + jokers_to_create
+                G.E_MANAGER:add_event(Event({
+                    func = function()
+                        for i = 1, jokers_to_create do
+                            SMODS.add_card({ set = 'Joker', key_append = 'rif' })
+                            G.GAME.joker_buffer = 0
+                        end
+                        return true
+                    end
+                }))
+                card_eval_status_text(context_blueprint_card or card, 'extra', nil, nil, nil,
+                { message = localize('k_plus_joker'), colour = G.C.BLUE })
+            end
+        end
+    end
+}, true)
