@@ -53,6 +53,7 @@ SMODS.Atlas {
 --momo
 SMODS.Joker {
     key = 'momo',
+    atlas = 'momo',
     blueprint_compat = true,
     loc_txt = { name = 'Momo Nishimiya',
         text = { 'On selecting a {C:attention}Blind{} create',
@@ -94,6 +95,13 @@ SMODS.Joker {
             end
         end
     end
+}
+
+SMODS.Atlas {
+    key = 'momo',
+    path = 'fey/fraudmo.png',
+    px = 71,
+    py = 95
 }
 
 --junpei
@@ -241,6 +249,7 @@ SMODS.Atlas {
 --toge
 SMODS.Joker {
     key = 'toge',
+    atlas = 'toge',
     rarity = 1,
     blueprint_compat = true,
     loc_txt = { name = 'Toge Inumaki',
@@ -262,6 +271,13 @@ SMODS.Joker {
             end
         end
     end
+}
+
+SMODS.Atlas {
+    key = 'toge',
+    path = 'tac/togore.png',
+    px = 71,
+    py = 95
 }
 
 SMODS.Joker {
@@ -297,7 +313,7 @@ SMODS.Atlas {
 SMODS.Joker {
     key = 'charles',
     rarity = 1,
-    cost = 8,
+    cost = 3,
     loc_txt = { name = 'Charles',
         text = {
             'See the top {C:attention}#1#{}',

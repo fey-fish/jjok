@@ -517,35 +517,6 @@ SMODS.Atlas {
 }
 
 SMODS.Joker {
-    key = 'mecha',
-    rarity = 3,
-    cost = 10,
-    loc_txt = { name = 'Mechamaru',
-        text = { 'Sell to create #1# {C:attention}Puppets',
-            'Increase by #2# at the {C:attention}end{} of a round' } },
-    config = { extra = { create = 0, increase = 1 } },
-    loc_vars = function(self, info_queue, center)
-        info_queue[#info_queue + 1] = G.P_CENTERS.c_jjok_puppet
-        return {
-            vars = {
-                center.ability.extra.create,
-                center.ability.extra.increase
-            }
-        }
-    end,
-    remove_from_deck = function(self, card)
-        for i = 1, card.ability.extra.create do
-            SMODS.add_card({ set = 'Spectral', area = G.consumeables, key = 'c_jjok_puppet' })
-        end
-    end,
-    calculate = function(self, card, context)
-        if context.end_of_round and context.main_eval then
-            card.ability.extra.create = card.ability.extra.create + card.ability.extra.increase
-        end
-    end
-}
-
-SMODS.Joker {
     key = 'ino',
     rarity = 3,
     atlas = 'ino',
