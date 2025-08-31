@@ -60,9 +60,6 @@ function love.update(dt)
     if G.TIMERS.naoya then
         G.GAME.naoya_mult = (G.GAME.round_resets.ante ^ 2) - (G.GAME.round / 100 * G.TIMERS.n_round)
     end
-    if G.deck then
-        G.deck.config.card_count = #G.deck.cards
-    end
     return ret
 end
 
@@ -376,21 +373,9 @@ function Card:set_edition(edition, immediate, silent)
     end
 end
 
-function SMODS.add_card(t)
-    local card = SMODS.create_card(t)
-    if t.set == "Base" or t.set == "Enhanced" then
-        G.playing_card = (G.playing_card and G.playing_card + 1) or 1
-        card.playing_card = G.playing_card
-        table.insert(G.playing_cards, card)
-    end
-    if t.slots then
-        card.ability.slots = t.slots
-    end
-    local area = t.area or G.jokers
-    if (area.config.card_count < area.config.card_limit) or t.bypass then
-        card:add_to_deck()
-        area:emplace(card)
-        return card
-    else card:remove()
-    end
+local ac = SMODS.create_card
+function SMODS.create_card(t)
+    local m = ac(t)
+    if t.slots then m.ability.slots = t.slots end
+    return m
 end

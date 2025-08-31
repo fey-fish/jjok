@@ -86,11 +86,6 @@ SMODS.Blind {
     end,
 }
 
---[[SMODS.Blind {
-    key = 'restriction',
-    loc_txt = { name = 'Heavenly Restriction' }
-}]]
-
 SMODS.Blind {
     key = 'hospital',
     loc_txt = {

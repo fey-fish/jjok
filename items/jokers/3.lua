@@ -1,17 +1,25 @@
 SMODS.Joker {
     key = 'tengen',
     rarity = 3,
+    atlas = 'pasttengen',
     cost = 10,
     loc_txt = {
         name = 'Master Tengen',
         text = {
             'Create a {C:spectral}Spectral{} booster on',
-            'entering the shop' } },
+            '{C:attention}entering{} the shop' } },
     calculate = function(self, card, context)
         if context.starting_shop then
             SMODS.add_booster_to_shop('p_spectral_normal_1')
         end
     end
+}
+
+SMODS.Atlas {
+    key = 'pasttengen',
+    path = 'fey/tengen.png',
+    px = 71,
+    py = 95
 }
 
 SMODS.Joker {
