@@ -304,7 +304,7 @@ SMODS.Joker {
 
 SMODS.Atlas {
     key = 'nobara',
-    path = 'fey/kugisaki!!.png',
+    path = 'tac/labubudubaichocomatcha.png',
     px = 71,
     py = 95
 }
