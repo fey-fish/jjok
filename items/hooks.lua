@@ -36,7 +36,7 @@ function end_round()
     return ret
 end
 
-G.TIMERS.naoya = 0
+G.TIMERS.naoya = G.TIMERS.naoya or 0
 local ante = nil
 local hookTo = love.update
 function love.update(dt)
