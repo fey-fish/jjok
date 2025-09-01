@@ -5,11 +5,14 @@ function end_round()
     if G.GAME.blind.boss == true then
         SMODS.calculate_context { boss_defeat = true }
         if G.domain.cards[1] then
+            local count = 0
             for i, v in ipairs(G.domain.cards) do
                 if v.config.center.set == 'domain' then
+                    count = count + 1
                     v.ability.extra.used_this_ante = false
                 end
             end
+            ease_ce(-count)
         end
     end
     if G.GAME.blind.config.blind.boss then
@@ -23,16 +26,6 @@ function end_round()
     local rars = JJOK.pool_rarities(true)
     local ce = rars[1] + (rars[2] * 2) + (rars[3] * 3) + (rars[4] * 4) + (rars[5] * 5)
     ease_ce(ce)
-    if G.domain then
-        local count = 0
-        for i, v in ipairs(G.domain.cards) do
-            if v.config.center.set == 'domain' and v.config.center.key ~= 'c_jjok_9tails' then
-                count = count + 1
-            end
-        end
-        local ce_min = count * -10
-        ease_ce(ce_min)
-    end
     if G.GAME.cursed_energy and G.GAME.cursed_energy_limit then
         if G.GAME.cursed_energy >= G.GAME.cursed_energy_limit and G.jokers.config.card_count < G.jokers.config.card_limit then
             ease_ce(-G.GAME.cursed_energy)
@@ -49,7 +42,7 @@ local hookTo = love.update
 function love.update(dt)
     local ret = hookTo(dt)
     if G.GAME.blind and G.GAME.blind.in_blind and not G.GAME.blind.boss then
-        G.TIMERS.naoya = G.TIMERS.naoya + 0.01666666666
+        G.TIMERS.naoya = G.TIMERS.naoya + (dt or 0)
         G.TIMERS.n_round = math.floor(G.TIMERS.naoya + 0.5)
     end
     if ante ~= G.GAME.round_resets.ante then
