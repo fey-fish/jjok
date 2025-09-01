@@ -66,10 +66,9 @@ end
 local csd = Card.set_debuff
 function Card:set_debuff(should_debuff)
     if self.area == G.domain and self.ability.perishable and self.ability.perish_tally <= 0. then
-        self:start_dissolve()
-    else
-        return csd(self, should_debuff)
+        self:start_dissolve() return
     end
+    return csd(self, should_debuff)
 end
 
 --jjok only
@@ -77,7 +76,7 @@ local gsr = Game.start_run
 function Game:start_run(args)
     local saveTable = args.savetext or nil
     local ret = gsr(self, args)
-    if Jjok.config.jjok_only == true then
+    if Jjok.config.jjok_only and self.GAME.jjok_only == nil then
         self.GAME.jjok_only = true
     else
         self.GAME.jjok_only = false
@@ -186,18 +185,16 @@ local gphi = G.FUNCS.get_poker_hand_info
 function G.FUNCS.get_poker_hand_info(_cards)
     if G.in_delete_run then
         return false
-    else
-        return gphi(_cards)
     end
+    return gphi(_cards)
 end
 
 local bdh = Blind.debuff_hand
 function Blind:debuff_hand(cards, hand, handname, check)
     if G.in_delete_run then
         return false
-    else
-        return bdh(self, cards, hand, handname, check)
     end
+    return bdh(self, cards, hand, handname, check)
 end
 
 local caph = CardArea.parse_highlighted
