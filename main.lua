@@ -1435,7 +1435,7 @@ SMODS.Consumable {
 }
 
 SMODS.ObjectType {
-    key = 'meg_shi'
+    key = 's10'
 }
 
 SMODS.ObjectType {
@@ -1446,7 +1446,7 @@ SMODS.ObjectType {
 SMODS.Joker {
     key = 'maho',
     rarity = 'jjok_shiki',
-    pools = { meg_shi = true },
+    pools = { s10 = true },
     cost = 10,
     loc_txt = { name = '{C:money}Mahoraga',
         text = { 'Eight handled sword, divergent sila,',
@@ -1479,7 +1479,7 @@ SMODS.Joker {
     key = 'demdogs',
     rarity = 'jjok_shiki',
     cost = 10,
-    pools = { meg_shi = true },
+    pools = { s10 = true },
     loc_txt = { name = 'Demon Dogs',
         text = { '{C:green}#1#/#2#{} chance to {C:money}refund',
             'any opened booster pack',
@@ -1502,7 +1502,7 @@ SMODS.Joker {
     key = 'toad',
     rarity = 'jjok_shiki',
     cost = 10,
-    pools = { meg_shi = true },
+    pools = { s10 = true },
     loc_txt = { name = 'Gama',
         text = { '{C:green}#1#/#2#{} chance to {C:attention}duplicate',
             'any used consumable',
@@ -1528,10 +1528,48 @@ SMODS.Joker {
 }
 
 SMODS.Joker {
+    key = 'rabbit',
+    loc_txt = {name = 'Rabbit Escape',
+                text = {
+                    '{C:attention}+#1#{} Hand size',
+                    'if played hand is',
+                    'a {C:attention}High Card',
+                    '(Currently {C:attention}+#2#{})',
+                    '{s:0.8,C:inactive}(Resets when one',
+                    '{s:0.8,C:inactive}shotting a blind)'
+                }},
+    rarity = 'jjok_shiki',
+    cost = 10,
+    pools = {s10 = true},
+    config = {extra = {gain = 1, reset = 0}},
+    loc_vars = function(self,info_queue,center)
+        return {vars = {
+            center.ability.extra.gain,
+            center.ability.extra.reset
+        }}
+    end,
+    calculate = function(self,card,context)
+        if JJOK.one_shot_blind(context) then
+            G.hand:change_size(-card.ability.extra.reset)
+            return {
+                message = localize('k_reset_ex'), colour = G.C.FILTER
+            }
+        end
+        if context.before and context.scoring_name == 'High Card' then
+            card.ability.extra.reset = card.ability.extra.reset + card.ability.extra.gain
+            G.hand:change_size(card.ability.extra.gain)
+            return {
+                message = 'Escaped!', colour = G.C.FILTER
+            }
+        end
+    end
+}
+
+SMODS.Joker {
     key = 'orochi',
     rarity = 'jjok_shiki',
     cost = 10,
-    pools = { meg_shi = true },
+    pools = { s10 = true },
     loc_txt = { name = 'Orochi',
         text = { 'Stores {C:attention}#1# Joker',
             '{s:0.8,C:inactive}(Joker does not score)' } },

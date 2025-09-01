@@ -401,7 +401,7 @@ SMODS.Joker {
             'shikigami' } },
     calculate = function(self, card, context)
         if context.setting_blind and G.GAME.blind.boss == true then
-            local _card = pseudorandom_element(G.P_CENTER_POOLS.meg_shi, pseudoseed('megumi'))
+            local _card = pseudorandom_element(G.P_CENTER_POOLS.s10, pseudoseed('megumi'))
             SMODS.add_card({ key = _card.key })
         end
     end

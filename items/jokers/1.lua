@@ -14,7 +14,7 @@ SMODS.Joker {
     config = {heavenly = true, extra = { Xmult = 1.5, } },
     loc_vars = function(self, info_queue, center)
         local main_end = {}
-        if pseudorandom('maki_me', 1, 10) > 9 then
+        if pseudorandom('maki_me', 1, 10) == 10 then
             main_end = {
                 {n = G.UIT.C, config = {padding = 0.03}, nodes = {
                 {
