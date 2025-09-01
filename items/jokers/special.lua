@@ -201,7 +201,7 @@ SMODS.Joker {
         if context.setting_blind and not context.blueprint then
             local pool = {}
             for _, m in pairs(G.P_CENTERS) do
-                if (m.consumeable or m.set == 'Joker') and m.rarity ~= 'jjok_special' then
+                if (m.consumeable or m.set == 'Joker') or m.rarity ~= 'jjok_special' then
                     table.insert(pool, m)
                 end
             end
@@ -210,7 +210,7 @@ SMODS.Joker {
                 if v.config.type == 'joker' then
                     for k = 1, (v.config.card_limit - v.config.card_count) do
                         local _card = pseudorandom_element(pool, pseudoseed('cgeto'))
-                        SMODS.add_card({ key = _card.key, slots = 1 })
+                        SMODS.add_card({ area = v, key = _card.key, slots = 1 })
                     end
                 end
             end
