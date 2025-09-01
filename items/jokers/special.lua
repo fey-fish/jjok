@@ -3,9 +3,9 @@ SMODS.Joker {
     atlas = 'kenjaku',
     loc_txt = { name = '{C:tarot}Kenjaku',
         text = {
-            {'In Getos dead body, Kenjaku',
-            'can use his {C:attention}body hop technique',
-            'to store {C:attention}#1#{} Jokers within his card area'},
+            { 'In Getos dead body, Kenjaku',
+                'can use his {C:attention}body hop technique',
+                'to store {C:attention}#1#{} Jokers within his card area' },
             {
                 'Increase slots by {C:attention}1',
                 'after defeating {C:attention}4{} bosses',
@@ -54,7 +54,7 @@ SMODS.Joker {
             card.ability.extra.count = card.ability.count - 1
             if card.ability.extra.count == 0 then
                 G[card.ability.extra.name].config.card_limit = G[card.ability.extra.name].config.card_limit +
-                card.ability.extra.increase
+                    card.ability.extra.increase
                 card.ability.extra.count = 4
             end
         end
@@ -208,9 +208,11 @@ SMODS.Joker {
             local areas = SMODS.get_card_areas('jokers')
             for i, v in ipairs(areas) do
                 if v.config.type == 'joker' then
-                    for k = 1, (v.config.card_limit - v.config.card_count) do
+                    local space = v.config.card_limit - v.config.card_count
+                    while space > 0 do
                         local _card = pseudorandom_element(pool, pseudoseed('cgeto'))
                         SMODS.add_card({ area = v, key = _card.key, slots = 1 })
+                        space = v.config.card_limit - v.config.card_count
                     end
                 end
             end
