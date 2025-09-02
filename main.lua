@@ -1442,6 +1442,7 @@ SMODS.ObjectType {
     key = 'curses'
 }
 
+
 --fuck it, all the shikigami
 SMODS.Joker {
     key = 'maho',
@@ -1449,11 +1450,11 @@ SMODS.Joker {
     pools = { s10 = true },
     cost = 10,
     loc_txt = { name = '{C:money}Mahoraga',
-        text = { 'Eight handled sword, divergent sila,',
-            'divine general, {C:money}Mahoraga!',
+        text = { '{C:inactive}Eight handled sword, divergent sila,',
+            '{C:inactive}divine general, Mahoraga!',
             'Upon playing a hand, {C:attention}reduce blind size by 20%{}',
             'up to a maximum of {C:attention}X0.75{} ante base blind size',
-            '{s:0.8,C:inactive}(Current base blind size = {C:chips,s:0.8}#1#{s:0.8,C:inactive})' } },
+            '{s:0.8,C:inactive}(Current minimum: {C:chips,s:0.8}#1#{s:0.8,C:inactive})' } },
     loc_vars = function(self, info_queue, card)
         return { vars = { (get_blind_amount(G.GAME.round_resets.ante) * 0.75) } }
     end,
