@@ -352,17 +352,6 @@ function CardArea:count_extra_slots_used(cards)
     return slots
 end
 
-local cse = Card.set_edition
-function Card:set_edition(edition, immediate, silent)
-    if self.edition and self.edition.card_limit and self.added_to_deck then
-        self.edition.card_limit = self.ability.slots
-    end
-    cse(self, edition, immediate, silent)
-    if self.edition and self.edition.card_limit and self.added_to_deck then
-        self.edition.card_limit = self.ability.slots
-    end
-end
-
 local ac = SMODS.create_card
 function SMODS.create_card(t)
     local m = ac(t)
