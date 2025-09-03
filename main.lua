@@ -566,7 +566,7 @@ SMODS.Back {
                 local pool = {}
                 for i, v in ipairs(G.P_CENTER_POOLS.Joker) do
                     if v.mod then
-                        if v.mod.id == 'jjok' then
+                        if v.mod.id == 'jjok' and v.rarity == 2 then
                             table.insert(pool, v)
                         end
                     end
@@ -1262,7 +1262,7 @@ SMODS.Consumable {
     set = 'Tarot',
     loc_txt = { name = 'Lust',
         text = { 'Turn a random Joker',
-            '{C:edition}Polychrome{} and eternal' } },
+            '{C:edition}Polychrome{} and {C:attention}perishable' } },
     can_use = function(self, card)
         if #G.jokers.cards ~= 0 then
             return true
@@ -1271,7 +1271,8 @@ SMODS.Consumable {
     use = function(self, card, area, copier)
         local lustcard = pseudorandom_element(G.jokers.cards, pseudoseed('lust'))
         lustcard:set_edition('e_polychrome')
-        lustcard.ability.eternal = true
+        lustcard.ability.perish_tally = G.GAME.perishable_rounds
+        lustcard.ability.perishable = true
     end
 }
 

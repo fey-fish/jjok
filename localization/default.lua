@@ -7,7 +7,8 @@ return {
                         '{C:jjok_special}Awaken{}, {C:red}-2{} Joker slots'}},
             b_jjok_zenindeck = {name = "Zen'in Deck",
                     text = {"The deck of the Zen'in clan,",
-                            'start with a random', 
+                            'start with a random',
+                            '{C:uncommon}Uncommon',
                             '{C:jjok_jjk}Jujutsu Joker'}}
         },
         Enhanced = {

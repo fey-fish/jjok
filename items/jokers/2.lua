@@ -463,11 +463,10 @@ SMODS.Joker {
 
 local pse = pseudorandom_element
 function pseudorandom_element(_t, seed, args)
-    if SMODS.find_card('j_jjok_kira') and G.jokers and _t == G.jokers.cards then
+    if SMODS.find_card('j_jjok_kira')[1] and G.jokers and _t == G.jokers.cards then
         return _t[1]
-    else
-        return pse(_t, seed, args)
     end
+    return pse(_t, seed, args)
 end
 
 SMODS.Atlas {
