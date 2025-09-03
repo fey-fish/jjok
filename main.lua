@@ -993,7 +993,8 @@ SMODS.Consumable {
     use = function(self, card)
         for i = 1, card.ability.extra.max do
             G.E_MANAGER:add_event(Event({
-                trigger = 'immediate',
+                trigger = 'after',
+                delay = 0.5,
                 func = function()
                     pseudorandom_element(G.jokers.cards, pseudoseed('invspear')):valid_destroy()
                     return true
