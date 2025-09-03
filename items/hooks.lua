@@ -121,6 +121,9 @@ function Card:set_ability(center, initial, delay_sprites)
             end
         end
     end
+    if self.config.center.set == 'Booster' and self.config.center.mod and self.config.center.mod.id == 'jjok' and self.config.center.atlas == 'Booster' then
+        self.config.center.atlas = 'jjok_wip_booster'
+    end
     return csa(self, center, initial, delay_sprites)
 end
 

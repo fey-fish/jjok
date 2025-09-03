@@ -109,6 +109,13 @@ SMODS.Blind {
     boss_colour = HEX('999999')
 }
 
+SMODS.Atlas {
+    key = 'wip_booster',
+    path = 'tac/wip_booster.png',
+    px = 71,
+    py = 95
+}
+
 --domains
 
 SMODS.Booster {
@@ -1260,6 +1267,7 @@ SMODS.Atlas {
 
 SMODS.Consumable {
     key = 'lust',
+    atlas = 'lust',
     set = 'Tarot',
     loc_txt = { name = 'Lust',
         text = { 'Turn a random Joker',
@@ -1275,6 +1283,13 @@ SMODS.Consumable {
         lustcard.ability.perish_tally = G.GAME.perishable_rounds
         lustcard.ability.perishable = true
     end
+}
+
+SMODS.Atlas {
+    key = 'lust',
+    path = 'tac/Tarot_Lust.png',
+    px = 71,
+    py = 95
 }
 
 SMODS.Consumable {
