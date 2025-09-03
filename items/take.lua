@@ -122,6 +122,9 @@ SMODS.Joker:take_ownership('riff_raff', {
     calculate = function(self, card, context)
         if context.setting_blind then
             local jokers_to_create = G.jokers.config.card_limit - (G.jokers.config.card_count + G.GAME.joker_buffer)
+            if jokers_to_create > card.ability.extra then
+                jokers_to_create = card.ability.extra
+            end
             if jokers_to_create > 0 then
                 G.GAME.joker_buffer = G.GAME.joker_buffer + jokers_to_create
                 G.E_MANAGER:add_event(Event({

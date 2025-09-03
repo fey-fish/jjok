@@ -136,7 +136,7 @@ end
 
 local ccuc = Card.can_use_consumeable
 function Card:can_use_consumeable(any_state, skip_check)
-    if self.config.center.key == ('c_wraith' or 'c_judgement' or 'c_soul') then
+    if self.config.center.key == 'c_wraith' or self.config.center.key == 'c_judgement' or self.config.center.key == 'c_soul' then
         local space = G.jokers.config.card_limit - G.jokers.config.card_count
         if space >= 1 then
             return true
@@ -329,11 +329,9 @@ end
 local gca = SMODS.get_card_areas
 function SMODS.get_card_areas(_type, _context)
     local t = gca(_type, _context)
-    if _type == 'jokers' and G.GAME.loading_card_areas and G.GAME.loading_card_areas[1] then
-        for i, v in ipairs(G.GAME.loading_card_areas) do
-            if type(v) == 'string' and G[v].cards[1] then
-                table.insert(t, G[v])
-            end
+    if _type == 'jokers' then
+        for i, v in ipairs(G.GAME.loading_card_areas or {}) do
+            t[#t + 1] = G[v]
         end
     end
     return t
