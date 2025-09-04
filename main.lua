@@ -1024,7 +1024,7 @@ SMODS.Consumable {
         info_queue[#info_queue + 1] = G.P_TAGS.tag_double
     end,
     can_use = function(card, self)
-        return { true }
+        return true
     end,
     use = function(card, self)
         add_tag(Tag('tag_double'))
