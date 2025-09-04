@@ -976,7 +976,7 @@ SMODS.Consumable {
     loc_txt = { name = 'Inverted Spear of Heaven',
         text = {
             '{C:attention}Destroy{} up to #2# random',
-            'Jokers and gain {C:dark_edition}#1# Joker slot' } },
+            'Jokers, gain {C:dark_edition}#1# Joker slot' } },
     cost = 6,
     loc_vars = function(self, info_queue, center)
         return {
