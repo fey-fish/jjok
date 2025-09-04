@@ -109,6 +109,13 @@ SMODS.Blind {
     boss_colour = HEX('999999')
 }
 
+SMODS.Atlas {
+    key = 'wip_booster',
+    path = 'tac/wip_booster.png',
+    px = 71,
+    py = 95
+}
+
 --domains
 
 SMODS.Booster {
@@ -1260,21 +1267,39 @@ SMODS.Atlas {
 
 SMODS.Consumable {
     key = 'lust',
+    atlas = 'lust',
     set = 'Tarot',
     loc_txt = { name = 'Lust',
         text = { 'Turn a random Joker',
             '{C:edition}Polychrome{} and {C:attention}perishable' } },
     can_use = function(self, card)
-        if #G.jokers.cards ~= 0 then
-            return true
+        local areas = SMODS.get_card_areas('jokers')
+        for i,v in ipairs(areas) do
+            for _,m in ipairs(v.cards) do
+                if not v.edition then return true end
+            end
         end
     end,
     use = function(self, card, area, copier)
-        local lustcard = pseudorandom_element(G.jokers.cards, pseudoseed('lust'))
+        local valid_jokers = {}
+        local areas = SMODS.get_card_areas('jokers')
+        for i,v in ipairs(areas) do
+            for _,m in ipairs(v.cards) do
+                if not v.edition then table.insert(valid_jokers, v) end
+            end
+        end
+        local lustcard = pseudorandom_element(valid_jokers, pseudoseed('lust'))
         lustcard:set_edition('e_polychrome')
         lustcard.ability.perish_tally = G.GAME.perishable_rounds
         lustcard.ability.perishable = true
     end
+}
+
+SMODS.Atlas {
+    key = 'lust',
+    path = 'tac/Tarot_Lust.png',
+    px = 71,
+    py = 95
 }
 
 SMODS.Consumable {

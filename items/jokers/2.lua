@@ -207,6 +207,7 @@ SMODS.Atlas {
 
 SMODS.Joker {
     key = 'mai',
+    atlas = 'bum',
     loc_txt = {
         name = 'Mai Zenin',
         text = { '{C:attention}Create{} a random {C:spectral}Spectral{}',
@@ -235,6 +236,13 @@ SMODS.Joker {
             end
         end
     end
+}
+
+SMODS.Atlas {
+    key = 'bum',
+    path = 'fey/mai.png',
+    px = 71,
+    py = 95
 }
 
 SMODS.Joker {
