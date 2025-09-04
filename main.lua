@@ -1038,8 +1038,7 @@ SMODS.Consumable {
     cost = 6,
     loc_txt = { name = 'Kamutoke',
         text = { 'Wielded by Sukuna, use to {C:attention}destroy',
-            'any number of selected playing cards',
-            '{s:0.8}"Holds the ability to summon torrents of electricity"' } },
+            'any number of selected playing cards'} },
     can_use = function(card, self)
         if #G.hand.highlighted > 0 then
             Destroyed_cards = {}
@@ -1064,8 +1063,7 @@ SMODS.Consumable {
     loc_txt = { name = 'Nanamis Wrapped Blade',
         text = { 'A blade wrapped in',
             'a white speckled wrapping,',
-            'use to {C:attention}empower Ino',
-            '{s:0.8}"Imbued with the ratio technique"' } },
+            'use to {C:attention}empower Ino'} },
     loc_vars = function(self, info_queue, card)
         info_queue[#info_queue + 1] = G.P_CENTERS.j_jjok_ino
     end,
@@ -1091,8 +1089,7 @@ SMODS.Consumable {
     loc_txt = {
         name = 'Split Soul Katana',
         text = { 'Formerly wielded by Toji Zenin,',
-            'use to {C:attention}awaken Maki',
-            '{s:0.8}"Cuts directly at the soul"{}'
+            'use to {C:attention}awaken Maki'
         }
     },
     loc_vars = function(self, info_queue, card)
