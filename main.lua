@@ -1300,7 +1300,7 @@ SMODS.Consumable {
         local areas = SMODS.get_card_areas('jokers')
         for i,v in ipairs(areas) do
             for _,m in ipairs(v.cards) do
-                if not v.edition then table.insert(valid_jokers, v) end
+                if not m.edition then table.insert(valid_jokers, m) end
             end
         end
         local lustcard = pseudorandom_element(valid_jokers, pseudoseed('lust'))
