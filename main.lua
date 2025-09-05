@@ -929,12 +929,27 @@ SMODS.Booster {
         return true
     end,
     create_card = function(self, card, i)
-        return
-            SMODS.create_card({
-                set = pseudorandom_element({ 'ct', 'ctools' }, pseudoseed('cbooster')),
+        local _card
+        if pseudorandom('cboosterctools') > 0.5 then
+            _card = {
+                set = "ctools",
                 area = G.pack_cards,
-                skip_materialize = true
-            })
+                skip_materialize = true,
+                soulable = true,
+                key_append =
+                "cbooster"
+            }
+        else
+            _card = {
+                set = "ct",
+                area = G.pack_cards,
+                skip_materialize = true,
+                soulable = true,
+                key_append =
+                "cbooster"
+            }
+        end
+        return _card
     end,
     weight = 1.4
 }
@@ -960,7 +975,7 @@ SMODS.Consumable {
         }
     end,
     can_use = function(self, card, context)
-        if #G.jokers.cards < G.jokers.config.card_limit then
+        if (G.jokers.config.card_count < G.jokers.config.card_limit) and #G.jokers.cards > 0 then
             return true
         end
     end,
@@ -1562,7 +1577,7 @@ SMODS.Joker {
                     '{C:attention}+#1#{} Hand size',
                     'if played hand is',
                     'a {C:attention}High Card',
-                    '(Currently {C:attention}+#2#{})',
+                    '{C:inactive}(Currently {C:attention}+#2#{C:inactive})',
                     '{s:0.8,C:inactive}(Resets when one',
                     '{s:0.8,C:inactive}shotting a blind)'
                 }},
@@ -1577,10 +1592,11 @@ SMODS.Joker {
         }}
     end,
     calculate = function(self,card,context)
-        if JJOK.one_shot_blind(context) then
+        if JJOK.one_shot_blind(context) and card.ability.extra.reset > 0 then
             G.hand:change_size(-card.ability.extra.reset)
+            card.ability.extra.reset = 0
             return {
-                message = localize('k_reset_ex'), colour = G.C.FILTER
+                message = localize('k_reset'), colour = G.C.FILTER
             }
         end
         if context.before and context.scoring_name == 'High Card' then
@@ -1663,6 +1679,29 @@ SMODS.Joker {
         end
     end
 }
+
+SMODS.Joker {
+    key = 'moonknight',
+    rarity = 'jjok_shiki',
+    cost = 10,
+    pools = { s10 = true },
+    loc_txt = { name = '{C:jjok_ctools}Moon Knight',
+        text = { '{C:green}#1# in #2#{} chance to',
+                'create an {C:spectral}Ankh{} on',
+                'entering a {C:attention}blind' } },
+    config = { extra = { odds = 3 } },
+    loc_vars = function(self, info_queue, center)
+        return { vars = { G.GAME.probabilities.normal, center.ability.extra.odds }}
+    end,
+    calculate = function(self,card,context)
+        if context.setting_blind and SMODS.pseudorandom_probability(card, 'thegoon', G.GAME,probabilities.normal, card.ability.extra.odds) then
+            if G.consumeables.config.card_count < G.consumeables.config.card_limit then
+                SMODS.add_card({key = 'c_ankh'})
+                return {message = 'The Moon!', colour = G.C.BLUE}
+            end
+        end
+    end
+}
 --fuck it, end of the shikigamis
 
 SMODS.Joker {
@@ -1722,7 +1761,7 @@ SMODS.Joker {
             card.ability.extra.trig = true
         end
         if context.end_of_round and context.cardarea == G.jokers and card.ability.extra.trig == true then
-            SMODS.add_card({ key = 'c_jjok_sukfin' })
+            SMODS.add_card({ key = 'c_jjok_sukfin', edition = card.edition and card.edition.key })
             card:start_dissolve()
         end
     end

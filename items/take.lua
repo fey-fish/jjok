@@ -122,16 +122,14 @@ SMODS.Joker:take_ownership('riff_raff', {
     calculate = function(self, card, context)
         if context.setting_blind then
             local jokers_to_create = G.jokers.config.card_limit - (G.jokers.config.card_count + G.GAME.joker_buffer)
-            if jokers_to_create > card.ability.extra then
-                jokers_to_create = card.ability.extra
-            end
+            if jokers_to_create > card.ability.extra then jokers_to_create = card.ability.extra end
             if jokers_to_create > 0 then
                 G.GAME.joker_buffer = G.GAME.joker_buffer + jokers_to_create
                 G.E_MANAGER:add_event(Event({
                     func = function()
                         for i = 1, jokers_to_create do
                             SMODS.add_card({ set = 'Joker', key_append = 'rif' })
-                            G.GAME.joker_buffer = 0
+                            G.GAME.joker_buffer = G.GAME.joker_buffer - 1
                         end
                         return true
                     end
@@ -142,3 +140,20 @@ SMODS.Joker:take_ownership('riff_raff', {
         end
     end
 }, true)
+
+SMODS.Joker:take_ownership('photograph', {
+    update = function(self,card,dt)
+        if SMODS.find_card('j_jjok_kira')[1] and SMODS.find_card('j_jjok_hak')[1] then
+            card.config.center.atlas = 'jjok_kissy' ; card.config.center.pos = {x = 0, y = 0}
+        else
+            card.config.center.atlas = 'Joker' ; card.config.center.pos = {x = 2, y = 13}
+        end
+    end
+}, true)
+
+SMODS.Atlas {
+    key = 'kissy',
+    path = 'fey/kissy.png',
+    px = 71,
+    py = 95
+}
