@@ -1707,8 +1707,8 @@ SMODS.Joker {
 SMODS.Atlas {
     key = 'themoon',
     path = 'fey/thegoon.png',
-    px = 68,
-    py = 92
+    px = 71,
+    py = 95
 }
 
 --fuck it, end of the shikigamis
