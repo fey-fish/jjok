@@ -1682,6 +1682,7 @@ SMODS.Joker {
 
 SMODS.Joker {
     key = 'moonknight',
+    atlas = 'themoon',
     rarity = 'jjok_shiki',
     cost = 10,
     pools = { s10 = true },
@@ -1702,6 +1703,14 @@ SMODS.Joker {
         end
     end
 }
+
+SMODS.Atlas {
+    key = 'themoon',
+    path = 'fey/thegoon.png',
+    px = 68,
+    py = 92
+}
+
 --fuck it, end of the shikigamis
 
 SMODS.Joker {
@@ -1811,6 +1820,33 @@ SMODS.Atlas {
     path = 'fey/roppongi.png',
     px = 71,
     py = 95
+}
+
+SMODS.Joker {
+    key = 'clever',
+    loc_txt = { name = 'Grasshopper Curse',
+        text = { '{C:mult}+#2#{} Mult,',
+            '{X:mult,C:white}X#1#{} Mult',} },
+    config = { extra = { Xmult = 0.5, mult = 50 } },
+    rarity = 'jjok_cs',
+    cost = 4,
+    blueprint_compat = true,
+    loc_vars = function(self, info_queue, center)
+        return {
+            vars = {
+                center.ability.extra.Xmult,
+                center.ability.extra.mult
+            }
+        }
+    end,
+    calculate = function(self, card, context)
+        if context.joker_main then
+            return {
+                Xmult = card.ability.extra.Xmult,
+                mult = card.ability.extra.mult
+            }
+        end
+    end
 }
 
 SMODS.Atlas {
