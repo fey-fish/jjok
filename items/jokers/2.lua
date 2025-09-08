@@ -36,19 +36,24 @@ SMODS.Joker {
     rarity = 2,
     cost = 9,
     loc_txt = { name = 'Utahime Iori',
-        text = { 'On selecting a boss blind, remove',
-            'all stickers from Joker to the right', } },
+        text = { 'On selecting a {C:attention}boss blind,',
+            'remove all {C:attention}stickers',
+            'from Joker to the right', } },
     calculate = function(self, card, context)
         if context.setting_blind and G.GAME.blind.boss == true then
-            local ind = nil
-            for i, v in ipairs(G.jokers.cards) do
-                if v == card then
-                    ind = i + 1
+            local ind, area
+            local areas = SMODS.get_card_areas('jokers')
+            for _, m in ipairs(areas) do
+                for i, v in ipairs(m.cards) do
+                    if v == card then
+                        ind = i + 1
+                        area = m
+                    end
                 end
             end
-            if #G.jokers.cards >= ind then
+            if #m.cards >= ind then
                 for i, k in pairs(SMODS.Stickers) do
-                    G.jokers.cards[ind].ability[i] = false
+                    m[ind].ability[i] = false
                 end
                 card:juice_up()
             end
@@ -173,7 +178,7 @@ SMODS.Joker {
             }
         }
     end,
-    calculate = function(self,card, context)
+    calculate = function(self, card, context)
         if context.joker_main then
             local rars, count = {}, 0
             local areas = SMODS.get_card_areas('jokers')
@@ -424,29 +429,30 @@ SMODS.Atlas {
 
 SMODS.Joker {
     key = 'ryu',
-    loc_txt = {name = 'Ryu',
-                text = {
-                    '{C:white,X:mult}X#1#{} Mult for',
-                    'every {C:attention}#2#{C:jjok_ctools} Cursed Energy',
-                    'possesed',
-                    '{C:inactive}(Currently {C:white,X:mult}X#3#{C:inactive} Mult)'
-                }},
-    config = {extra = {scale = 1, ce = 15}},
-    loc_vars = function (self,info_queue,center)
+    loc_txt = { name = 'Ryu',
+        text = {
+            '{C:white,X:mult}X#1#{} Mult for',
+            'every {C:attention}#2#{C:jjok_ctools} Cursed Energy',
+            'possesed',
+            '{C:inactive}(Currently {C:white,X:mult}X#3#{C:inactive} Mult)'
+        } },
+    config = { extra = { scale = 1, ce = 15 } },
+    loc_vars = function(self, info_queue, center)
         return {
-            vars = {center.ability.extra.scale, center.ability.extra.ce,
-                    G.GAME.cursed_energy and ((math.floor(G.GAME.cursed_energy/center.ability.extra.ce) + 1) * center.ability.extra.scale) > 1 and
-                    ((math.floor(G.GAME.cursed_energy/center.ability.extra.ce) + 1) * center.ability.extra.scale) or 1}
+            vars = { center.ability.extra.scale, center.ability.extra.ce,
+                G.GAME.cursed_energy and
+                ((math.floor(G.GAME.cursed_energy / center.ability.extra.ce) + 1) * center.ability.extra.scale) > 1 and
+                ((math.floor(G.GAME.cursed_energy / center.ability.extra.ce) + 1) * center.ability.extra.scale) or 1 }
         }
     end,
     rarity = 2,
     cost = 5,
     blueprint_compat = true,
-    calculate = function(self,card,context)
+    calculate = function(self, card, context)
         if context.joker_main then
             local Xmult = 1
-            if ((math.floor(G.GAME.cursed_energy/card.ability.extra.ce) + 1) * card.ability.extra.scale) > 1 then
-                Xmult = ((math.floor(G.GAME.cursed_energy/card.ability.extra.ce) + 1) * card.ability.extra.scale)
+            if ((math.floor(G.GAME.cursed_energy / card.ability.extra.ce) + 1) * card.ability.extra.scale) > 1 then
+                Xmult = ((math.floor(G.GAME.cursed_energy / card.ability.extra.ce) + 1) * card.ability.extra.scale)
             end
             return {
                 Xmult = Xmult
@@ -458,13 +464,13 @@ SMODS.Joker {
 SMODS.Joker {
     key = 'kira',
     atlas = 'kirara',
-    loc_txt = {name = 'Kirara',
-                text = {
-                    'If a {C:attention}random{} Joker',
-                    'is to be selected,',
-                    'select only the {C:attention}first',
-                    'Joker instead'
-                }},
+    loc_txt = { name = 'Kirara',
+        text = {
+            'If a {C:attention}random{} Joker',
+            'is to be selected,',
+            'select only the {C:attention}first',
+            'Joker instead'
+        } },
     rarity = 2,
     cost = 10
 }
@@ -491,7 +497,7 @@ SMODS.Joker {
     cost = 6,
     loc_txt = { name = 'Mechamaru',
         text = { 'Sell to create #1# {C:attention}Puppets,',
-            'increase by #2# at the', 
+            'increase by #2# at the',
             '{C:attention}end{} of a round' } },
     config = { extra = { create = 0, increase = 1 } },
     loc_vars = function(self, info_queue, center)

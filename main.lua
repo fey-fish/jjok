@@ -1501,6 +1501,26 @@ SMODS.Joker {
 }
 
 SMODS.Joker {
+    key = 'elephant',
+    rarity = 'jjok_shiki',
+    cost = 10,
+    pools = { s10 = true },
+    loc_txt = { name = 'Max Elephant',
+        text = { '{C:green}Rerolls{} always',
+            'cost {C:money}$#1#{}' } },
+    config = { extra = { cost = 8 } },
+    loc_vars = function(self, info_queue, center)
+        return { vars = { center.ability.extra.cost } }
+    end,
+    calculate = function(self, card, context)
+        G.GAME.current_round.reroll_cost = card.ability.extra.cost
+    end,
+    remove_from_deck = function(self,card)
+        G.GAME.current_round.reroll_cost = G.GAME.round_resets.reroll_cost
+    end
+}
+
+SMODS.Joker {
     key = 'demdogs',
     rarity = 'jjok_shiki',
     cost = 10,
