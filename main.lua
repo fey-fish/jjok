@@ -1491,16 +1491,16 @@ SMODS.Joker {
     loc_txt = { name = '{C:money}Mahoraga',
         text = { '{C:inactive}Eight handled sword, divergent sila,',
             '{C:inactive}divine general, Mahoraga!',
-            'Upon playing a hand, {C:attention}reduce blind size by 20%{}',
-            'up to a maximum of {C:attention}X0.75{} ante base blind size',
+            'Upon playing a hand, {C:attention}reduce blind size by 25%{}',
+            'up to a maximum of {C:attention}X0.5{} ante base blind size',
             '{s:0.8,C:inactive}(Current minimum: {C:chips,s:0.8}#1#{s:0.8,C:inactive})' } },
     loc_vars = function(self, info_queue, card)
-        return { vars = { (get_blind_amount(G.GAME.round_resets.ante) * 0.75) } }
+        return { vars = { (get_blind_amount(G.GAME.round_resets.ante) * 0.5) } }
     end,
     calculate = function(self, card, context)
-        if G.GAME.blind.chips > (get_blind_amount(G.GAME.round_resets.ante) * 0.75) then
+        if G.GAME.blind.chips > (get_blind_amount(G.GAME.round_resets.ante) * 0.5) then
             if context.before then
-                G.GAME.blind.chips = G.GAME.blind.chips * 0.8
+                G.GAME.blind.chips = G.GAME.blind.chips * 0.75
                 if G.GAME.blind.chips < get_blind_amount(G.GAME.round_resets.ante) then
                     G.GAME.blind.chips = get_blind_amount(G.GAME.round_resets.ante)
                 end
