@@ -1018,7 +1018,9 @@ SMODS.Consumable {
                 trigger = 'after',
                 delay = 0.5,
                 func = function()
-                    pseudorandom_element(G.jokers.cards, pseudoseed('invspear')):valid_destroy()
+                    if G.jokers.cards[1] then
+                        pseudorandom_element(G.jokers.cards, pseudoseed('invspear')):valid_destroy()
+                    end
                     return true
                 end
             }))
