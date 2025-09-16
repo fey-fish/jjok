@@ -1669,11 +1669,11 @@ SMODS.Joker {
         local counter = #find
         JJOK.create_cardarea(ca, 'orochi', counter)
         card.ability.extra.name = 'orochi' .. tostring(counter)
-        G[card.ability.extra.name].states.visible = false
+        G.GAME[card.ability.extra.name].states.visible = false
     end,
     remove_from_deck = function(self, card, from_debuff)
-        if G[card.ability.extra.name] and G[card.ability.extra.name].cards[1] then
-            for i, v in ipairs(G[card.ability.extra.name].cards) do
+        if G.GAME[card.ability.extra.name] and G.GAME[card.ability.extra.name].cards[1] then
+            for i, v in ipairs(G.GAME[card.ability.extra.name].cards) do
                 if G.jokers.config.card_count + v.abilityslots <= G.jokers.config.card_limit then
                     G.jokers:emplace(v)
                 else
@@ -1681,7 +1681,7 @@ SMODS.Joker {
                 end
             end
         end
-        G[card.ability.extra.name]:remove()
+        G.GAME[card.ability.extra.name]:remove()
     end,
     update = function(self, card, dt)
         if G.jokers then
@@ -1691,10 +1691,10 @@ SMODS.Joker {
                 G.jokers.config.highlighted_limit = 1
             end
         end
-        if G[card.ability.extra.name] then
+        if G.GAME[card.ability.extra.name] then
             --change position to match parent
-            G[card.ability.extra.name].T.x = card.T.x
-            G[card.ability.extra.name].T.y = card.T.y
+            G.GAME[card.ability.extra.name].T.x = card.T.x
+            G.GAME[card.ability.extra.name].T.y = card.T.y
         end
     end
 }

@@ -158,7 +158,7 @@ end
 
 JJOK.create_cardarea = function(cardarea, name, counter)
     local id = name .. tostring(counter)
-    G[id] = cardarea
+    G.GAME[id] = cardarea
 end
 
 function G.FUNCS.jjok_kenny_can(card)
@@ -169,7 +169,7 @@ function G.FUNCS.jjok_kenny_can(card)
                 other = v
             end
         end
-        local kenjaku = G[card.config.ref_table.ability.extra.name]
+        local kenjaku = G.GAME[card.config.ref_table.ability.extra.name]
         if (#G.jokers.highlighted == 2 and (kenjaku.config.card_count + other.ability.slots < kenjaku.config.card_limit)) or
             (#kenjaku.highlighted == 1 and G.jokers.config.card_count <= G.jokers.config.card_limit) then
             card.config.colour = G.C.PURPLE
@@ -190,10 +190,10 @@ function G.FUNCS.jjok_kenny_use(card)
             end
         end
         G.jokers:remove_card(other)
-        G[card.config.ref_table.ability.extra.name]:emplace(other)
-    elseif #G[card.config.ref_table.ability.extra.name].highlighted == 1 then
-        other = G[card.config.ref_table.ability.extra.name].highlighted[1]
-        G[card.config.ref_table.ability.extra.name]:remove_card(other)
+        G.GAME[card.config.ref_table.ability.extra.name]:emplace(other)
+    elseif #G.GAME[card.config.ref_table.ability.extra.name].highlighted == 1 then
+        other = G.GAME[card.config.ref_table.ability.extra.name].highlighted[1]
+        G.GAME[card.config.ref_table.ability.extra.name]:remove_card(other)
         G.jokers:emplace(other)
     end
     G.jokers:unhighlight_all()
@@ -207,8 +207,8 @@ function G.FUNCS.jjok_oro_can(card)
                 other = v
             end
         end
-        if (#G.jokers.highlighted == 2 and ((#G[card.config.ref_table.ability.extra.name].cards) <= G[card.config.ref_table.ability.extra.name].config.card_limit)) or
-            (G.jokers.config.card_count < G.jokers.config.card_limit and G[card.config.ref_table.ability.extra.name].config.card_count > 0) then
+        if (#G.jokers.highlighted == 2 and ((#G.GAME[card.config.ref_table.ability.extra.name].cards) <= G.GAME[card.config.ref_table.ability.extra.name].config.card_limit)) or
+            (G.jokers.config.card_count < G.jokers.config.card_limit and G.GAME[card.config.ref_table.ability.extra.name].config.card_count > 0) then
             card.config.colour = G.C.JJOK.NATURE
             card.config.button = 'jjok_oro_use'
         else
@@ -227,10 +227,10 @@ function G.FUNCS.jjok_oro_use(card)
             end
         end
         G.jokers:remove_card(other)
-        G[card.config.ref_table.ability.extra.name]:emplace(other)
+        G.GAME[card.config.ref_table.ability.extra.name]:emplace(other)
     elseif #G.jokers.highlighted == 1 and G.jokers.highlighted[1] == card.config.ref_table then
-        other = G[card.config.ref_table.ability.extra.name].cards[1]
-        G[card.config.ref_table.ability.extra.name]:remove_card(other)
+        other = G.GAME[card.config.ref_table.ability.extra.name].cards[1]
+        G.GAME[card.config.ref_table.ability.extra.name]:remove_card(other)
         G.jokers:emplace(other)
     end
     G.jokers:unhighlight_all()

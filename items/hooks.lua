@@ -334,7 +334,7 @@ function SMODS.get_card_areas(_type, _context)
     local t = gca(_type, _context)
     if _type == 'jokers' then
         for i, v in ipairs(G.GAME.loading_card_areas or {}) do
-            t[#t + 1] = G[v]
+            t[#t + 1] = G.GAME[v]
         end
     end
     return t

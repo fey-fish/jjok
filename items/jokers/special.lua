@@ -47,13 +47,13 @@ SMODS.Joker {
                 break
             end
         end
-        G[card.ability.extra.name]:remove()
+        G.GAME[card.ability.extra.name]:remove()
     end,
     calculate = function(self, card, context)
         if context.boss_defeat then
-            card.ability.extra.count = card.ability.count - 1
+            card.ability.extra.count = card.ability.extra.count - 1
             if card.ability.extra.count == 0 then
-                G[card.ability.extra.name].config.card_limit = G[card.ability.extra.name].config.card_limit +
+                G.GAME[card.ability.extra.name].config.card_limit = G.GAME[card.ability.extra.name].config.card_limit +
                     card.ability.extra.increase
                 card.ability.extra.count = 4
             end
@@ -67,10 +67,10 @@ SMODS.Joker {
                 G.jokers.config.highlighted_limit = 1
             end
         end
-        if G[card.ability.extra.name] then
+        if G.GAME[card.ability.extra.name] and G.GAME[card.ability.extra.name].T then
             --change position to match parent
-            G[card.ability.extra.name].T.x = card.T.x - 0.2
-            G[card.ability.extra.name].T.y = card.T.y + card.T.h
+            G.GAME[card.ability.extra.name].T.x = card.T.x - 0.2
+            G.GAME[card.ability.extra.name].T.y = card.T.y + card.T.h
         end
     end
 }
@@ -149,7 +149,13 @@ SMODS.Joker {
     rarity = 'jjok_special',
     calculate = function(self, card, context)
         if context.glass_shattered then
-            SMODS.add_card({ key = 'c_black_hole', edition = 'e_negative' })
+            G.E_MANAGER:add_event(Event({
+            trigger = 'after',
+            func = function()
+                SMODS.add_card({ key = 'c_black_hole', edition = 'e_negative' })
+                return true
+            end
+        }))
         end
         if context.other_consumeable and context.other_consumeable.config.center.key == 'c_black_hole' then
             return {
@@ -201,13 +207,13 @@ SMODS.Joker {
         if context.setting_blind and not context.blueprint then
             local pool = {}
             for _, m in pairs(G.P_CENTERS) do
-                if (m.consumeable or m.set == 'Joker') or m.rarity ~= 'jjok_special' then
+                if (m.consumeable or m.set == 'Joker') or (m.rarity and m.rarity ~= 'jjok_special') then
                     table.insert(pool, m)
                 end
             end
             local areas = SMODS.get_card_areas('jokers')
             for i, v in ipairs(areas) do
-                if v.config.type == 'joker' then
+                if v.config.type == 'joker' and v.config then
                     local space = v.config.card_limit - v.config.card_count
                     while space > 0 do
                         local _card = pseudorandom_element(pool, pseudoseed('cgeto'))
@@ -619,7 +625,7 @@ SMODS.Joker {
         }
     end,
     update = function(self, card, context)
-        if card.ability.extra.phase == 1 then
+        if card.ability.extra.phase == 1 or not card.children.center.atlas then
             card.children.center.atlas = G.ASSET_ATLAS['jjok_yujikuna']
         end
     end,

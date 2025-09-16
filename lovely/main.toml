@@ -458,3 +458,47 @@ if _type == 'Joker' then
 end
 '''
 match_indent = true
+
+#kenjaku saving
+[[patches]]
+[patches.pattern]
+target = 'game.lua'
+pattern = '''
+for k, v in pairs(G) do
+    if (type(v) == "table") and v.is and v:is(CardArea) then 
+      local cardAreaSer = v:save()
+      if cardAreaSer then cardAreas[k] = cardAreaSer end
+    end
+  end
+'''
+position = "after"
+payload = '''
+for k, v in pairs(G.GAME) do
+    if (type(v) == "table") and v.is and v:is(CardArea) then 
+      local cardAreaSer = v:save()
+      if cardAreaSer then cardAreas[k] = cardAreaSer end
+    end
+  end
+'''
+match_indent = true
+[[patches]]
+[patches.pattern]
+target = 'functions/misc_functions.lua'
+pattern = '''
+for k, v in pairs(G) do
+    if (type(v) == "table") and v.is and v:is(CardArea) then 
+      local cardAreaSer = v:save()
+      if cardAreaSer then cardAreas[k] = cardAreaSer end
+    end
+  end
+'''
+position = "after"
+payload = '''
+for k, v in pairs(G.GAME) do
+    if (type(v) == "table") and v.is and v:is(CardArea) then 
+      local cardAreaSer = v:save()
+      if cardAreaSer then cardAreas[k] = cardAreaSer end
+    end
+  end
+'''
+match_indent = true

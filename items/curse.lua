@@ -57,14 +57,15 @@ JJOK.Curse {
 
 JJOK.Curse {
     key = 'smallpox',
+    atlas = 'smallpox',
     loc_txt = {
         name = 'Smallpox Deity',
         text = { 'Destroy within {C:attention}#1#',
-            'rounds, else {C:mult}lose',
+            'rounds, else {C:red}lose',
             'this run',
             '{s:0.8,C:inactive}(Cannot be sold)' }
     },
-    config = { extra = { rounds = 6 } },
+    config = { extra = { rounds = 10 } },
     loc_vars = function(self, info_queue, center)
         return {
             vars = {
@@ -86,6 +87,13 @@ JJOK.Curse {
             end
         end
     end
+}
+
+SMODS.Atlas {
+    key = 'smallpox',
+    path = 'fey/smallpox.png',
+    px = 71,
+    py = 95
 }
 
 JJOK.Curse {
