@@ -68,7 +68,7 @@ function Game:main_menu(change_context)
     old_main_menu(self)
 end
 
-SMODS.Blind {
+--[[SMODS.Blind {
     key = 'prison',
     loc_txt = { name = 'Prison Realm',
         text = { 'Disable all Special Grade',
@@ -84,9 +84,9 @@ SMODS.Blind {
         end
         return false
     end,
-}
+}]]
 
-SMODS.Blind {
+--[[SMODS.Blind {
     key = 'hospital',
     loc_txt = {
         name = 'The Hospital',
@@ -107,7 +107,7 @@ SMODS.Blind {
         return false
     end,
     boss_colour = HEX('999999')
-}
+}]]
 
 SMODS.Atlas {
     key = 'wip_booster',
