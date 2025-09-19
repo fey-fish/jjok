@@ -4,6 +4,7 @@ SMODS.ConsumableType {
     secondary_colour = HEX('F52742'),
     loc_txt = {name = 'Cursed Technique', collection = 'Techniques'},
     collection_rows = {4, 5},
+    default = 'c_jjok_drumming',
     shop_rate = 0
 }
 

@@ -209,10 +209,10 @@ end
 local cfbs = G.FUNCS.check_for_buy_space
 function G.FUNCS.check_for_buy_space(card)
     if card.config.center.set == 'Joker' then
-        local negative = false
-        if card.edition and card.edition.card_limit then negative = true end
+        local bypass = false
+        if card.ability.slots < 1 or (card.edition and card.edition.card_limit) then bypass = true end
         local space = G.jokers.config.card_limit - G.jokers.config.card_count
-        if (space >= card.ability.slots) or negative then
+        if (space >= card.ability.slots) or bypass then
             return true
         else
             alert_no_space(card, card.ability.consumeable and G.consumeables or G.jokers)

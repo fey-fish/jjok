@@ -120,24 +120,23 @@ SMODS.Consumable:take_ownership('ankh', {
 
 SMODS.Joker:take_ownership('riff_raff', {
     calculate = function(self, card, context)
-        if context.setting_blind then
-            local jokers_to_create = G.jokers.config.card_limit - (G.jokers.config.card_count + G.GAME.joker_buffer)
-            if jokers_to_create > card.ability.extra then jokers_to_create = card.ability.extra end
-            if jokers_to_create > 0 then
+        if context.setting_blind and not (context.blueprint_card or card).getting_sliced and G.jokers.config.card_count + G.GAME.joker_buffer < G.jokers.config.card_limit then
+                local jokers_to_create = math.min(2, G.jokers.config.card_limit - (G.jokers..config.card_count + G.GAME.joker_buffer))
                 G.GAME.joker_buffer = G.GAME.joker_buffer + jokers_to_create
                 G.E_MANAGER:add_event(Event({
-                    func = function()
+                    func = function() 
                         for i = 1, jokers_to_create do
-                            SMODS.add_card({ set = 'Joker', key_append = 'rif' })
-                            G.GAME.joker_buffer = G.GAME.joker_buffer - 1
+                            local card = create_card('Joker', G.jokers, nil, 0, nil, nil, nil, 'rif')
+                            card:add_to_deck()
+                            G.jokers:emplace(card)
+                            card:start_materialize()
+                            G.GAME.joker_buffer = 0
                         end
                         return true
-                    end
-                }))
-                card_eval_status_text(context_blueprint_card or card, 'extra', nil, nil, nil,
-                { message = localize('k_plus_joker'), colour = G.C.BLUE })
+                    end}))   
+                    card_eval_status_text(context_blueprint_card or self, 'extra', nil, nil, nil, {message = localize('k_plus_joker'), colour = G.C.BLUE}) 
+                return nil, true
             end
-        end
     end
 }, true)
 

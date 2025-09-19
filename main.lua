@@ -155,6 +155,7 @@ SMODS.Booster {
 
 SMODS.ConsumableType {
     key = 'domain',
+    default= 'c_jjok_iv',
     primary_colour = HEX('6A329F'),
     secondary_colour = HEX('6A329F'),
     loc_txt = {
@@ -592,6 +593,20 @@ SMODS.Atlas {
     py = 95
 }
 
+SMODS.Back {
+    key = 'sugadeck',
+    discovered = true,
+    apply = function(self, back)
+        G.E_MANAGER:add_event(Event({
+            trigger = 'immediate',
+            func = function()
+                SMODS.create_card_allow_duplicates = true
+                return true
+            end
+        }))
+    end
+}
+
 local set_screen_positions_func = set_screen_positions
 function set_screen_positions()
     set_screen_positions_func()
@@ -898,6 +913,7 @@ SMODS.Consumable {
 
 SMODS.ConsumableType {
     key = 'ctools',
+    default = 'c_jjok_playcloud',
     primary_colour = SMODS.Gradients.jjok_ctools,
     secondary_colour = SMODS.Gradients.jjok_ctools,
     loc_txt = {
@@ -1488,6 +1504,7 @@ SMODS.ObjectType {
 SMODS.Joker {
     key = 'maho',
     rarity = 'jjok_shiki',
+    slots = 0,
     pools = { s10 = true },
     cost = 10,
     loc_txt = { name = '{C:money}Mahoraga',
@@ -1522,6 +1539,7 @@ SMODS.Joker {
     rarity = 'jjok_shiki',
     cost = 10,
     pools = { s10 = true },
+    slots = 0,
     loc_txt = { name = 'Max Elephant',
         text = { '{C:green}Rerolls{} always',
             'cost {C:money}$#1#{}' } },
@@ -1542,6 +1560,7 @@ SMODS.Joker {
     rarity = 'jjok_shiki',
     cost = 10,
     pools = { s10 = true },
+    slots = 0,
     loc_txt = { name = 'Demon Dogs',
         text = { '{C:green}#1#/#2#{} chance to {C:money}refund',
             'any opened booster pack',
@@ -1565,6 +1584,7 @@ SMODS.Joker {
     rarity = 'jjok_shiki',
     cost = 10,
     pools = { s10 = true },
+    slots = 0,
     loc_txt = { name = 'Gama',
         text = { '{C:green}#1#/#2#{} chance to {C:attention}duplicate',
             'any used consumable',
@@ -1603,6 +1623,7 @@ SMODS.Joker {
     rarity = 'jjok_shiki',
     cost = 10,
     pools = {s10 = true},
+    slots = 0,
     config = {extra = {gain = 1, reset = 0}},
     loc_vars = function(self,info_queue,center)
         return {vars = {
@@ -1633,6 +1654,7 @@ SMODS.Joker {
     rarity = 'jjok_shiki',
     cost = 10,
     pools = { s10 = true },
+    slots = 0,
     loc_txt = { name = 'Orochi',
         text = { 'Stores {C:attention}#1# Joker',
             '{s:0.8,C:inactive}(Joker does not score)' } },
@@ -1674,7 +1696,7 @@ SMODS.Joker {
     remove_from_deck = function(self, card, from_debuff)
         if G.GAME[card.ability.extra.name] and G.GAME[card.ability.extra.name].cards[1] then
             for i, v in ipairs(G.GAME[card.ability.extra.name].cards) do
-                if G.jokers.config.card_count + v.abilityslots <= G.jokers.config.card_limit then
+                if G.jokers.config.card_count + v.ability.slots <= G.jokers.config.card_limit then
                     G.jokers:emplace(v)
                 else
                     v:start_dissolve()
@@ -1705,6 +1727,7 @@ SMODS.Joker {
     rarity = 'jjok_shiki',
     cost = 10,
     pools = { s10 = true },
+    slots = 0,
     loc_txt = { name = '{C:jjok_ctools}Moon Knight',
         text = { '{C:green}#1# in #2#{} chance to',
                 'create an {C:spectral}Ankh{} on',
