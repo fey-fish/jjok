@@ -150,12 +150,12 @@ SMODS.Joker {
     calculate = function(self, card, context)
         if context.glass_shattered then
             G.E_MANAGER:add_event(Event({
-            trigger = 'after',
-            func = function()
-                SMODS.add_card({ key = 'c_black_hole', edition = 'e_negative' })
-                return true
-            end
-        }))
+                trigger = 'after',
+                func = function()
+                    SMODS.add_card({ key = 'c_black_hole', edition = 'e_negative' })
+                    return true
+                end
+            }))
         end
         if context.other_consumeable and context.other_consumeable.config.center.key == 'c_black_hole' then
             return {
@@ -213,14 +213,20 @@ SMODS.Joker {
             end
             local areas = SMODS.get_card_areas('jokers')
             for i, v in ipairs(areas) do
-                if v.config.type == 'joker' and v.config then
-                    local space = v.config.card_limit - v.config.card_count
-                    while space > 0 do
-                        local _card = pseudorandom_element(pool, pseudoseed('cgeto'))
-                        SMODS.add_card({ area = v, key = _card.key, slots = 1 })
-                        space = v.config.card_limit - v.config.card_count
+                G.E_MANAGER:add_event(Event({
+                    trigger = 'immediate',
+                    func = function()
+                        if v.config.type == 'joker' and v.config and v.config.card_count and v.config.card_limit then
+                            local space = v.config.card_limit - v.config.card_count
+                            while space > 0 do
+                                local _card = pseudorandom_element(pool, pseudoseed('cgeto'))
+                                SMODS.add_card({ area = v, key = _card.key, slots = 1 })
+                                space = space - 1
+                            end
+                        end
+                        return true
                     end
-                end
+                }))
             end
         end
     end
@@ -503,7 +509,7 @@ SMODS.Joker {
                                     n = G.UIT.C,
                                     config = { colour = G.C.MULT, r = 0.05, padding = 0.03, res = 0.15, align = 'cm' },
                                     nodes = {
-                                        { n = G.UIT.T, config = { text = 'X0.75', scale = 0.28, colour = G.C.WHITE } },
+                                        { n = G.UIT.T, config = { text = 'X1.5', scale = 0.28, colour = G.C.WHITE } },
                                     }
                                 },
                                 {
@@ -530,7 +536,7 @@ SMODS.Joker {
                                     n = G.UIT.C,
                                     config = { colour = G.C.MULT, r = 0.05, padding = 0.03, res = 0.15, align = 'cm' },
                                     nodes = {
-                                        { n = G.UIT.T, config = { text = ('X' .. ((center.ability.extra.fingers * 0.75) + 1)), scale = 0.32, colour = G.C.WHITE } },
+                                        { n = G.UIT.T, config = { text = ('X' .. ((center.ability.extra.fingers * 1.5) + 1)), scale = 0.32, colour = G.C.WHITE } },
                                     }
                                 },
                                 {
@@ -567,52 +573,32 @@ SMODS.Joker {
                                     n = G.UIT.C,
                                     config = { colour = G.C.MULT, r = 0.05, padding = 0.03, res = 0.15, align = 'cm' },
                                     nodes = {
-                                        { n = G.UIT.T, config = { text = 'X2.5', scale = 0.28, colour = G.C.WHITE } },
+                                        { n = G.UIT.T, config = { text = 'X3', scale = 0.32, colour = G.C.WHITE } },
                                     }
                                 },
                                 {
                                     n = G.UIT.C,
                                     config = { padding = 0.03 },
                                     nodes = {
-                                        { n = G.UIT.T, config = { text = (' Mult for every finger'), scale = 0.28, colour = G.C.UI.TEXT_DARK } }
+                                        { n = G.UIT.T, config = { text = (' Mult and '), scale = 0.32, colour = G.C.UI.TEXT_DARK } }
                                     }
                                 },
-                            }
-                        },
-                        {
-                            n = G.UIT.R,
-                            config = { align = 'cm', padding = 0.03 },
-                            nodes = {
-                                { n = G.UIT.T, config = { text = 'and ', scale = 0.28, colour = G.C.UI.TEXT_DARK } },
-                                { n = G.UIT.T, config = { text = '$10', scale = 0.28, colour = G.C.MONEY } },
-                                { n = G.UIT.T, config = { text = ' when scored', scale = 0.28, colour = G.C.UI.TEXT_DARK } }
+                                {
+                                    n = G.UIT.C,
+                                    config = { padding = 0.03 },
+                                    nodes = {
+                                        { n = G.UIT.T, config = { text = ('$8'), scale = 0.32, colour = G.C.MONEY } }
+                                    }
+                                },
                             }
                         },
                         {
                             n = G.UIT.R,
                             config = { align = 'cm' },
                             nodes = {
-                                {
-                                    n = G.UIT.C,
-                                    config = { padding = 0.03 },
-                                    nodes = {
-                                        { n = G.UIT.T, config = { text = '(Currently ', scale = 0.32, colour = G.C.UI.TEXT_INACTIVE } }
-                                    }
-                                },
-                                {
-                                    n = G.UIT.C,
-                                    config = { colour = G.C.MULT, r = 0.05, padding = 0.03, res = 0.15, align = 'cm' },
-                                    nodes = {
-                                        { n = G.UIT.T, config = { text = ('X' .. (center.ability.extra.fingers * 2.5)), scale = 0.32, colour = G.C.WHITE } },
-                                    }
-                                },
-                                {
-                                    n = G.UIT.C,
-                                    config = { padding = 0.03 },
-                                    nodes = {
-                                        { n = G.UIT.T, config = { text = (' Mult)'), scale = 0.32, colour = G.C.UI.TEXT_INACTIVE } }
-                                    }
-                                },
+                                { n = G.UIT.T, config = { text = 'when ', scale = 0.32, colour = G.C.UI.TEXT_DARK } },
+                                { n = G.UIT.T, config = { text = 'Mult', scale = 0.32, colour = G.C.MULT } },
+                                { n = G.UIT.T, config = { text = ' cards are scored', scale = 0.32, colour = G.C.UI.TEXT_DARK } }
                             }
                         }
                     }
@@ -657,12 +643,12 @@ SMODS.Joker {
             if card.ability.extra.phase == 2 then
                 return { Xmult = card.ability.extra.Xmult }
             end
-            if card.ability.extra.phase == 3 then
-                return {
-                    Xmult = card.ability.extra.Xmult,
-                    dollars = card.ability.extra.dollars
-                }
-            end
+        end
+        if card.ability.extra.phase == 3 and context.individual and SMODS.has_enhancement(context.other_card, 'm_mult') then
+            return {
+                Xmult = 3,
+                dollars = 8
+            }
         end
     end
 }
