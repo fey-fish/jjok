@@ -16,7 +16,13 @@ if _type == 'Joker' then
 position = "before"
 payload = '''
 if center.set == 'ct' then
-    card.ce_cost = pseudorandom('ce_cost', 0, 75)
+    if center.key == 'c_jjok_piercingblood' then
+        card.ability = card.ability or {}
+        card.ability.ce_cost = pseudorandom('c_cost', 0, 10)
+    else
+        card.ability = card.ability or {}
+        card.ability.ce_cost = pseudorandom('ce_cost', 0, 75)
+    end
 end
 '''
 match_indent = true

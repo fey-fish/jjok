@@ -4,12 +4,12 @@ version = "0.1.0"
 dump_lua = true
 priority = 0
 
-#domain stuff lol
+#domain calc
 [[patches]]
 [patches.pattern]
 target = '=[SMODS _ "src/utils.lua"]'
 pattern = "-- TARGET: add your own CardAreas for joker evaluation"
-position = 'before'
+position = 'after'
 match_indent = true
 payload = '''
 table.insert(t, G.domain)
@@ -59,7 +59,14 @@ target = "game.lua"
 pattern = "SC = Card(G.ROOM.T.w/2 - SC_scale*G.CARD_W/2, 10. + G.ROOM.T.h/2 - SC_scale*G.CARD_H/2, SC_scale*G.CARD_W, SC_scale*G.CARD_H, G.P_CARDS.empty, G.P_CENTERS['j_joker'])"
 position = "after"
 payload = '''
-	SC = Card(G.ROOM.T.w/2 - SC_scale*G.CARD_W/2, 10. + G.ROOM.T.h/2 - SC_scale*G.CARD_H/2, SC_scale*G.CARD_W, SC_scale*G.CARD_H, G.P_CARDS.empty, G.P_CENTERS['j_jjok_tgojo'],{bypass_discovery_center = true, bypass_discovery_ui = true})
+local specials = {}
+for i,v in ipairs(G.P_CENTER_POOLS.Joker) do
+    if v.mod and v.mod.id == 'jjok' and v.atlas ~= 'Joker' and v.set == 'Joker' then
+        table.insert(specials, v)
+    end
+end
+Splash_card = pseudorandom_element(specials) or G.P_CENTERS.j_jjok_tgojo
+	SC = Card(G.ROOM.T.w/2 - SC_scale*G.CARD_W/2, 10. + G.ROOM.T.h/2 - SC_scale*G.CARD_H/2, SC_scale*G.CARD_W, SC_scale*G.CARD_H, G.P_CARDS.empty, Splash_card ~= G.P_CENTERS.c_base and Splash_card ~= nil and Splash_card or G.P_CENTERS.j_jjok_tgojo,{bypass_discovery_center = true, bypass_discovery_ui = true})
 '''
 match_indent = true
 
@@ -71,7 +78,7 @@ pattern = "local replace_card = Card(self.title_top.T.x, self.title_top.T.y, 1.2
 position = 'at'
 match_indent = true
 payload = '''
-local replace_card = Card(self.title_top.T.x, self.title_top.T.y, 1.2*G.CARD_W*SC_scale, 1.2*G.CARD_H*SC_scale, G.P_CENTERS.j_jjok_tgojo, G.P_CENTERS.c_base)
+local replace_card = Card(self.title_top.T.x, self.title_top.T.y, 1.2*G.CARD_W*SC_scale, 1.2*G.CARD_H*SC_scale, Splash_card ~= G.P_CENTERS.c_base and Splash_card ~= nil and Splash_card or G.P_CENTERS.j_jjok_tgojo, G.P_CENTERS.c_base)
 '''
 
 #takako
@@ -246,13 +253,16 @@ if card.ability.consumeable and card.area == G.pack_cards and booster_obj and bo
 position = 'before'
 match_indent = true
 payload = '''
-if card.config.center.key == 'j_jjok_kenny' then
+if card.config.center.key == 'j_jjok_kenny' or card.config.center.key == 'j_jjok_orochi' then
+local extra = card.ability.extra.button
 use = {n=G.UIT.C, config={align = "cr"}, nodes={
-      {n=G.UIT.C, config={ref_table = card, align = "cr",padding = 0.1, r=0.08, minw = 1.25, hover = true, shadow = true, colour = G.C.UI.BACKGROUND_INACTIVE, one_press = true, button = 'jjok_kenny_use', func = 'jjok_kenny_can'}, nodes={
+      {n=G.UIT.C, config={ref_table = card, align = "cr",padding = 0.1, r=0.08, minw = 1.25, hover = true, shadow = true, colour = G.C.UI.BACKGROUND_INACTIVE, one_press = true, button = extra.button, func = extra.func }, nodes={
         {n=G.UIT.B, config = {w=0.1,h=0.6}},
         {n=G.UIT.C, config={align = "tm"}, nodes={
-          {n=G.UIT.R, config={align = "cm", maxw = 1.25}, nodes={ {n=G.UIT.T, config={text = 'BODY',colour = G.C.UI.TEXT_LIGHT, scale = 0.4, shadow = true}}}},
-          {n=G.UIT.R, config={align = "cm", maxw = 1.25}, nodes={ {n=G.UIT.T, config={text = 'HOP',colour = G.C.UI.TEXT_LIGHT, scale = 0.4, shadow = true}}}}
+          {n=G.UIT.R, config={align = "cm", maxw = 1.25}, nodes={ {n=G.UIT.T, config=
+            {text = extra.ftext ,colour = G.C.UI.TEXT_LIGHT, scale = 0.4, shadow = true}}}},
+          {n=G.UIT.R, config={align = "cm", maxw = 1.25}, nodes={ {n=G.UIT.T, config=
+            {text = extra.ttext ,colour = G.C.UI.TEXT_LIGHT, scale = 0.4, shadow = true}}}}
           }
         }
       }}
@@ -275,7 +285,8 @@ contents.cursed,
 [patches.pattern]
 target = 'functions/UI_definitions.lua'
 pattern = '''
-contents.hand =
+--[[
+    contents.hand =
 '''
 position = 'before'
 match_indent = true
@@ -302,24 +313,6 @@ contents.cursed =
       }}
     }}
 '''
-
-[[patches]]
-[patches.pattern]
-target = 'cardarea.lua'
-pattern = '''
-self.config.temp_limit = math.max(#self.cards, self.config.card_limit)
-    self.config.card_count = #self.cards
-'''
-position = "at"
-payload = '''
-local count = 0
-for i,v in ipairs(self.cards) do
-    count = count + v.slots
-end
-self.config.temp_limit = math.max(#self.cards, self.config.card_limit)
-self.config.card_count = count
-'''
-match_indent = true
 
 #collection rarities
 [[patches]]
@@ -406,5 +399,106 @@ if card.ability.name == 'c_jjok_milky' or card.ability.name == 'c_jjok_sun' then
 else
     badges[#badges + 1] = create_badge(((card.ability.name == 'Pluto' or card.ability.name == 'Ceres' or card.ability.name == 'Eris') and localize('k_dwarf_planet')) or (card.ability.name == 'Planet X' and localize('k_planet_q') or card_type),card_type_colour, nil, 1.2)
 end
+'''
+match_indent = true
+
+#credit badges
+[[patches]]
+[patches.pattern]
+target = 'functions/UI_definitions.lua'
+position = 'after'
+pattern = '''
+if obj and obj.set_badges and type(obj.set_badges) == 'function' then
+          obj:set_badges(card, badges)
+      end'''
+payload = '''
+if obj and obj.mod and obj.mod.id == 'jjok' and card.children.center.atlas.key and string.sub(card.children.center.atlas.key, 0, 4) == 'jjok' then
+    local author = string.sub(G.ASSET_ATLAS[card.children.center.atlas.key].path, 0, 3)
+    badges[#badges + 1] = JJOK.credit(author)
+end
+'''
+match_indent = true
+
+#true funcs
+[[patches]]
+[patches.pattern]
+target = 'engine/ui.lua'
+position = 'at'
+pattern = '''
+G.FUNCS[self.config.button](self)
+'''
+payload = '''
+if type(self.config.button) == 'string' or type(G.FUNCS[self.config.button]) == 'function' then
+    G.FUNCS[self.config.button](self)
+elseif type(self.config.button) == 'function' then
+    self.config.button(self)
+end
+'''
+match_indent = true
+
+#9tails random generation/heavenly restriction
+[[patches]]
+[patches.pattern]
+target = 'functions/common_events.lua'
+pattern = '''
+if _type == 'Joker' then
+        if G.GAME.modifiers.all_eternal then
+            card:set_eternal(true)
+        end
+'''
+position = "after"
+payload = '''
+if center.key == 'c_jjok_9tails' then
+    card.ability.extra.ce = pseudorandom('9tails', 5, 25)
+end
+if _type == 'Joker' then
+    if SMODS.pseudorandom_probability(card, 'heavenlyrestriction', 1, 10, 'heavenly') or center.heavenly then
+        card.ability.heavenly = true
+    end
+end
+'''
+match_indent = true
+
+#kenjaku saving
+[[patches]]
+[patches.pattern]
+target = 'game.lua'
+pattern = '''
+for k, v in pairs(G) do
+    if (type(v) == "table") and v.is and v:is(CardArea) then 
+      local cardAreaSer = v:save()
+      if cardAreaSer then cardAreas[k] = cardAreaSer end
+    end
+  end
+'''
+position = "after"
+payload = '''
+for k, v in pairs(G.GAME) do
+    if (type(v) == "table") and v.is and v:is(CardArea) then 
+      local cardAreaSer = v:save()
+      if cardAreaSer then cardAreas[k] = cardAreaSer end
+    end
+  end
+'''
+match_indent = true
+[[patches]]
+[patches.pattern]
+target = 'functions/misc_functions.lua'
+pattern = '''
+for k, v in pairs(G) do
+    if (type(v) == "table") and v.is and v:is(CardArea) then 
+      local cardAreaSer = v:save()
+      if cardAreaSer then cardAreas[k] = cardAreaSer end
+    end
+  end
+'''
+position = "after"
+payload = '''
+for k, v in pairs(G.GAME) do
+    if (type(v) == "table") and v.is and v:is(CardArea) then 
+      local cardAreaSer = v:save()
+      if cardAreaSer then cardAreas[k] = cardAreaSer end
+    end
+  end
 '''
 match_indent = true

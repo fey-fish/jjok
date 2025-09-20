@@ -18,20 +18,42 @@ JJOK.find_joker = function(_key)
     return ret
 end
 
-JJOK.pool_rarities = function()
+JJOK.pool_rarities = function(heavenly)
     local ret = { 0, 0, 0, 0, 0 }
-    for i, v in ipairs(G.jokers.cards) do
-        if v.ability.set == 'Joker' then
-            if v.config.center.rarity == 1 then
-                ret[1] = ret[1] + 1
-            elseif v.config.center.rarity == 2 then
-                ret[2] = ret[2] + 1
-            elseif v.config.center.rarity == 3 then
-                ret[3] = ret[3] + 1
-            elseif v.config.center.rarity == 4 then
-                ret[4] = ret[4] + 1
-            elseif v.config.center.rarity == 'jjok_special' then
-                ret[5] = ret[5] + 1
+    local areas = SMODS.get_card_areas('jokers')
+    for _, a in ipairs(areas) do
+        for i, v in ipairs(a.cards) do
+            if v.ability.set == 'Joker' then
+                if v.config.center.rarity == 1 then
+                    ret[1] = ret[1] + 1
+                elseif v.config.center.rarity == 2 then
+                    ret[2] = ret[2] + 1
+                elseif v.config.center.rarity == 3 then
+                    ret[3] = ret[3] + 1
+                elseif v.config.center.rarity == 4 then
+                    ret[4] = ret[4] + 1
+                elseif v.config.center.rarity == 'jjok_special' then
+                    ret[5] = ret[5] + 1
+                end
+            end
+        end
+    end
+    if heavenly then
+        for _, a in ipairs(areas) do
+            for i, v in ipairs(a.cards) do
+                if v.ability.set == 'Joker' and v.ability.heavenly then
+                    if v.config.center.rarity == 1 then
+                        ret[1] = ret[1] - 1
+                    elseif v.config.center.rarity == 2 then
+                        ret[2] = ret[2] - 1
+                    elseif v.config.center.rarity == 3 then
+                        ret[3] = ret[3] - 1
+                    elseif v.config.center.rarity == 4 then
+                        ret[4] = ret[4] - 1
+                    elseif v.config.center.rarity == 'jjok_special' then
+                        ret[5] = ret[5] - 1
+                    end
+                end
             end
         end
     end
@@ -49,9 +71,11 @@ JJOK.find_rar = function(rar)
 end
 
 JJOK.find_enhance = function(enhancement)
-    for i, v in ipairs(G.playing_cards) do
-        if v.ability.name == enhancement then
-            return true
+    if G.playing_cards and G.playing_cards[1] then
+        for i, v in ipairs(G.playing_cards) do
+            if v.ability.name == enhancement then
+                return true
+            end
         end
     end
 end
@@ -117,25 +141,37 @@ end
 JJOK.poll_suits = function()
     local suits = {}
     for i, v in ipairs(G.playing_cards) do
-        table.insert(suits, v.base.suit)
+        if v.ability and v.ability.effect ~= 'Stone Card' then
+            table.insert(suits, v.base.suit)
+        end
     end
     return suits
 end
 
-JJOK.credit = function()
-    return create_badge(localize('jjok_tac'), G.C.JJOK.LBLUE, G.C.WHITE, 0.8)
+JJOK.credit = function(author)
+    if author == 'tac' then
+        return create_badge(localize('jjok_tac'), G.C.JJOK.LBLUE, G.C.WHITE, 0.8)
+    elseif author == 'fey' then
+        return create_badge(localize('jjok_fey'), G.C.JJOK.PINK, G.C.WHITE, 0.8)
+    end
 end
 
 JJOK.create_cardarea = function(cardarea, name, counter)
     local id = name .. tostring(counter)
-    G[id] = cardarea
+    G.GAME[id] = cardarea
 end
 
 function G.FUNCS.jjok_kenny_can(card)
     if card.config.ref_table.ability.extra.name then
-        if (#G.jokers.highlighted == 2 and (#G[card.config.ref_table.ability.extra.name].cards < G[card.config.ref_table.ability.extra.name].config.card_limit) and
-                not (G.jokers.highlighted[1].config.center.key == 'j_jjok_kenjaku' and G.jokers.highlighted[2].config.center.key == 'j_jjok_kenjaku')) or
-            (#G[card.config.ref_table.ability.extra.name].highlighted == 1 and #G.jokers.cards < G.jokers.config.card_limit) then
+        local other
+        for i, v in ipairs(G.jokers.highlighted) do
+            if v ~= card.config.ref_table then
+                other = v
+            end
+        end
+        local kenjaku = G.GAME[card.config.ref_table.ability.extra.name]
+        if (#G.jokers.highlighted == 2 and (kenjaku.config.card_count + other.ability.slots < kenjaku.config.card_limit)) or
+            (#kenjaku.highlighted == 1 and G.jokers.config.card_count <= G.jokers.config.card_limit) then
             card.config.colour = G.C.PURPLE
             card.config.button = 'jjok_kenny_use'
         else
@@ -154,34 +190,54 @@ function G.FUNCS.jjok_kenny_use(card)
             end
         end
         G.jokers:remove_card(other)
-        G[card.config.ref_table.ability.extra.name]:emplace(other)
-    elseif #G[card.config.ref_table.ability.extra.name].highlighted == 1 then
-        other = G[card.config.ref_table.ability.extra.name].highlighted[1]
-        G[card.config.ref_table.ability.extra.name]:remove_card(other)
+        G.GAME[card.config.ref_table.ability.extra.name]:emplace(other)
+    elseif #G.GAME[card.config.ref_table.ability.extra.name].highlighted == 1 then
+        other = G.GAME[card.config.ref_table.ability.extra.name].highlighted[1]
+        G.GAME[card.config.ref_table.ability.extra.name]:remove_card(other)
+        G.jokers:emplace(other)
+    end
+    G.jokers:unhighlight_all()
+end
+
+function G.FUNCS.jjok_oro_can(card)
+    if card.config.ref_table.ability.extra.name then
+        local other
+        for i, v in ipairs(G.jokers.highlighted) do
+            if v ~= card.config.ref_table then
+                other = v
+            end
+        end
+        if (#G.jokers.highlighted == 2 and ((#G.GAME[card.config.ref_table.ability.extra.name].cards) <= G.GAME[card.config.ref_table.ability.extra.name].config.card_limit)) or
+            (G.jokers.config.card_count < G.jokers.config.card_limit and G.GAME[card.config.ref_table.ability.extra.name].config.card_count > 0) then
+            card.config.colour = G.C.JJOK.NATURE
+            card.config.button = 'jjok_oro_use'
+        else
+            card.config.colour = G.C.UI.BACKGROUND_INACTIVE
+            card.config.button = nil
+        end
+    end
+end
+
+function G.FUNCS.jjok_oro_use(card)
+    local other
+    if #G.jokers.highlighted == 2 then
+        for i, v in ipairs(G.jokers.highlighted) do
+            if v ~= card then
+                other = v
+            end
+        end
+        G.jokers:remove_card(other)
+        G.GAME[card.config.ref_table.ability.extra.name]:emplace(other)
+    elseif #G.jokers.highlighted == 1 and G.jokers.highlighted[1] == card.config.ref_table then
+        other = G.GAME[card.config.ref_table.ability.extra.name].cards[1]
+        G.GAME[card.config.ref_table.ability.extra.name]:remove_card(other)
         G.jokers:emplace(other)
     end
     G.jokers:unhighlight_all()
 end
 
 function ease_ce(mod)
-    G.E_MANAGER:add_event(Event({
-        trigger = 'immediate',
-        func = function()
-            mod = (mod or 0) + G.GAME.cursed_energy
-
-            G.E_MANAGER:add_event(Event({
-                trigger = 'ease',
-                blockable = false,
-                ref_table = G.GAME,
-                ref_value = 'cursed_energy',
-                ease_to = mod,
-                delay = 0,
-                func = (function(t) return math.floor(t) end)
-            }))
-            play_sound('timpani')
-            return true
-        end
-    }))
+    G.GAME.cursed_energy = G.GAME.cursed_energy + mod
 end
 
 function G.FUNCS.ce_bar_update(self)
@@ -269,8 +325,15 @@ function create_UIBox_Rarities()
         end
         if add then
             local loc_key, col = 'k_' .. string.lower(v.key), G.C.RARITY[v.key]
-            rars[#rars + 1] = UIBox_button({ ref_table = v, button = 'your_collection_jokers_of_rar', label = { localize(loc_key) }, minw = 5, colour =
-            col, count = G.DISCOVER_TALLIES.Rarities[v.key] })
+            rars[#rars + 1] = UIBox_button({
+                ref_table = v,
+                button = 'your_collection_jokers_of_rar',
+                label = { localize(loc_key) },
+                minw = 5,
+                colour =
+                    col,
+                count = G.DISCOVER_TALLIES.Rarities[v.key]
+            })
         end
     end
 

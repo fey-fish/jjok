@@ -1,21 +1,9 @@
+#fuck you im using my own system i prefer it
+
 [manifest]
 version = "0.1.0"
 dump_lua = true
 priority = 0
-
-#modular system UI
-[[patches]]
-[patches.pattern]
-target = 'card.lua'
-pattern = '''
-self.unique_val = 1-self.ID/1603301
-self.edition = nil
-'''
-position = "after"
-payload = '''
-self.slots = center.slots or 1
-'''
-match_indent = true
 
 #random slots (polled by rarity, edition and stickers)
 [[patches]]
@@ -28,7 +16,9 @@ end
 '''
 position = "after"
 payload = '''
-if Jjok.config.slotsystem then
+if G.GAME.modifiers.forced_2_slots then
+    card.ability.slots = 2
+elseif Jjok.config.slotsystem then
     local pool = 0
 
     -- Base pool from rarity
@@ -60,7 +50,56 @@ if Jjok.config.slotsystem then
     local slots = pool + pseudorandom('jjok_slots', -0.25, 0.25)
 
     -- round/clamp
-    card.slots = math.max(1, math.floor(slots + 0.5))
+    card.ability.slots = math.max(1, math.floor(slots + 0.5))
 end
+'''
+match_indent = true
+
+[[patches]]
+[patches.pattern]
+target = 'card.lua'
+pattern = '''
+perma_h_dollars = self.ability and self.ability.perma_h_dollars or 0,
+'''
+position = "after"
+payload = '''
+slots = self.ability and self.ability.slots or center.slots or 1,
+'''
+match_indent = true
+
+#dumb fucking info queue
+[[patches]]
+[patches.pattern]
+target = 'functions/common_events.lua'
+pattern = '''
+if card and card.ability and (card.ability.extra_slots_used or 0) ~= 0 then
+        info_queue[#info_queue + 1] = {set = 'Other', key = 'generic_extra_slots', vars = {card.ability.extra_slots_used + 1}}
+    end
+    if card and card.ability and (card.ability.card_limit or 0) ~= 0 then
+        if not (card.edition and card.edition.card_limit == card.ability.card_limit) then
+            local amount = card.ability.card_limit - (card.edition and card.edition.card_limit or 0)
+            info_queue[#info_queue + 1] = {set = 'Other', key = amount == 1 and 'generic_card_limit' or 'generic_card_limit_plural', vars = {localize({type='variable', key= amount > 0 and 'a_chips' or 'a_chips_minus', vars ={math.abs(amount)}})}}
+        end
+    end
+'''
+position = "at"
+payload = '''
+'''
+match_indent = true
+
+[[patches]]
+[patches.pattern]
+target = 'card.lua'
+pattern = '''
+if self.ability.consumeable then
+                    G.consumeables.config.card_limit = G.consumeables.config.card_limit + 1
+                else
+                    G.jokers.config.card_limit = G.jokers.config.card_limit + 1
+                end
+'''
+position = "before"
+payload = '''
+self.edition.card_limit = self.ability.slots
+self.area:change_size(self.edition.card_limit)
 '''
 match_indent = true

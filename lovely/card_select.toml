@@ -1,0 +1,36 @@
+[manifest]
+version = "0.1.0"
+dump_lua = true
+priority = 0
+
+#modular system UI
+[[patches]]
+[patches.pattern]
+target = 'card.lua'
+pattern = '''
+self.unique_val = 1-self.ID/1603301
+self.edition = nil
+'''
+position = "after"
+payload = '''
+self.inc_select = 0
+'''
+match_indent = true
+
+#random slots (polled by rarity, edition and stickers)
+[[patches]]
+[patches.pattern]
+target = 'functions/common_events.lua'
+pattern = '''
+card:set_edition(edition)
+        check_for_unlock({type = 'have_edition'})
+end
+'''
+position = "after"
+payload = '''
+local card_select = pseudorandom('select_joker_system', 1, 100)
+if card_select <= 5 and center.rarity == 'jjok_cs' then
+    card.inc_select = 1
+end
+'''
+match_indent = true

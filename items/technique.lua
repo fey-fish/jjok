@@ -4,6 +4,7 @@ SMODS.ConsumableType {
     secondary_colour = HEX('F52742'),
     loc_txt = {name = 'Cursed Technique', collection = 'Techniques'},
     collection_rows = {4, 5},
+    default = 'c_jjok_drumming',
     shop_rate = 0
 }
 
@@ -26,17 +27,28 @@ SMODS.Consumable {
                         'to another of the same {C:attention}Rarity'}},
     set = 'ct',
     can_use = function(self,card)
-        if #G.jokers.highlighted == 1 and G.GAME.cursed_energy >= card.ce_cost then
+        if #G.jokers.highlighted == 1 and G.GAME.cursed_energy >= card.ability.ce_cost then
             return true
         end
     end,
     use = function(self,card)
         local _card = G.jokers.highlighted[1]
-        local edition = _card.edition.key or nil
+        local edition = _card.edition and _card.edition.key or nil
+        local rarity = _card.config.center.rarity
 
-        SMODS.add_card({rarity = _card.config.center.rarity, edition = edition})
+        if rarity == 1 then
+            rarity = 'Common'
+        elseif rarity == 2 then
+            rarity = 'Uncommon'
+        elseif rarity == 3 then
+            rarity = 'Rare'
+        elseif rarity == 4 then
+            rarity = 'Legendary'
+        end
+
+        SMODS.add_card({ set = 'Joker', rarity = rarity, edition = edition })
         _card:start_dissolve()
-        ease_ce(-card.ce_cost)
+        ease_ce(-card.ability.ce_cost)
     end,
     in_pool = function(self,args)
         if #G.jokers.cards > 0 then
@@ -51,18 +63,18 @@ SMODS.Consumable {
     key = 'piercingblood',
     cost = 5,
     loc_txt = {name = 'Piercing Blood',
-                text = {'{C:attention}Destroy{} a',
-                        'selected {C:red}Joker'}},
+                text = {'{C:red}Destroy{} a',
+                        'selected {C:attention}Joker'}},
     set = 'ct',
     can_use = function(self,card)
-        if #G.jokers.highlighted == 1 and G.GAME.cursed_energy >= card.ce_cost and
+        if #G.jokers.highlighted == 1 and G.GAME.cursed_energy >= card.ability.ce_cost and
          not G.jokers.highlighted[1].ability.eternal then
             return true
         end
     end,
     use = function(self,card)
         G.jokers.highlighted[1]:start_dissolve()
-        ease_ce(-card.ce_cost)
+        ease_ce(-card.ability.ce_cost)
     end,
     in_pool = function(self,args)
         if #G.jokers.cards > 0 then
@@ -98,7 +110,7 @@ SMODS.Consumable {
             card.ability.extra.rare = true
         end
         if rars[1] >= 4 or rars[2] >= 3 or rars[3] >= 2 then
-            if G.GAME.cursed_energy >= card.ce_cost then
+            if G.GAME.cursed_energy >= card.ability.ce_cost then
                 return true
             end
         end
@@ -122,7 +134,7 @@ SMODS.Consumable {
             end
             SMODS.add_card({ set = 'Joker', rarity = 'Legendary' })
         end
-        ease_ce(-card.ce_cost)
+        ease_ce(-card.ability.ce_cost)
     end
 }
 
@@ -155,7 +167,7 @@ SMODS.Consumable {
         }
     end,
     can_use = function(self, card)
-        if #G.domain.cards > 0 and G.GAME.cursed_energy >= card.ce_cost then
+        if #G.domain.cards > 0 and G.GAME.cursed_energy >= card.ability.ce_cost then
             return true
         end
     end,
@@ -163,6 +175,31 @@ SMODS.Consumable {
         for i, v in ipairs(G.domain.cards) do
             v.ability.extra.used_this_ante = false
         end
-        ease_ce(-card.ce_cost)
+        ease_ce(-card.ability.ce_cost)
+    end
+}
+
+SMODS.Consumable {
+    key = 'drumming',
+    set = 'ct',
+    cost = 5,
+    loc_txt = {name = 'Unblockable Drumming-beat',
+                text = {'Fully {C:attention}strip{} a selected',
+                        'Playing Card to base'}},
+    can_use = function(self,card)
+        if #G.hand.highlighted == 1 and G.GAME.cursed_energy >= card.ability.ce_cost then
+            return true
+        end
+    end,
+    use = function(self,card)
+        local c = G.hand.highlighted[1]
+        JJOK.flip_enhance(c, 'c_base')
+        c:set_edition()
+        c:set_seal()
+        for i,v in ipairs(SMODS.Stickers) do
+            local k = v.key
+            c.ability.key = nil
+        end
+        ease_ce(-card.ability.ce_cost)
     end
 }

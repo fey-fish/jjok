@@ -20,10 +20,11 @@ SMODS.PokerHand {
 }
 
 SMODS.Consumable {
-    key = "sun",
+    key = "sol",
     set = "Planet",
+    atlas = 'sol',
     cost = 3,
-    config = { hand_type = 'jjok_6oak' },
+    config = { hand_type = 'jjok_6oak', softlock = true },
     loc_txt = {name = 'The Sun',
                 text = {
                     "{S:0.8}({S:0.8,V:1}lvl.#1#{S:0.8}){} Level up",
@@ -41,6 +42,13 @@ SMODS.Consumable {
             }
         }
     end
+}
+
+SMODS.Atlas {
+    key = 'sol',
+    path = 'tac/Planet_Sol.png',
+    px = 71,
+    py = 95
 }
 
 SMODS.PokerHand {
@@ -62,14 +70,15 @@ SMODS.PokerHand {
     evaluate = function(parts, hand)
         return next(parts.jjok_6) and next(parts.jjok_flush)
             and { SMODS.merge_lists(parts.jjok_6, parts.jjok_flush) } or {}
-    end
+    end,
 }
 
 SMODS.Consumable {
     key = "milky",
     set = "Planet",
     cost = 3,
-    config = { hand_type = 'jjok_f6' },
+    atlas = 'mw',
+    config = { hand_type = 'jjok_f6', softlock = true },
     loc_txt = {name = 'The Milky Way',
                 text = {
                     "{S:0.8}({S:0.8,V:1}lvl.#1#{S:0.8}){} Level up",
@@ -87,6 +96,13 @@ SMODS.Consumable {
             }
         }
     end
+}
+
+SMODS.Atlas {
+    key = 'mw',
+    path = 'tac/Planet_Milkyway.png',
+    px = 71,
+    py = 95
 }
 
 SMODS.PokerHandPart {
