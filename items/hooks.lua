@@ -306,7 +306,14 @@ function CardArea:emplace(card, location, stay_flipped)
         G.domain:emplace(card, location, stay_flipped)
         return
     end
+    if card.edition and card.edition.card_limit then self.config.card_limit = self.config.card_limit + card.edition.card_limit end
     return emplace_ref(self, card, location, stay_flipped)
+end
+
+local remove_ref = CardArea.remove_card
+function CardArea:remove_card(card, ...)
+    if card and card.edition and card.edition.card_limit then self.config.card_limit = self.config.card_limit - card.edition.card_limit end
+    return remove_ref(self,card,...)
 end
 
 --auto discover
@@ -358,4 +365,11 @@ function SMODS.create_card(t)
     local m = ac(t)
     if t.slots then m.ability.slots = t.slots end
     return m
+end
+
+local cse = Card.set_edition
+function Card:set_edition(...)
+    cse(self, ...)
+    if self.edition and self.edition.card_limit then self.edition.card_limit = self.ability.slots end
+    if self.added_to_deck and self.edition and self.edition.card_limit then self.area.config.card_limit = self.area.config.card_limit + self.edition.card_limit - 1 end
 end

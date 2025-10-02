@@ -535,6 +535,7 @@ SMODS.Joker {
             '{s:0.8,C:inactive}(Changes each round)', } },
     blueprint_compat = true,
     loc_vars = function(self, info_queue, card)
+        if card.ability.extra.stage == 2 then info_queue[#info_queue + 1] = G.P_CENTERS.e_negative end
         local main_end, c1, c2, c3, m1, m2 = {}, {}, {}, {}, nil, nil
         c1 = {
             {
@@ -558,31 +559,31 @@ SMODS.Joker {
                 }
             }
         }
-        c2 = {
+        c3 = {
             {
                 n = G.UIT.R,
                 config = { align = 'cm' },
                 nodes = {
-                    { n = G.UIT.T, config = { text = tostring(math.floor((card.ability.extra.st * card.ability.extra.scaling.spectral) + 0.5)), scale = 0.32, colour = G.C.FILTER } },
-                    { n = G.UIT.T, config = { text = ' Spectral', scale = 0.32, colour = G.C.SECONDARY_SET.Spectral } },
+                    { n = G.UIT.T, config = { text = 'Play ', scale = 0.32, colour = G.C.UI.TEXT_DARK } },
+                    { n = G.UIT.T, config = { text = tostring(card.ability.extra.neg), scale = 0.32, colour = G.C.FILTER } },
                 }
             },
             {
                 n = G.UIT.R,
                 config = { align = 'cm' },
                 nodes = {
-                    { n = G.UIT.T, config = { text = 'at the end' , scale = 0.32, colour = G.C.UI.TEXT_DARK } }
+                    { n = G.UIT.T, config = { text = 'hands, gain', scale = 0.32, colour = G.C.UI.TEXT_DARK } }
                 }
             },
             {
                 n = G.UIT.R,
                 config = { align = 'cm' },
                 nodes = {
-                    { n = G.UIT.T, config = { text = 'of the round' , scale = 0.32, colour = G.C.UI.TEXT_DARK } }
+                    { n = G.UIT.T, config = { text = 'negative', scale = 0.32, colour = G.C.DARK_EDITION } },
                 }
             }
         }
-        c3 = {
+        c2 = {
             {
                 n = G.UIT.R,
                 config = { padding = 0.05, align = 'cm' },
@@ -592,28 +593,38 @@ SMODS.Joker {
                         config = { align = 'cm' },
                         nodes = {
                             { n = G.UIT.T, config = { text = '$' .. (card.ability.extra.cycles * card.ability.extra.scaling.dollars), scale = 0.32, colour = G.C.MONEY } },
-                            { n = G.UIT.T, config = { text = ' at the end', scale = 0.32, colour = G.C.UI.TEXT_DARK } }
+                            { n = G.UIT.T, config = { text = ' when', scale = 0.32, colour = G.C.UI.TEXT_DARK } }
                         }
                     },
                     {
                         n = G.UIT.R,
                         config = { align = 'cm' },
                         nodes = {
-                            { n = G.UIT.T, config = { text = 'of the round', scale = 0.32, colour = G.C.UI.TEXT_DARK } }
+                            { n = G.UIT.T, config = { text = 'scored', scale = 0.32, colour = G.C.UI.TEXT_DARK } }
                         }
                     },
                 }
             }
         }
-        if card.ability.extra.st == 1 then
-            m1 = c1
-            m2 = c2
-        elseif card.ability.extra.st == 2 then
-            m1 = c2
-            m2 = c3
-        elseif card.ability.extra.st == 3 then
-            m1 = c3
-            m2 = c1
+        if card.edition and card.edition.negative then
+            if card.ability.extra.st == 1 then
+                m1 = c1
+                m2 = c2
+            elseif card.ability.extra.st == 2 then
+                m1 = c2
+                m2 = c1
+            end
+        else
+            if card.ability.extra.st == 1 then
+                m1 = c1
+                m2 = c2
+            elseif card.ability.extra.st == 2 then
+                m1 = c2
+                m2 = c3
+            elseif card.ability.extra.st == 3 then
+                m1 = c3
+                m2 = c1
+            end
         end
         main_end = {
             {
@@ -689,39 +700,42 @@ SMODS.Joker {
 
         return { main_end = main_end }
     end,
-    config = { extra = { cycles = 1, emp = false, st = 1, scaling = {
-        Xmult = 0.5, spectral = 0.25, dollars = 5
+    config = { extra = { cycles = 1, emp = false, st = 1, neg = 15, scaling = {
+        Xmult = 0.5, dollars = 5
     } } },
     calculate = function(self, card, context)
         if context.setting_blind then
             card.ability.extra.cycles = card.ability.extra.cycles + 1
             if card.ability.extra.emp then
-                card.ability.extra.cycles = card.ability.extra.cycles + 4
+                card.ability.extra.cycles = card.ability.extra.cycles + 3
             end
-            if card.ability.extra.st == 3 then
-                card.ability.extra.st = 1
+            if card.edition and card.edition.negative then
+                if card.ability.extra.st >= 2 then
+                    card.ability.extra.st = 0
+                end
             else
-                card.ability.extra.st = card.ability.extra.st + 1
+                if card.ability.extra.st >= 3 then
+                    card.ability.extra.st = 0
+                end
             end
+            card.ability.extra.st = card.ability.extra.st + 1
         end
         if context.joker_main then
             if card.ability.extra.st == 1 then
                 return {
                     Xmult = (card.ability.extra.cycles * card.ability.extra.scaling.Xmult) + 1
                 }
-            elseif card.ability.extra.st == 2 and math.floor(card.ability.extra.st * card.ability.extra.scaling.spectral) > 0 then
-                for i = 1, math.floor((card.ability.extra.st * card.ability.extra.scaling.spectral) + 0.5) do
-                    if G.consumeables.config.card_count < G.consuemables.config.card_limit then
-                        SMODS.add_card({ set = 'Spectral' })
-                    end
-                end
+            elseif card.ability.extra.st == 2 then
+                return {
+                    dollars = card.ability.extra.scaling.dollars * card.ability.extra.cycles
+                }
+            elseif card.ability.extra.st == 3 then
+                card.ability.extra.neg = card.ability.extra.neg - 1
+                if card.ability.extra.neg <= 0 then card:set_edition('e_negative') end
+                return {
+                    message = (card.edition and card.edition.negative and '') or card.ability.extra.neg
+                }
             end
-        end
-    end,
-    calc_dollar_bonus = function(self, card)
-        if card.ability.extra.st == 3 then
-            local money = (card.ability.extra.cycles * card.ability.extra.scaling.dollars)
-            return money
         end
     end
 }

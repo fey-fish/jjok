@@ -8,7 +8,7 @@ SMODS.Joker {
                 'to store {C:attention}#1#{} Jokers within his card area' },
             {
                 'Increase slots by {C:attention}1',
-                'after defeating {C:attention}4{} bosses',
+                'after defeating {C:attention}3{} bosses',
                 '{C:inactive}({C:attention}#2#{C:inactive} left)'
             }
         } },
@@ -38,7 +38,7 @@ SMODS.Joker {
         card.ability.extra.name = 'kenjaku' .. tostring(counter)
         table.insert(G.GAME.loading_card_areas, card.ability.extra.name)
     end,
-    config = { extra = { card_limit = 2, count = 4, name = nil,
+    config = { extra = { card_limit = 2, count = 3, name = nil,
         button = { ftext = 'BODY', ttext = 'HOP', button = 'jjok_kenny_use', func = 'jjok_kenny_can' } } },
     remove_from_deck = function(self, card, from_debuff)
         for i, v in ipairs(G.GAME.loading_card_areas) do
@@ -47,15 +47,15 @@ SMODS.Joker {
                 break
             end
         end
-        G.GAME[card.ability.extra.name]:remove()
+        G[card.ability.extra.name]:remove()
     end,
     calculate = function(self, card, context)
         if context.boss_defeat then
             card.ability.extra.count = card.ability.extra.count - 1
             if card.ability.extra.count == 0 then
-                G.GAME[card.ability.extra.name].config.card_limit = G.GAME[card.ability.extra.name].config.card_limit +
+                G[card.ability.extra.name].config.card_limit = G[card.ability.extra.name].config.card_limit +
                     card.ability.extra.increase
-                card.ability.extra.count = 4
+                card.ability.extra.count = 3
             end
         end
     end,
@@ -67,10 +67,10 @@ SMODS.Joker {
                 G.jokers.config.highlighted_limit = 1
             end
         end
-        if G.GAME[card.ability.extra.name] and G.GAME[card.ability.extra.name].T then
+        if G[card.ability.extra.name] and G[card.ability.extra.name].T then
             --change position to match parent
-            G.GAME[card.ability.extra.name].T.x = card.T.x - 0.2
-            G.GAME[card.ability.extra.name].T.y = card.T.y + card.T.h
+            G[card.ability.extra.name].T.x = card.T.x - 0.2
+            G[card.ability.extra.name].T.y = card.T.y + card.T.h
         end
     end
 }
