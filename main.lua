@@ -1728,13 +1728,6 @@ SMODS.Joker {
         G[card.ability.extra.name]:remove()
     end,
     update = function(self, card, dt)
-        if G.jokers then
-            if G.jokers.highlighted[1] == card then
-                G.jokers.config.highlighted_limit = 2
-            else
-                G.jokers.config.highlighted_limit = 1
-            end
-        end
         if G[card.ability.extra.name] then
             --change position to match parent
             G[card.ability.extra.name].T.x = card.T.x
