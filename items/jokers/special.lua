@@ -60,13 +60,6 @@ SMODS.Joker {
         end
     end,
     update = function(self, card, dt)
-        if G.jokers and G.jokers.highlighted[1] then
-            if G.jokers.highlighted[1].config.center.key == 'j_jjok_kenny' then
-                G.jokers.config.highlighted_limit = 2
-            else
-                G.jokers.config.highlighted_limit = 1
-            end
-        end
         if G[card.ability.extra.name] and G[card.ability.extra.name].T then
             --change position to match parent
             G[card.ability.extra.name].T.x = card.T.x - 0.2

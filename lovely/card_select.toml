@@ -13,7 +13,7 @@ self.edition = nil
 '''
 position = "after"
 payload = '''
-self.inc_select = 0
+self.ability.inc_select = 0
 '''
 match_indent = true
 
@@ -29,8 +29,8 @@ end
 position = "after"
 payload = '''
 local card_select = pseudorandom('select_joker_system', 1, 100)
-if card_select <= 5 and center.rarity == 'jjok_cs' then
-    card.inc_select = 1
+if card_select <= 10 and center.rarity == 'jjok_cs' then
+    card.ability.inc_select = 1
 end
 '''
 match_indent = true

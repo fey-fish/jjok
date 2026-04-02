@@ -364,5 +364,22 @@ end
 local cse = Card.set_edition
 function Card:set_edition(...)
     cse(self, ...)
-    if self.edition and self.edition.card_limit then self.ability.slots = 1 end
+    if self.edition and self.edition.card_limit then self.edition.card_limit = self.ability.slots end
+    if self.added_to_deck and self.edition and self.edition.card_limit then self.area.config.card_limit = self.area.config.card_limit + self.edition.card_limit - 1 end
+end
+
+local ch = Card.highlight
+function Card:highlight(...)
+    if self.ability.extra.name and string.sub(self.config.center.key, 0, 6) == 'j_jjok' and self.added_to_deck then
+        self.area.config.highlight_limit = self.area.config.highlight_limit + 1
+    end
+    return ch(self, ...)
+end
+
+local cuh = Card.unhighlight
+function Card:unhighlight(...)
+    if self.ability.extra.name and string.sub(self.config.center.key, 0, 6) == 'j_jjok' and self.added_to_deck then
+        self.area.config.highlight_limit = self.area.config.highlight_limit - 1
+    end
+    return cuh(self, ...)
 end
