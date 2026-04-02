@@ -11,26 +11,45 @@ SMODS.Joker {
     blueprint_compat = true,
     cost = 3,
     rarity = 1,
-    config = {heavenly = true, extra = { Xmult = 1.5, } },
+    config = { heavenly = true, extra = { Xmult = 1.5, } },
     loc_vars = function(self, info_queue, center)
         local main_end = {}
         if pseudorandom('maki_me', 1, 10) == 10 then
             main_end = {
-                {n = G.UIT.C, config = {padding = 0.03}, nodes = {
                 {
-                    n = G.UIT.R, config = {}, nodes = {
-                        {n = G.UIT.T, config = {text = 'Fun fact!: Maki was the',
-                        scale = 0.32 * 0.8, colour = G.C.UI.TEXT_INACTIVE}}
+                    n = G.UIT.C,
+                    config = { padding = 0.03 },
+                    nodes = {
+                        {
+                            n = G.UIT.R,
+                            config = {},
+                            nodes = {
+                                {
+                                    n = G.UIT.T,
+                                    config = {
+                                        text = 'Fun fact!: Maki was the',
+                                        scale = 0.32 * 0.8,
+                                        colour = G.C.UI.TEXT_INACTIVE
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            n = G.UIT.R,
+                            config = {},
+                            nodes = {
+                                {
+                                    n = G.UIT.T,
+                                    config = {
+                                        text = 'first Joker I made!',
+                                        scale = 0.32 * 0.8,
+                                        colour = G.C.UI.TEXT_INACTIVE
+                                    }
+                                }
+                            }
+                        }
                     }
-                },
-                {
-                    n = G.UIT.R, config = {}, nodes = {
-                        {n = G.UIT.T, config = {text = 'first Joker I made!',
-                        scale = 0.32 * 0.8, colour = G.C.UI.TEXT_INACTIVE}}
-                    }
-                }
-                }
-                }}
+                } }
         end
         return { vars = { center.ability.extra.Xmult }, main_end = main_end }
     end,
@@ -319,16 +338,14 @@ SMODS.Joker {
             'See the top {C:attention}#1#{}',
             'cards of your deck',
             '{s:0.8,C:inactive}(Increase by {s:0.8,C:attention}#2#{s:0.8,C:inactive} when',
-            '{s:0.8,C:inactive}defeating a boss, max)',
-            '{s:0.8,C:inactive}of {s:0.8,C:attention}#3#{s:0.8,C:inactive})'
+            '{s:0.8,C:inactive}defeating a blind)',
         } },
-    config = { extra = { cards = 2, increase = 1, max = 5 } },
+    config = { extra = { cards = 5, increase = 1 } },
     blueprint_compat = false,
     loc_vars = function(self, info_queue, center)
         local main_end
         if G.deck then
-            local cardarea = CardArea(0, 0, G.CARD_W  * (center.ability.extra.cards * 0.7), G.CARD_H * 0.9, {
-                card_limit = center.ability.extra.max,
+            local cardarea = CardArea(0, 0, G.CARD_W * (center.ability.extra.cards * 0.7), G.CARD_H * 0.9, {
                 type = "title",
                 highlight_limit = 0
             })
@@ -346,17 +363,14 @@ SMODS.Joker {
             vars = {
                 center.ability.extra.cards,
                 center.ability.extra.increase,
-                center.ability.extra.max
             },
             main_end = main_end
         }
     end,
     calculate = function(self, card, context)
-        if context.boss_defeat and not context.blueprint then
-            if not card.ability.extra.cards == card.ability.extra.max then
-                card.ability.extra.cards = card.ability.extra.cards + card.ability.extra.increase
-                return { message = '+' .. card.ability.extra.increase, colour = G.C.FILTER }
-            end
+        if context.end_of_round and context.main_eval and not context.blueprint then
+            card.ability.extra.cards = card.ability.extra.cards + card.ability.extra.increase
+            return { message = '+' .. card.ability.extra.increase, colour = G.C.FILTER }
         end
     end
 }

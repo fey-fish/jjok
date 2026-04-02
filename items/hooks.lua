@@ -51,7 +51,7 @@ function love.update(dt)
     end
     ante = G.GAME.round_resets.ante
     if G.TIMERS.naoya then
-        G.GAME.naoya_mult = (G.GAME.round_resets.ante ^ 2) - (G.GAME.round / 100 * G.TIMERS.n_round)
+        G.GAME.naoya_mult = (G.GAME.round_resets.ante ^ 3) - (G.GAME.round / 100 * G.TIMERS.n_round)
     end
     return ret
 end
@@ -124,6 +124,7 @@ function Card:set_ability(center, initial, delay_sprites)
     if self.config.center.set == 'Booster' and self.config.center.mod and self.config.center.mod.id == 'jjok' and self.config.center.atlas == 'Booster' then
         self.config.center.atlas = 'jjok_wip_booster'
     end
+    self.cost = center.cost
     return csa(self, center, initial, delay_sprites)
 end
 
@@ -306,14 +307,7 @@ function CardArea:emplace(card, location, stay_flipped)
         G.domain:emplace(card, location, stay_flipped)
         return
     end
-    if card.edition and card.edition.card_limit then self.config.card_limit = self.config.card_limit + card.edition.card_limit end
     return emplace_ref(self, card, location, stay_flipped)
-end
-
-local remove_ref = CardArea.remove_card
-function CardArea:remove_card(card, ...)
-    if card and card.edition and card.edition.card_limit then self.config.card_limit = self.config.card_limit - card.edition.card_limit end
-    return remove_ref(self,card,...)
 end
 
 --auto discover
@@ -370,6 +364,5 @@ end
 local cse = Card.set_edition
 function Card:set_edition(...)
     cse(self, ...)
-    if self.edition and self.edition.card_limit then self.edition.card_limit = self.ability.slots end
-    if self.added_to_deck and self.edition and self.edition.card_limit then self.area.config.card_limit = self.area.config.card_limit + self.edition.card_limit - 1 end
+    if self.edition and self.edition.card_limit then self.ability.slots = 1 end
 end

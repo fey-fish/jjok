@@ -244,7 +244,7 @@ SMODS.Joker {
     key = 'naoya',
     loc_txt = { name = "Naoya Zen'in",
         text = {
-            '{C:white,X:mult}XMult{} = {C:white,X:dark_edition}Ante ^ 2{} - ',
+            '{C:white,X:mult}XMult{} = {C:white,X:dark_edition}Ante ^ 3{} - ',
             '{C:inactive,s:0.8}(Time in Small Blind + Big Blind x (Round/100))' } },
     loc_vars = function(self, info_queue, center)
         local main_end = {

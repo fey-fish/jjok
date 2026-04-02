@@ -1,4 +1,4 @@
-JJOK = {}
+JJOK = JJOK or {}
 
 JJOK.one_shot_blind = function(context)
     local ret = false

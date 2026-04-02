@@ -7,6 +7,7 @@ SMODS.Joker {
             '{C:attention}#1#{C:dark_edition} negative{C:attention} Splash' } },
     cost = 20,
     rarity = 4,
+    slots = 1,
     blueprint_compat = true,
     config = { extra = { cards = 1 } },
     loc_vars = function(self, info_queue, center)

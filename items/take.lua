@@ -139,20 +139,3 @@ SMODS.Joker:take_ownership('riff_raff', {
             end
     end
 }, true)
-
-SMODS.Joker:take_ownership('photograph', {
-    update = function(self,card,dt)
-        if SMODS.find_card('j_jjok_kira')[1] and SMODS.find_card('j_jjok_hak')[1] then
-            card.config.center.atlas = 'jjok_kissy' ; card.config.center.pos = {x = 0, y = 0}
-        else
-            card.config.center.atlas = 'Joker' ; card.config.center.pos = {x = 2, y = 13}
-        end
-    end
-}, true)
-
-SMODS.Atlas {
-    key = 'kissy',
-    path = 'fey/kissy.png',
-    px = 71,
-    py = 95
-}

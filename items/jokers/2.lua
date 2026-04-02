@@ -46,14 +46,14 @@ SMODS.Joker {
             for _, m in ipairs(areas) do
                 for i, v in ipairs(m.cards) do
                     if v == card then
-                        ind = i + 1
+                        ind = i
                         area = m
                     end
                 end
             end
-            if #m.cards >= ind then
+            if area.cards[ind + 1] then
                 for i, k in pairs(SMODS.Stickers) do
-                    m[ind].ability[i] = false
+                    area.cards[ind + 1].ability[i] = false
                 end
                 card:juice_up()
             end

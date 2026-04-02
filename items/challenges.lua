@@ -24,7 +24,7 @@ SMODS.Challenge {
 SMODS.Challenge {
     key = 'distortedkilling',
     loc_txt = {name = 'Distorted Killing'},
-    joker = {
+    jokers = {
         {id = 'j_jjok_mahito', eternal = true},
         {id = 'j_perkeo', eternal = true}
     },
